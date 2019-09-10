@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1567129452575.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B3FBA247",
+    "lastKnownWriteTime" : 1568150552,
+    "last_content_update" : 1568150552,
+    "path" : "~/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
+    "project_path" : "src/updateParam.cpp",
+    "properties" : {
+        "cursorPosition" : "61,4",
+        "scrollLine" : "40",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "cpp"
+}

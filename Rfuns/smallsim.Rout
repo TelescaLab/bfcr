@@ -1,0 +1,45 @@
+
+R version 3.4.4 (2018-03-15) -- "Someone to Lean On"
+Copyright (C) 2018 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+Microsoft R Open 3.4.4
+The enhanced R distribution from Microsoft
+Microsoft packages Copyright (C) 2018 Microsoft Corporation
+
+Multithreaded BLAS/LAPACK libraries detected. Using 12 cores for math algorithms.
+
+Default CRAN mirror snapshot taken on 2018-04-01.
+See: https://mran.microsoft.com/.
+
+> mu <- function(t, z){
++   t + z*sin(t) + (1-z)*cos(t)
++ }
+> 
+> tmax <- 50
+> zmax <- 30
+> t <- seq(from = 0, to = 1, length.out = tmax)
+> z <- seq(from = 0, to = 1, length.out = zmax)
+> 
+> meanfunc <- numeric(0)
+> for(i in 1:zmax){
++   meanfunc <- c(meanfunc, mu(t, z[i]))
++ }
+> p <- 12
+> B <- bs(t, df = p, intercept = TRUE)
+Error in bs(t, df = p, intercept = TRUE) : could not find function "bs"
+Execution halted

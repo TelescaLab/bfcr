@@ -1,0 +1,553 @@
+setwd("/Users/John/Documents/Johnstuff/ERP")
+load("ERPdat.RData")
+head(ERPdat)
+
+
+library(splines)
+# TD group first
+uniqueid <- unique(ERPdat$id[which(ERPdat$group == "TD")])
+datTD <- ERPdat[which(ERPdat$group == "TD"
+             & !(ERPdat$id %in% c(217,333))
+             & ERPdat$channel %in% c(4, 118, 123, 124)
+             & !(ERPdat$id == 162 & ERPdat$channel == 118)
+             & !(ERPdat$id == 184 & ERPdat$channel == 124)
+             & ERPdat$trial_window >= 5
+             & ERPdat$trial_window <= 60),]
+
+datASD <- ERPdat[which(ERPdat$group == "ASD"
+             & !(ERPdat$id %in% c(102, 118, 185))
+             & ERPdat$channel %in% c(4, 118, 123, 124)
+             & ERPdat$trial_window >= 5
+             & ERPdat$trial_window <= 60),]
+
+
+# Mean center data for each trial window within each patient and channel
+subjects <- unique(datTD$id)
+#for(k in subjects){
+#  chann <- chann <- unique(datTD[which(datTD$id == k),]$channel)
+#  for(i in chann){
+#    tri <- unique(datTD[which(datTD$id == k
+#                               & datTD$channel == i),]$trial_window)
+#    for(j in tri){
+#      indicies <- which(datTD$id == k
+#                        & datTD$channel == i
+#                        & datTD$trial_window == j)
+#      datTD$diff[indicies] <- datTD$diff[indicies] - mean(datTD$diff[indicies])
+#    }
+#  }
+#  print(k)
+#}
+
+plot(datTD$diff[which(datTD$id==135 & datTD$channel == 4 & datTD$trial_window == 5)], type = "l")
+# Figure out how to average across channels
+
+mywin <- 6
+plot(datTD$diff[which(datTD$id == 135 & datTD$channel == 118 & datTD$trial_window == mywin)], type = "l", ylim = c(-20,0))
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 124 & datTD$trial_window == mywin)])
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 123 & datTD$trial_window == mywin)])
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 4 & datTD$trial_window == mywin)])
+
+mymean <- (datTD$diff[which(datTD$id == 135 & datTD$channel == 4 & datTD$trial_window == mywin)] +
+  datTD$diff[which(datTD$id == 135 & datTD$channel == 123 & datTD$trial_window == mywin)] +
+  datTD$diff[which(datTD$id == 135 & datTD$channel == 124 & datTD$trial_window == mywin)] +
+  datTD$diff[which(datTD$id == 135 & datTD$channel == 118 & datTD$trial_window == mywin)]) / 4
+
+lines(mymean, col = "red")
+
+# Average across channels
+id <- numeric(0)
+win <- numeric(0)
+diff <- numeric(0)
+A <- numeric(0)
+B <- numeric(0)
+C <- numeric(0)
+D <- numeric(0)
+y <- list()
+missing <- list()
+i <- 1
+for(k in subjects){
+  getwin <- Reduce(union, list(datTD$trial_window[which(datTD$id == k & datTD$channel == 4)],
+                               datTD$trial_window[which(datTD$id == k & datTD$channel == 118)],
+                               datTD$trial_window[which(datTD$id == k & datTD$channel == 123)],
+                               datTD$trial_window[which(datTD$id == k & datTD$channel == 124)]))
+  missing[[i]] <- Reduce(setdiff, sort(getwin), 5:60) - 4
+  for(g in sort(getwin)){
+    A <- datTD$diff[which(datTD$id== k & datTD$trial_window == g & datTD$channel== 4)]
+    B <- datTD$diff[which(datTD$id== k & datTD$trial_window == g & datTD$channel== 118)]
+    C <- datTD$diff[which(datTD$id== k & datTD$trial_window == g & datTD$channel== 123)]
+    D <- datTD$diff[which(datTD$id== k & datTD$trial_window == g & datTD$channel== 124)]
+    #print(length(A))
+    #print(length(B))
+    #print(length(C))
+    #print(length(D))
+    
+    if(length(A) != 0 & length(A) != 37){
+      print(paste0("PROBLEM CHILD IS ", k,"A"))
+    }
+    if(length(B) != 0 & length(B) != 37){
+      print(paste0("PROBLEM CHILD IS ", k,"B"))
+    }
+    if(length(C) != 0 & length(C) != 37){
+      print(paste0("PROBLEM CHILD IS ", k,"C"))
+    }
+    if(length(D) != 0 & length(D) != 37){
+      print(paste0("PROBLEM CHILD IS ", k,"D",g))
+    }
+    if(length(A) == 0){
+      A <- rep(0, 37)
+    }
+    if(length(B) == 0){
+      B <- rep(0, 37)
+    }
+    if(length(C) == 0){
+      C <- rep(0, 37)
+    }
+    if(length(D) == 0){
+      D <- rep(0, 37)
+    }
+    tempdiff <- (A + B + C + D) / 4
+    id <- c(id, rep(k, 37))
+    win <- c(win, rep(g, 37))
+    diff <- c(diff, tempdiff)
+  }
+  y[[i]] <- tempdiff
+  print(k)
+  i <- i + 1
+}
+mydf <- data.frame(id = id, trial_window = win, diff = diff)
+y <- lapply(1:length(subjects), function(i) mydf$diff[which(mydf$id == subjects[i])])
+meany <- mean(unlist(y))
+sdy <- sd(unlist(y))
+y <- lapply(1:length(subjects), function(i) (y[[i]] - meany) / sdy)
+X <- rep(1,length(subjects))
+dim(X) <- c(length(subjects),1)
+observed <- list()
+for(i in 1:length(subjects)){
+  observed[[i]] <- numeric(0)
+  for(m in setdiff(1:56, missing[[i]])){
+    observed[[i]] <- c(observed[[i]], ((m-1)*37):(m*37 - 1))
+  }
+}
+
+iter <- 5
+nchain <- 1
+burnin <- 0
+
+p1 <- ceiling(37/4)
+p2 <- ceiling(56/4)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC1 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC1, file = "ERPFebruaryMCMC1.RData")
+ERPFebruaryDIC1 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC1, bs1, bt1, burnin, 10)
+save(ERPFebruaryDIC1, file = "ERPFebruaryDIC1.RData")
+ERPFebruaryBIC1 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC1, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC1, file = "ERPFebruaryBIC1.RData")
+ERPFebruaryeigenMCMC1 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC1, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC1, file = "ERPFebruaryeigenMCMC1.RData")
+
+
+p1 <- ceiling(37/3)
+p2 <- ceiling(56/3)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC2 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC2, file = "ERPFebruaryMCMC2.RData")
+ERPFebruaryDIC2 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC2, bs1, bt1, burnin, 10)
+save(ERPFebruaryDIC2, file = "ERPFebruaryDIC2.RData")
+ERPFebruaryBIC2 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC2, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC2, file = "ERPFebruaryBIC2.RData")
+ERPFebruaryeigenMCMC2 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC2, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC2, file = "ERPFebruaryeigenMCMC2.RData")
+
+p1 <- ceiling(37/2)
+p2 <- ceiling(56/2)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC3 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC3, file = "ERPFebruaryMCMC3.RData")
+ERPFebruaryDIC3 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC3, bs1, bt1, burnin, 10)
+save(ERPFebruaryDIC3, file = "ERPFebruaryDIC3.RData")
+ERPFebruaryBIC3 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC3, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC3, file = "ERPFebruaryBIC3.RData")
+ERPFebruaryeigenMCMC3 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC3, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC3, file = "ERPFebruaryeigenMCMC3.RData")
+
+p1 <- ceiling(37*2/3)
+p2 <- ceiling(56*2/3)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC4 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC4, file = "ERPFebruaryMCMC4.RData")
+ERPFebruaryDIC4 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC4, bs1, bt1, burnin, 1)
+save(ERPFebruaryDIC4, file = "ERPFebruaryDIC4.RData")
+ERPFebruaryBIC4 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC4, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC4, file = "ERPFebruaryBIC4.RData")
+ERPFebruaryeigenMCMC4 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC4, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC4, file = "ERPFebruaryeigenMCMC4.RData")
+rm(ERPFebruaryMCMC4)
+rm(ERPFebruaryeigenMCMC4)
+
+p1 <- ceiling(37*3/4)
+p2 <- ceiling(56*3/4)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC5 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC5, file = "ERPFebruaryMCMC5.RData")
+ERPFebruaryDIC5 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC5, bs1, bt1, burnin, 10)
+save(ERPFebruaryDIC5, file = "ERPFebruaryDIC5.RData")
+ERPFebruaryBIC5 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC5, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC5, file = "ERPFebruaryBIC5.RData")
+ERPFebruaryeigenMCMC5 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC5, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC5, file = "ERPFebruaryeigenMCMC5.RData")
+rm(ERPFebruaryMCMC5)
+rm(ERPFebruaryeigenMCMC5)
+
+p1 <- ceiling(37*4/5)
+p2 <- ceiling(56*4/5)
+q1 <- floor(p1/2)
+q2 <- floor(p2/2)
+bs1 <- bs(seq(from = 0, to = 1, length.out = 56), df = p2, intercept = TRUE)
+bt1 <- bs(seq(from = 0, to = 1, length.out = 37), df = p1, intercept = TRUE)
+ERPFebruaryMCMC6 <- mcmcWeakChains(y, missing, X, bs1, bt1, q1, q2, iter, 1, burnin, nchain)
+save(ERPFebruaryMCMC6, file = "ERPFebruaryMCMC6.RData")
+ERPFebruaryDIC6 <- calculate_DIC_Missing(y, X, observed, ERPFebruaryMCMC6, bs1, bt1, burnin, 10)
+save(ERPFebruaryDIC6, file = "ERPFebruaryDIC6.RData")
+ERPFebruaryBIC6 <- calculate_BIC_Missing(y, X, observed, ERPFebruaryMCMC6, bs1, bt1, burnin, 10)
+save(ERPFebruaryBIC6, file = "ERPFebruaryBIC6.RData")
+ERPFebruaryeigenMCMC6 <- eigenLFChains(bs1, bt1, ERPFebruaryMCMC6, 3, iter, burnin, nchain)
+save(ERPFebruaryeigenMCMC6, file = "ERPFebruaryeigenMCMC6.RData")
+rm(ERPFebruaryMCMC6)
+rm(ERPFebruaryeigenMCMC6)
+
+
+
+
+
+
+start_window <- 1
+end_window <- 56
+#plot(y[[subject]][(1+(startwindow-1)*37):(endwindow*37)],type="l")
+plot(mcmc$initialY[(1+(start_window-1)*37):(end_window*37),subject],type="l")
+lines(kronecker(bs1%*%mcmc$Gamma[[nchain]][,,iter],bt1%*%mcmc$Lambda[[nchain]][,,iter])%*%c(mcmc$Eta[[nchain,iter]][,,subject]),col="green")
+lines(rowMeans(Z),col="blue")
+ZX <- kronecker(bs1%*%mcmc$Gamma[[nchain]][,,iter],bt1%*%mcmc$Lambda[[nchain]][,,iter])
+
+#lines(kronecker(bs1%*%mcmc$Gamma[,,iter],bt1%*%mcmc$Lambda[,,iter])%*%c(mcmc$eta[[iter]][,,subject]),col="green")
+lines(kronecker(bs1,bt1)%*%c(mcmc$Theta[[nchain,iter]][,,subject]),col="blue")
+lines(kronecker(bs1%*%mcmc$Gamma[[nchain]][,,iter],bt1%*%mcmc$Lambda[[nchain]][,,iter])%*%mcmc$Beta[[nchain]][1,,iter],type="l")
+
+reg <- lm(Z[,subject] ~ ZX - 1)
+plot(Z[,1],type="l")
+lines(reg$fitted.values,col="red")
+
+
+mcmc1ASD <- mcmcWeakChains(y,missing,X,bs1,bt1,q1,q2,12500,2,25,1)
+eigenm <- eigenLFChains(bs1, bt1, mcmc, 3, 25000, 5000, 5)
+plot(eigenm$eigvecFuncmean[,3],type="l")
+lines(eigenm$eigvecFunclower[,3],type="l")
+lines(eigenm$eigvecFuncupper[,3],type="l")
+plot(eigenm$eigvecFuncmean[,2],type="l")
+lines(eigenm$eigvecFunclower[,2],type="l")
+lines(eigenm$eigvecFuncupper[,2],type="l")
+plot(eigenm$eigvecFuncmean[,1],type="l")
+lines(eigenm$eigvecFunclower[,1],type="l")
+lines(eigenm$eigvecFuncupper[,1],type="l")
+
+plot(eigenm$eigvecLongmean[,3],type="l")
+lines(eigenm$eigvecLonglower[,3],type="l")
+lines(eigenm$eigvecLongupper[,3],type="l")
+plot(eigenm$eigvecLongmean[,2],type="l")
+lines(eigenm$eigvecLonglower[,2],type="l")
+lines(eigenm$eigvecLongupper[,2],type="l")
+plot(eigenm$eigvecLongmean[,1],type="l")
+lines(eigenm$eigvecLonglower[,1],type="l")
+lines(eigenm$eigvecLongupper[,1],type="l")
+
+rowMeans(eigenm$eigvalFunc[37:35,])
+rowMeans(eigenm$eigvalLong[56:54,])
+
+plot(eigenm$eigvecLongmean[,3],type="l")
+mean(eigenm$eigvalFunc[37,])
+mean(eigenm$eigvalFunc[36,])
+mean(eigenm$eigvalLong[56,])
+persp3D(1:37,1:37,eigenm$postcov[(1+1*37):(2*37),(1+1*37):(2*37)],theta=60,phi=0)
+plot(eigenm$postmean,type="l")
+persp3D(1:37,1:56, matrix(eigenm$postmean,nrow=37,ncol=56),phi=0,theta=60)
+setwd("/Users/John/Documents/Johnstuff/ERP")
+save(mcmc, file = "mcmc.RData")
+save(eigenm, file = "eigenm.RData")
+reg <- lm(mcmc$initialY[,subject]~kronecker(bs1,bt1)-1)
+lines(reg$fitted.values,col="red")
+reg2<-lm(mcmc$initialY[,subject] ~ D - 1)
+lines(reg2$fitted.values,col="green")
+D <- kronecker(bs1 %*%mcmc$Gamma[,,500],bt1%*%mcmc$Lambda[,,500])
+mcmc2$initialY[1:37] - reg$fitted.values[1:37]
+
+
+persp3D(1:37,1:37, EmpCov[(1+1*37):(2*37),(1+6*37):(7*37)],theta=90,phi=0)
+fpca.op1 = list(dataType = "Sparse", maxK = pc.j, FVEthreshold = .9999, nRegGrid = 37)
+fpca.op2 = list(dataType = "Sparse", maxK = pc.k, FVEthreshold = .9999, nRegGrid = 56)
+x <- sapply(1:n, function(i) mcmc$initialY[,i])
+resProduct <- ProductFPCA(t(x), n, 56, 37, fpca.op1, fpca.op2, rep(pc.k, pc.j))
+resProductCov <- productcov(resProduct$eig, resProduct$scores)
+Marg.Long <- getMarginalLong(resProductCov,56,37)
+lines(resProduct$Xest[subject,],col="red")
+missing2 <- list()
+y2 <- list()
+for(i in 1:34){
+  missing2[[i]] <- numeric(0)
+  y2[[i]] <- mcmc2$initialY[,i]
+}
+
+mcmc2 <- mcmcWeakChains(y2, missing2, X, bs1, bt1, q1, q2, 50, 1, 500, 1)
+
+
+plot(y[[2]],type="l")
+y <- lapply(1:length(subjects), function(i) datASD$diff[which(mydf$id == subjects[i])])
+AasdC <- gibbsSampleSparse(y, X, bs.s, bs.t, q, qstar, 1000)
+save(AasdC, file = "AasdC.RData")
+BasdC <- fertilityDynamics(kronecker(bs.S, bs.t), AasdC, 4, 200)
+plot(BasdC$eigvecFuncmean[,4], type = "l")
+lines(BasdC$eigvecFunclower[,4], lty = 2)
+lines(BasdC$eigvecFuncupper[,4], lty = 2)
+plot(BasdC$eigvecFuncmean[,3], type = "l")
+lines(BasdC$eigvecFunclower[,3], lty = 2)
+lines(BasdC$eigvecFuncupper[,3], lty = 2)
+plot(BasdC$eigvecFuncmean[,2], type = "l")
+lines(BasdC$eigvecFunclower[,2], lty = 2)
+lines(BasdC$eigvecFuncupper[,2], lty = 2)
+plot(BasdC$eigvecFuncmean[,1], type = "l")
+lines(BasdC$eigvecFunclower[,1], lty = 2)
+lines(BasdC$eigvecFuncupper[,1], lty = 2)
+plot(BasdC$eigvecLongmean[,4], type = "l", ylim = c(-.5,.5))
+lines(BasdC$eigvecLonglower[,4], lty = 2)
+lines(BasdC$eigvecLongupper[,4], lty = 2)
+plot(BasdC$eigvecLongmean[,3], type = "l", ylim = c(-.5,.5))
+lines(BasdC$eigvecLonglower[,3], lty = 2)
+lines(BasdC$eigvecLongupper[,3], lty = 2)
+plot(BasdC$eigvecLongmean[,2], type = "l", ylim = c(-.5,.5))
+lines(BasdC$eigvecLonglower[,2], lty = 2)
+lines(BasdC$eigvecLongupper[,2], lty = 2)
+plot(BasdC$eigvecLongmean[,1], type = "l", ylim = c(-.5,.5))
+lines(BasdC$eigvecLonglower[,1], lty = 2)
+lines(BasdC$eigvecLongupper[,1], lty = 2)
+
+iter <- 900
+(kronecker(bs.S,bs.t)%*%(kronecker(AasdC$Gamma[,,iter], AasdC$Lambda[,,iter])%*%
+    solve(AasdC$HC[,,iter])%*%t(kronecker(AasdC$Gamma[,,iter], AasdC$Lambda[,,iter])) +
+    kronecker(diag(1/AasdC$sigma2[,iter]),diag(1/AasdC$sigma1[,iter])))%*%t(kronecker(bs.S,bs.t)))[1:20,1:20]
+iter <- 970
+subject <- 5
+plot(y[[subject]][1:200], type = "l")
+lines((kronecker(bs.s[[subject]],bs.t)%*%c(AasdC$theta[[iter]][,,subject]))[1:200], col = "red")
+
+### For TD group
+
+# Mean center data for each trial window within each patient and channel
+subjects <- unique(datTD$id)
+for(k in subjects){
+  chann <- chann <- unique(datTD[which(datTD$id == k),]$channel)
+  for(i in chann){
+    tri <- unique(datTD[which(datTD$id == k
+                               & datTD$channel == i),]$trial_window)
+    for(j in tri){
+      indicies <- which(datTD$id == k
+                        & datTD$channel == i
+                        & datTD$trial_window == j)
+      datTD$diff[indicies] <- datTD$diff[indicies] - mean(datTD$diff[indicies])
+    }
+  }
+  print(k)
+}
+
+plot(datTD$diff[which(datTD$id==135 & datTD$channel == 4 & datTD$trial_window == 5)], type = "l")
+# Figure out how to average across channels
+
+mywin <- 5
+plot(datTD$diff[which(datTD$id == 135 & datTD$channel == 118 & datTD$trial_window == mywin)], type = "l")
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 124 & datTD$trial_window == mywin)])
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 123 & datTD$trial_window == mywin)])
+lines(datTD$diff[which(datTD$id == 135 & datTD$channel == 4 & datTD$trial_window == mywin)])
+
+mymean <- (datTD$diff[which(datTD$id == 135 & datTD$channel == 4 & datTD$trial_window == mywin)] +
+             datTD$diff[which(datTD$id == 135 & datTD$channel == 123 & datTD$trial_window == mywin)] +
+             datTD$diff[which(datTD$id == 135 & datTD$channel == 124 & datTD$trial_window == mywin)] +
+             datTD$diff[which(datTD$id == 135 & datTD$channel == 118 & datTD$trial_window == mywin)]) / 4
+
+lines(mymean, col = "red")
+
+# Average across trial windows
+id <- numeric(0)
+win <- numeric(0)
+diff <- numeric(0)
+for(k in subjects){
+  getwin <- Reduce(intersect, list(datTD$trial_window[which(datTD$id == k & datTD$channel == 4)],
+                                   datTD$trial_window[which(datTD$id == k & datTD$channel == 118)],
+                                   datTD$trial_window[which(datTD$id == k & datTD$channel == 123)],
+                                   datTD$trial_window[which(datTD$id == k & datTD$channel == 124)]))
+  for(g in getwin){
+    tempdiff <- (datTD$diff[which(datTD$id == k & datTD$channel == 4 & datTD$trial_window == g)] +
+                   datTD$diff[which(datTD$id == k & datTD$channel == 123 & datTD$trial_window == g)] +
+                   datTD$diff[which(datTD$id == k & datTD$channel == 124 & datTD$trial_window == g)] +
+                   datTD$diff[which(datTD$id == k & datTD$channel == 118 & datTD$trial_window == g)]) / 4
+    id <- c(id, rep(k, 37))
+    win <- c(win, rep(g, 37))
+    diff <- c(diff, tempdiff)
+  }
+  print(k)
+}
+mydf <- data.frame(id = id, trial_window = win, diff = diff)
+p <- 30
+pstar <- 18
+q <- 10
+qstar <- 6
+bs.S <- bs(5:60, df = p, intercept = TRUE)
+bs.s <- list()
+for(i in 1:length(unique(mydf$id))){
+  bs.s[[i]] <- bs.S[sort(unique(mydf$trial_window[which(mydf$id==subjects[i])]))-4,]
+}
+bs.t <- bs(sort(unique(datTD$erp_time[which(datTD$id == 135)])), df = pstar, intercept = TRUE)
+y <- lapply(1:length(subjects), function(i) datTD$diff[which(mydf$id == subjects[i])])
+X <- rep(1,length(subjects))
+dim(X) <- c(length(subjects),1)
+AtdC <- gibbsSampleSparse(y, X, bs.s, bs.t, q, qstar, 1000)
+
+p <- 30
+pstar <- 18
+q <- 20
+qstar <- 12
+channel <- 5
+bs.S <- bs(5:60, df = p, intercept = TRUE)
+bs.s <- list()
+for(i in 1:length(uniqueid)){
+  bs.s[[i]] <- bs.S[sort(unique(datASD[which(datASD$id==subjects[i]),]$trial_window))-4,]
+}
+bs.t <- bs(sort(unique(datASD[which(datASD$id == subjects[1]),]$erp_time)), pstar, intercept = TRUE)
+y <- lapply(1:length(subjects), function(i) datASD$diff[which(datASD$id == subjects[i] & ERPdat$channel == channel & ERPdat$trial_window > 5)])
+X <- rep(1,length(uniqueid))
+dim(X) <- c(length(uniqueid),1)
+Aasd <- gibbsSampleSparse(y, X, bs.s, bs.t, q, qstar, 1000)
+save(Aasd, file = "Aerp_simsASD800iterp30pstar18q10qstar6.RData")
+load("Aerp_simsTD800iterp30pstar18q10qstar6.RData")
+Btd <- fertilityDynamics(kronecker(bs.S, bs.t), Atd, 4, 200)
+save(Basd, file = "Berp_simsASD800iterp30pstar18q10qstar6.RData")
+
+load("Berp_simsTD800iterp30pstar18q10qstar6.RData")
+load("Berp_simsASD800iterp30pstar18q10qstar6.RData")
+load("E:/Rcpp stuff/erp_sim")
+
+
+plot(B$postmean, type = "l", ylim = c(-10,10))
+lines(B$lower)
+lines(B$upper)
+# .13, .19
+# -.6, .6
+# -.8, .8
+# -.8, .8
+plot(Btd$eigvecFunc[,2,1], type = "l", ylim = c(-.5,.5))
+lines(B$eigvecFunc[,3,2])
+for(i in 1:800){
+  lines(Btd$eigvecFunc[,2,i])
+}
+
+# TD
+plot(Btd$eigvecFuncmean[,4], type = "l", main = "Eigenfunction 1", xlab = "ERP time", ylab = "Eigenfunction 1", ylim = c(.11,.22))
+lines(Btd$eigvecFunclower[,4], lty = 2)
+lines(Btd$eigvecFuncupper[,4], lty = 2)
+plot(Btd$eigvecFuncmean[,3], type = "l", main = "Eigenfunction 2", xlab = "ERP time", ylab = "Eigenfunction 2", ylim = c(-.5,.5))
+lines(Btd$eigvecFunclower[,3], lty = 2)
+lines(Btd$eigvecFuncupper[,3], lty = 2)
+plot(Btd$eigvecFuncmean[,2], type = "l", main = "Eigenfunction 3", xlab = "ERP time", ylab = "Eigenfunction 3", ylim = c(-.5,.5))
+lines(Btd$eigvecFunclower[,2], lty = 2)
+lines(Btd$eigvecFuncupper[,2], lty = 2)
+plot(Btd$eigvecFuncmean[,1], type = "l", main = "Eigenfunction 4", xlab = "ERP time", ylab = "Eigenfunction 4", ylim = c(-.5,.5))
+lines(Btd$eigvecFunclower[,1], lty = 2)
+lines(Btd$eigvecFuncupper[,1], lty = 2)
+plot(Btd$eigvecLongmean[,4], type = "l", main = "Eigenfunction 1", xlab = "Trial window", ylab = "Eigenfunction 1", ylim = c(-.1,.3))
+lines(Btd$eigvecLonglower[,4], lty = 2)
+lines(Btd$eigvecLongupper[,4], lty = 2)
+plot(Btd$eigvecLongmean[,3], type = "l", main = "Eigenfunction 2", xlab = "Trial window", ylab = "Eigenfunction 2", ylim = c(-.5,.5))
+lines(Btd$eigvecLonglower[,3], lty = 2)
+lines(Btd$eigvecLongupper[,3], lty = 2)
+plot(Btd$eigvecLongmean[,2], type = "l", main = "Eigenfunction 3", xlab = "Trial window", ylab = "Eigenfunction 3", ylim = c(-.5,.5))
+lines(Btd$eigvecLonglower[,2], lty = 2)
+lines(Btd$eigvecLongupper[,2], lty = 2)
+plot(Btd$eigvecLongmean[,1], type = "l", main = "Eigenfunction 4", xlab = "Trial window", ylab = "Eigenfunction 4", ylim = c(-.5,.5))
+lines(Btd$eigvecLonglower[,1], lty = 2)
+lines(Btd$eigvecLongupper[,1], lty = 2)
+
+
+# ASD
+plot(Basd$eigvecFuncmean[,4], type = "l", main = "Eigenfunction 1", xlab = "ERP time", ylab = "Eigenfunction 1", ylim = c(.11,.22))
+lines(Basd$eigvecFunclower[,4], lty = 2)
+lines(Basd$eigvecFuncupper[,4], lty = 2)
+plot(Basd$eigvecFuncmean[,3], type = "l", main = "Eigenfunction 2", xlab = "ERP time", ylab = "Eigenfunction 2", ylim = c(-.5,.5))
+lines(Basd$eigvecFunclower[,3], lty = 2)
+lines(Basd$eigvecFuncupper[,3], lty = 2)
+plot(Basd$eigvecFuncmean[,2], type = "l", main = "Eigenfunction 3", xlab = "ERP time", ylab = "Eigenfunction 3", ylim = c(-.5,.5))
+lines(Basd$eigvecFunclower[,2], lty = 2)
+lines(Basd$eigvecFuncupper[,2], lty = 2)
+plot(Basd$eigvecFuncmean[,1], type = "l", main = "Eigenfunction 4", xlab = "ERP time", ylab = "Eigenfunction 4", ylim = c(-.5,.5))
+lines(Basd$eigvecFunclower[,1], lty = 2)
+lines(Basd$eigvecFuncupper[,1], lty = 2)
+plot(Basd$eigvecLongmean[,4], type = "l", main = "Eigenfunction 1", xlab = "Trial window", ylab = "Eigenfunction 1", ylim = c(-.5,.5))
+lines(Basd$eigvecLonglower[,4], lty = 2)
+lines(Basd$eigvecLongupper[,4], lty = 2)
+plot(Basd$eigvecLongmean[,3], type = "l", main = "Eigenfunction 2", xlab = "Trial window", ylab = "Eigenfunction 2", ylim = c(-.5,.5))
+lines(Basd$eigvecLonglower[,3], lty = 2)
+lines(Basd$eigvecLongupper[,3], lty = 2)
+plot(Basd$eigvecLongmean[,2], type = "l", main = "Eigenfunction 3", xlab = "Trial window", ylab = "Eigenfunction 3", ylim = c(-.5,.5))
+lines(Basd$eigvecLonglower[,2], lty = 2)
+lines(Basd$eigvecLongupper[,2], lty = 2)
+plot(Basd$eigvecLongmean[,1], type = "l", main = "Eigenfunction 4", xlab = "Trial window", ylab = "Eigenfunction 4", ylim = c(-.5,.5))
+lines(Basd$eigvecLonglower[,1], lty = 2)
+lines(Basd$eigvecLongupper[,1], lty = 2)
+
+plot(Btd$eigvecFunc[,3,1], type = "l")
+for(i in 600:800){
+  lines(Btd$eigvecFunc[,3,i])
+}
+
+
+
+plot(B$eigvecFunc[,4,1], type = "l")
+for(i in 1:1000){
+  lines(B$eigvecFunc[,4,i])
+}
+lines((-1)*B$eigvecFunc[,3,233])
+plot(6:60,B$eigvecLongmean[,1], type = "l", ylim = c(-.6,.4), ylab = "Eigenfunction 4", xlab = "Trial window", main = "Eigenfunction 4")
+lines(6:60,B$eigvecLonglower[,1])
+lines(6:60,B$eigvecLongupper[,1])
+
+subject <- 4
+iter <- 990
+plot(y[[subject]][1:100], type = "l")
+for(iter in 800:1000){
+  lines((kronecker(bs.s[[subject]],bs.t)%*%c(Aasd$theta[[iter]][,,subject]))[1:100], col = "red")
+
+}
+lines((kronecker(bs.s[[subject]],bs.t)%*%kronecker(Aasd$Gamma[,,iter],Aasd$Lambda[,,iter])%*%c(Aasd$eta[[iter]][,,subject])), col = "red")
+lines((kronecker(bs.s[[subject]],bs.t)%*%c(Aasd$theta[[iter]][,,subject]))[1:100], col = "red")
+lines(x%*%reg$coefficients, col = "red")
+for(iter in 1:800){
+  print(iter)
+  lines(kronecker(bs.s[[subject]],bs.t)%*%c(A$theta[[iter]][,,subject]), col = "red")
+}
+lines(kronecker(bs.s[[subject]],bs.t)%*%kronecker(C$Gamma[,,iter],C$Lambda[,,iter])%*%c(C$eta[[iter]][,,subject]), col = "green")
+
+lines(kronecker(bs.s[[subject]],bs.t)%*%c(A$theta[[iter]][,,subject]), col = "red")
+A$Delta[,iter]
+A$Deltastar[,iter]
+ERPdat
+A$varphi[1000]

@@ -1,0 +1,512 @@
+plot(B%*%mod2$Lambda[[1,5000]][,1,1],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,2],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,3],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,4],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,5],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,6],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,20],type="l",ylim=c(-5,5))
+library(BayesianConditionalFPCA)
+mod2 <- MCMC(Y, X, B, 20, 5000, 1, 1)
+mod2$c[[1]][,,5000]
+plot(B%*%mod2$Lambda[[1,5000]][,1,20],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,19],type="l",ylim=c(-5,5))
+plot(B%*%mod2$Lambda[[1,5000]][,1,20],type="l",ylim=c(-5,5))
+mod2$Lambda[[1,5000]]
+plot(Y[30,],ylim=c(-5,5))
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:20){
+mysum <- mysum + B%*%mod2$Lambda[[1,i]][,,j]%*%X[30,]*mod2$Eta[[1]][30,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod2$Theta[[1]][,,i]%*%X[30,] + myfunc(i), col = "blue"))
+# Group 1
+empth1 <- colMeans(Y[1:25,])
+plot(empth1,type="l",ylim=c(-5,5))
+sapply(2500:5000, function(i) lines(B%*%mod2$Theta[[1]][,1,i] + B%*%mod2$Theta[[1]][,2,i],col="blue"))
+1440/60
+lines(empth1,type="l",ylim=c(-5,5))
+lines(B%*%Thetatrue[,1] + B%*%Thetatrue[,2])
+dim(Thetatrue)
+dim(B)
+X%*%t(Thetatrue) %*% t(B)
+B <- bs(T, df = 10, intercept = TRUE)
+lines(B%*%Thetatrue[,1] + B%*%Thetatrue[,2])
+mod2$Lambda[[1,5000]]
+library(BayesianConditionalFPCA)
+mod2 <- MCMC(Y, X, B, 20, 5000, 1, 1)
+mod2$Lambda[[1,5000]]
+library(BayesianConditionalFPCA)
+mod2 <- MCMC(Y, X, B, 20, 5000, 1, 1)
+mod2$Lambda[[1,5000]]
+mod2$c[[1]][,,5000]
+plot(mod2$c[1,1,5000],type="l")
+plot(mod2$c[[1]][1,1,5000],type="l")
+plot(mod2$c[[1]][1,1,],type="l")
+plot(mod2$c[[1]][2,1,],type="l")
+plot(mod2$c[[1]][3,1,],type="l")
+plot(mod2$c[[1]][4,1,],type="l")
+mod2 <- MCMC(Y, X, B, 3, 5000, 1, 1)
+mod2$c[[1]][,,5000]
+plot(mod2$c[[1]][2,2,],type="l")
+plot(mod2$c[[1]][2,2,4500:5000],type="l")
+plot(mod2$c[[1]][2,2,4500:4550],type="l")
+# Group 1
+empth1 <- colMeans(Y[1:25,])
+lines(empth1,type="l",ylim=c(-5,5))
+plot(empth1,type="l",ylim=c(-5,5))
+lines(B%*%Thetatrue[,1] + B%*%Thetatrue[,2])
+sapply(2500:5000, function(i) lines(B%*%mod2$Theta[[1]][,1,i] + B%*%mod2$Theta[[1]][,2,i],col="blue"))
+plot(Y[30,],ylim=c(-5,5))
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:3){
+mysum <- mysum + B%*%mod2$Lambda[[1,i]][,,j]%*%X[30,]*mod2$Eta[[1]][30,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod2$Theta[[1]][,,i]%*%X[30,] + myfunc(i), col = "blue"))
+subject <- 35
+plot(Y[subject,],ylim=c(-5,5))
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:3){
+mysum <- mysum + B%*%mod2$Lambda[[1,i]][,,j]%*%X[subject,]*mod2$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod2$Theta[[1]][,,i]%*%X[subject,] + myfunc(i), col = "blue"))
+subject <- 1
+plot(Y[subject,],ylim=c(-5,5))
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:3){
+mysum <- mysum + B%*%mod2$Lambda[[1,i]][,,j]%*%X[subject,]*mod2$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod2$Theta[[1]][,,i]%*%X[subject,] + myfunc(i), col = "blue"))
+mod2$c[[1]][,,5000]
+unif(1)
+runif(1)
+mu <- function(t, z){
+t + z*sin(t) + (1-z)*cos(t)
+}
+mu(1,2)
+mu(c(1,2,3),.5)
+pi
+mu <- function(t, z){
+t + z*sin(t) + (1-z)*cos(t)
+}
+eig1 <- function(t, z){
+-cos(pi*(t+z/2))*sqrt(2)
+}
+eig2 <- function(t, z){
+sin(pi*(t+z/2))*sqrt(2)
+}
+rnorm(mu(T,runif(1)))
+rnorm(mu(T,runif(1)), sd = c(1,2))
+rnorm(0)
+rnorm(1,0,3/9)
+rnorm(1,0,3/9)
+rnorm(1,0,3/9)
+rnorm(1,0,3/9)
+rnorm(1,0,3/9)
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, z) + eig1(T, z) * rnorm(1, 0, var = z/9) + eig2(T, z) * rnorm(1, 0, var = z/36)
+}
+Z <- matrix(0, nrow = n, ncol = d)
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, z) + eig1(T, z) * rnorm(1, 0, var = z/9) + eig2(T, z) * rnorm(1, 0, var = z/36)
+}
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, var = Z[i,2]/9) + eig2(T, Z[i,2]) * rnorm(1, 0, var = Z[i,2]/36)
+}
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+print(Z[i,2])
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, var = Z[i,2]/9) + eig2(T, Z[i,2]) * rnorm(1, 0, var = Z[i,2]/36)
+}
+Z[1,] <- c(1,runif(1))
+Z[1,]
+rnorm(1,0,var=Z[i,2]/9)
+?rnorm
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+print(Z[i,2])
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/9)^2) + eig2(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/36)^2)
+}
+Y <- matrix(0, nrow = n, ncol = length(T))
+Z <- matrix(0, nrow = n, ncol = d)
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/9)^2) + eig2(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/36)^2)
+}
+Z
+plot(Y[1,],type="l")
+plot(Y[2,],type="l")
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/9)^2) +
+eig2(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/36)^2) + rnorm(length(T), sd = .05)
+}
+plot(Y[1,],type="l")
+plot(Y[2,],type="l")
+mod <- MCMC(Y, Z, Basis, k, 1000, 1, 1)
+n <- 50
+p <- 12
+k <- 5
+d <- 2
+T <- seq(from = 0, to = 1, length.out = 50)
+Basis <- bs(T, df = p, intercept = TRUE)
+mu <- function(t, z){
+t + z*sin(t) + (1-z)*cos(t)
+}
+eig1 <- function(t, z){
+-cos(pi*(t+z/2))*sqrt(2)
+}
+eig2 <- function(t, z){
+sin(pi*(t+z/2))*sqrt(2)
+}
+Y <- matrix(0, nrow = n, ncol = length(T))
+Z <- matrix(0, nrow = n, ncol = d)
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/9)^2) +
+eig2(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/36)^2) + rnorm(length(T), sd = .05)
+}
+mod <- MCMC(Y, Z, Basis, k, 1000, 1, 1)
+mod <- MCMC(Y, Z, Basis, k, 5000, 1, 1)
+subject <- 1
+plot(Y[subject,],ylim=c(-5,5))
+plot(Y[subject,],ylim=c(-.5,.5))
+plot(Y[subject,])
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:k){
+mysum <- mysum + B%*%mod2$Lambda[[1,i]][,,j]%*%X[subject,]*mod2$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod2$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+subject <- 1
+plot(Y[subject,])
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:k){
+mysum <- mysum + Basis%*%mod$Lambda[[1,i]][,,j]%*%Z[subject,]*mod$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(B%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+mod$Theta[[1]][,,5000]
+sapply(3000:5000, function(i) lines(Basis%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+subject <- 2
+plot(Y[subject,])
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:k){
+mysum <- mysum + Basis%*%mod$Lambda[[1,i]][,,j]%*%Z[subject,]*mod$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(Basis%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+subject <- 3
+plot(Y[subject,])
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:k){
+mysum <- mysum + Basis%*%mod$Lambda[[1,i]][,,j]%*%Z[subject,]*mod$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(Basis%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+plot(T, mu(T, 0),type="l")
+z <- 0
+plot(T, mu(T, z),type="l")
+lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue")
+z <- .5
+plot(T, mu(T, z),type="l")
+lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue")
+z <- 1.2
+plot(T, mu(T, z),type="l")
+lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue")
+z <- .8
+plot(T, mu(T, z),type="l")
+lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue")
+i
+sapply(3000:5000, function(i) lines(Basis%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+z <- .8
+plot(T, mu(T, z),type="l")
+sapply(3000:5000, function(i) lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue"))
+z <- 0
+plot(T, mu(T, z),type="l")
+sapply(3000:5000, function(i) lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue"))
+z <- 5
+plot(T, mu(T, z),type="l")
+sapply(3000:5000, function(i) lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue"))
+z <- .3
+plot(T, mu(T, z),type="l")
+sapply(3000:5000, function(i) lines(T, Basis%*%mod$Theta[[1]][,,i]%*%c(1,z),col="blue"))
+mod$Lambda[[1,5000]]
+mod$c[[1]][,,5000]
+mod$Prec[[1]][5000]
+1/421
+.05^2
+plot(mod$Prec[[1]],type="l")
+abline(h=1/(.05)^2,col="red")
+1/(.05)^2
+1/400
+mod <- MCMC(Y, Z, Basis, k, 5000, 1, 1)
+plot(mod$Prec[[1]],type="l")
+abline(h=1/(.05)^2,col="red")
+for(i in 1:n){
+Z[i,] <- c(1, runif(1))
+Y[i,] <- mu(T, Z[i,2]) + eig1(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/9)^2) +
+eig2(T, Z[i,2]) * rnorm(1, 0, sd = (Z[i,2]/36)^2) + rnorm(length(T), sd = .05)
+}
+mod <- MCMC(Y, Z, Basis, k, 5000, 1, 1)
+plot(mod$Prec[[1]],type="l")
+abline(h=1/(.05)^2,col="red")
+subject <- 3
+plot(Y[subject,])
+myfunc <- function(i){
+mysum <- 0
+for(j in 1:k){
+mysum <- mysum + Basis%*%mod$Lambda[[1,i]][,,j]%*%Z[subject,]*mod$Eta[[1]][subject,j,i]
+}
+return(mysum)
+}
+sapply(3000:5000, function(i) lines(Basis%*%mod$Theta[[1]][,,i]%*%Z[subject,] + myfunc(i), col = "blue"))
+library(BayesianConditionalFPCA)
+y <- list()
+ot <- list()
+for(i in 1:n){
+y[[i]] <- Y[i,-i]
+ot[[i]] <- setdiff(T,T[i])
+}
+y[[1]]
+BasisS <- list()
+BasisS <- bs(ot[[i]], df = p, intercept = TRUE)
+BasisS
+BasisS[[1]]
+y <- list()
+ot <- list()
+BasisS <- list()
+for(i in 1:n){
+y[[i]] <- Y[i,-i]
+ot[[i]] <- setdiff(T,T[i])
+BasisS[[i]] <- bs(ot[[i]], df = p, intercept = TRUE)
+}
+BasisS[[1]]
+bs(1:2, df = p, intercept = TRUE)
+dim(mod$Lambda[[1,5000]])
+dim(BasisS[[1]])
+dim(BasisS[[2]])
+dim(mod$Theta[[1]][,,5000])
+theta <- matrix(0, nrow = 12, ncol = 2)
+updateThetaS(y, mod$Lambda[[1,5000]], mod$Tau[[1]][,,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+updateThetaS(y, mod$Lambda[[1,5000]], mod$Tau[[1]][,,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+updateThetaS(y, mod$Lambda[[1,5000]], mod$Tau[[1]][,,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+theta
+mod$Theta[[1]][,,5000]
+library(BayesianConditionalFPCA)
+library(BayesianConditionalFPCA)
+library(BayesianConditionalFPCA)
+plot(mu(T,0),type="l")
+plot(mu(T,1),type="l")
+plot(mu(T,2),type="l")
+plot(mu(T,pi),type="l")
+plot(mu(T,100),type="l")
+Lambda <- array(0, dim = c(p, d, k))
+dim(Lambda)
+updateLambdaS
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+Lambda <- array(0, dim = c(p, d, k))
+Lambda
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+library(BayesianConditionalFPCA)
+Lambda <- array(0, dim = c(p, d, k))
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda <- mod$Lambda[[1,5000]]
+Lambda
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+theta
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Z
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,5000]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda <- mod$Lambda[[1,5000]]
+Lambda
+Lambda <- mod$Lambda[[1,4900]]
+Lambda
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+Lambda <- mod$Lambda[[1,4900]]
+Lambda
+Lambda <- mod$Lambda[[1,4901]]
+Lambda
+library(BayesianConditionalFPCA)
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4902]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda <- mod$Lambda[[1,4903]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4904]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4905]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda <- mod$Lambda[[1,4906]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4907]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4908]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4909]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4910]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+library(BayesianConditionalFPCA)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4911]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4912]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4913]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4914]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4915]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4916]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4917]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4918]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4919]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4920]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4921]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4922]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4923]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4924]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4925]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4926]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+dim(Lambda[[1,5000]])
+dim(mod$Lambda[[1,5000]])
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4927]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4928]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4929]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+mod$Eta[[1]][,,5000]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4930]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+Lambda <- mod$Lambda[[1,4931]]
+Lambda
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+library(BayesianConditionalFPCA)
+Lambda <- mod$Lambda[[1,4932]]
+updateLambdaS(y, Lambda, mod$Tau[[1]][,,5000],mod$c[[1]][,,5000],mod$Eta[[1]][,,5000], Z, BasisS, 420, theta)
+Lambda
+Lambda <- mod$Lambda[[1,4933]]
+Lambda
+mod$c[[1]][,,5000]
+library(BayesianConditionalFPCA)
+mod$Theta[[1]][,,5000]
+updateEtaS(y, Lambda, mod$Sigma[[1]][,,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+mod$Sigma[[1]][,,5000]
+mod$Sigma[[1]]
+mod$Sigma[[1]][,,5000]
+mod$Sigma[[1]][,5000]
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+dim(mod$Eta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+library(BayesianConditionalFPCA)
+updateEtaS(y, Lambda, mod$Sigma[[1]][,5000], mod$Eta[[1]][,,5000], Z, BasisS, 420, mod$Theta[[1]][,,5000])
+mod$Sigma[[1]][,5000]

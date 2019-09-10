@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1562865399879.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "115133BE",
+    "lastKnownWriteTime" : 1567124340,
+    "last_content_update" : 1567124340695,
+    "path" : "~/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns/EMfuncs.cpp",
+    "project_path" : "Rfuns/EMfuncs.cpp",
+    "properties" : {
+        "cursorPosition" : "131,1",
+        "scrollLine" : "122"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "cpp"
+}

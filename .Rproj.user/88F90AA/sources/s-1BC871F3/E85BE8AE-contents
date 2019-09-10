@@ -1,0 +1,307 @@
+setwd("/Users/John/Documents/Johnstuff/LFBayes/Rfuns")
+source("MarginalFPCA.R")
+source("ProductFPCA.R")
+library(plot3D)
+setwd("/Users/John/Documents/Johnstuff/fertility rates")
+load("MCMC1.RData")
+load("MCMC2.RData")
+load("MCMC3.RData")
+load("MCMC4.RData")
+
+setwd("/Users/John/Documents/Johnstuff/fertility rates")
+y1 <- read.table("AUTasfrRR.txt", skip = 3, header = FALSE)
+y1 <- y1[which(y1[,1] > 1950 & y1[,1] < 2007),]
+y2 <- read.table("BGRasfrRR.txt", skip = 3, header = FALSE)
+y2 <- y2[which(y2[,1] > 1950 & y2[,1] < 2007),]
+y3 <- read.table("CANasfrRR.txt", skip = 3, header = FALSE)
+y3 <- y3[which(y3[,1] > 1950 & y3[,1] < 2007),]
+y4 <- read.table("CHEasfrRR.txt", skip = 3, header = FALSE)
+y4 <- y4[which(y4[,1] > 1950 & y4[,1] < 2007),]
+y5 <- read.table("CZEasfrRR.txt", skip = 3, header = FALSE)
+y5 <- y5[which(y5[,1] > 1950 & y5[,1] < 2007),]
+y6 <- read.table("ESPasfrRR.txt", skip = 3, header = FALSE)
+y6 <- y6[which(y6[,1] > 1950 & y6[,1] < 2007),]
+y7 <- read.table("FINasfrRR.txt", skip = 3, header = FALSE)
+y7 <- y7[which(y7[,1] > 1950 & y7[,1] < 2007),]
+y8 <- read.table("FRATNPasfrRR.txt", skip = 3, header = FALSE)
+y8 <- y8[which(y8[,1] > 1950 & y8[,1] < 2007),]
+y9 <- read.table("GBR_SCOasfrRR.txt", skip = 3, header = FALSE)
+y9 <- y9[which(y9[,1] > 1950 & y9[,1] < 2007),]
+y10 <- read.table("GBRTENWasfrRR.txt", skip = 3, header = FALSE)
+y10 <- y10[which(y10[,1] > 1950 & y10[,1] < 2007),]
+y11 <- read.table("HUNasfrRR.txt", skip = 3, header = FALSE)
+y11 <- y11[which(y11[,1] > 1950 & y11[,1] < 2007),]
+y12 <- read.table("JPNasfrRR.txt", skip = 3, header = FALSE)
+y12 <- y12[which(y12[,1] > 1950 & y12[,1] < 2007),]
+y13 <- read.table("NLDasfrRR.txt", skip = 3, header = FALSE)
+y13 <- y13[which(y13[,1] > 1950 & y13[,1] < 2007),]
+y14 <- read.table("PRTasfrRR.txt", skip = 3, header = FALSE)
+y14 <- y14[which(y14[,1] > 1950 & y14[,1] < 2007),]
+y15 <- read.table("SVKasfrRR.txt", skip = 3, header = FALSE)
+y15 <- y15[which(y15[,1] > 1950 & y15[,1] < 2007),]
+y16 <- read.table("SWEasfrRR.txt", skip = 3, header = FALSE)
+y16 <- y16[which(y16[,1] > 1950 & y16[,1] < 2007),]
+y17 <- read.table("USAasfrRR.txt", skip = 3, header = FALSE)
+y17 <- y17[which(y17[,1] > 1950 & y17[,1] < 2007),]
+
+x <- matrix(nrow = 17, ncol = 56*44)
+x[1,] <- y1[,3]
+x[2,] <- y2[,3]
+x[3,] <- y3[,3]
+x[4,] <- y4[,3]
+x[5,] <- y5[,3]
+x[6,] <- y6[,3]
+x[7,] <- y7[,3]
+x[8,] <- y8[,3]
+x[9,] <- y9[,3]
+x[10,] <- y10[,3]
+x[11,] <- y11[,3]
+x[12,] <- y12[,3]
+x[13,] <- y13[,3]
+x[14,] <- y14[,3]
+x[15,] <- y15[,3]
+x[16,] <- y16[,3]
+x[17,] <- y17[,3]
+usa <- matrix(x[17,],nrow=44,ncol=56)
+plot(usa[,1],type="l", xlab = "Age of mother", ylab = "Fertility rate", main = "USA", font.main = 1)
+lines(usa[,25],lty=2)
+lines(usa[,56],lty=5)
+legend("topright", c("1951", "1975", "2006"), lty = c(1,2,5))
+mx <- mean(x)
+sx <- sd(x)
+x <- (x-mx)/sx
+MargFunc1 <- getMarginalFunc(eigenMCMC1$postcov,56,44)
+MargFunc2 <- getMarginalFunc(eigenMCMC2$postcov,56,44)
+MargFunc3 <- getMarginalFunc(eigenMCMC3$postcov,56,44)
+MargFunc4 <- getMarginalFunc(eigenMCMC4$postcov,56,44)
+pc.j <- NULL
+pc.k <- NULL
+fpca.op1 = list(dataType = "Sparse", maxK = pc.j, FVEthreshold = .9999, nRegGrid = 44)
+fpca.op2 = list(dataType = "Sparse", maxK = pc.k, FVEthreshold = .9999, nRegGrid = 56)
+resProductSparse <- ProductFPCA(x, 17, 56, 44, fpca.op1, fpca.op2, pc.j, rep(pc.k, pc.j))
+resProductCovSparse <- productcov(resProductSparse$eig, resProductSparse$scores)
+resProductCovSparseFunc <- getMarginalFunc(resProductCovSparse,56,44)
+
+fpca.op1 = list(dataType = "Dense", maxK = pc.j, FVEthreshold = .9999, nRegGrid = 44)
+fpca.op2 = list(dataType = "Dense", maxK = pc.k, FVEthreshold = .9999, nRegGrid = 56)
+resProductDense <- ProductFPCA(x, 17, 56, 44, fpca.op1, fpca.op2, pc.j, rep(pc.k, pc.j))
+resProductCovDense <- productcov(resProductDense$eig, resProductDense$scores)
+resProductCovDenseFunc <- getMarginalFunc(resProductCovDense,56,44)
+
+
+mylist <- list()
+mylist[[1]] <- MargFunc1
+mylist[[2]] <- MargFunc2
+mylist[[3]] <- MargFunc3
+mylist[[4]] <- MargFunc4
+mylist[[5]] <- resProductCovDenseFunc
+mylist[[6]] <- resProductCovSparseFunc
+mylim <- c(min(unlist(mylist)),max(unlist(mylist)))
+par(mfrow=c(2,3))
+dev.off()
+dev.new(width = 538, height = 465, unit = "px")
+quartz(width=7,height=5)
+par(mfrow = c(2,3),
+    mar = c(0,0,0,0))
+persp3D(1:44,1:44,MargFunc1,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE), axes = FALSE,mar=c(0,0,0,.1))
+title("1", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+persp3D(1:44,1:44,MargFunc3,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE), axes = FALSE,mar=c(.1,.1,.1,.1))
+title("3", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+persp3D(1:44,1:44,resProductCovDenseFunc,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim,colkey = list(plot = FALSE), axes = FALSE,mar=c(.1,.1,.1,.1))
+title("5", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+persp3D(1:44,1:44,MargFunc2,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE), axes = FALSE,mar=c(.1,.1,.1,.1))
+title("2", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+persp3D(1:44,1:44,MargFunc4,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE), axes = FALSE,mar=c(.1,.1,.1,.1))
+title("4", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+persp3D(1:44,1:44,resProductCovSparseFunc,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim ,colkey = list(plot = FALSE), axes = FALSE,mar=c(.1,.1,.1,.1))
+title("6", line = -18.5, font.main = 1,cex.lab=1.5, cex.axis=1.5, cex.main=1.5, cex.sub=1.5)
+
+plot(eigenMCMC4$eigvecFuncmean[,3],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecFunclower[,3])
+lines(eigenMCMC4$eigvecFuncupper[,3])
+lines(-resProductDense$psi[,1],col="blue")
+
+plot(eigenMCMC4$eigvecFuncmean[,2],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecFunclower[,2])
+lines(eigenMCMC4$eigvecFuncupper[,2])
+lines(-resProductDense$psi[,2],col="blue")
+
+plot(eigenMCMC4$eigvecFuncmean[,1],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecFunclower[,1])
+lines(eigenMCMC4$eigvecFuncupper[,1])
+lines(resProductDense$psi[,3],col="blue")
+
+plot(eigenMCMC4$eigvecLongmean[,3],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecLonglower[,3])
+lines(eigenMCMC4$eigvecLongupper[,3])
+lines(resProductDense$phi[,1],col="blue")
+
+plot(eigenMCMC4$eigvecLongmean[,2],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecLonglower[,2])
+lines(eigenMCMC4$eigvecLongupper[,2])
+lines(-resProductDense$phi[,2],col="blue")
+
+plot(eigenMCMC4$eigvecLongmean[,1],type="l",ylim = c(-1,1))
+lines(eigenMCMC4$eigvecLonglower[,1],lty=2)
+lines(eigenMCMC4$eigvecLongupper[,1],lty=2)
+lines(resProductDense$phi[,3],col="blue")
+
+layout(matrix(c(1,2,3,4,5,6),nrow=2,ncol=3,byrow=TRUE))
+persp3D(1:44,1:44,MargFunc1,theta=90,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE), axes = FALSE,mar=c(0,0,0,.1))
+
+par(mfrow=c(2,3),mai = c(0.1, 0.1, 0.1, 0.1))
+
+
+x <- pmin(3, pmax(-3, stats::rnorm(50)))
+y <- pmin(3, pmax(-3, stats::rnorm(50)))
+xhist <- hist(x, breaks = seq(-3,3,0.5), plot = FALSE)
+yhist <- hist(y, breaks = seq(-3,3,0.5), plot = FALSE)
+top <- max(c(xhist$counts, yhist$counts))
+xrange <- c(-3, 3)
+yrange <- c(-3, 3)
+nf <- layout(matrix(c(2,0,1,3),2,2,byrow = TRUE), c(3,1), c(1,3), TRUE)
+layout.show(nf)
+
+MargLong1 <- getMarginalLong(eigenMCMC1$postcov,56,44)
+MargLong2 <- getMarginalLong(eigenMCMC2$postcov,56,44)
+MargLong3 <- getMarginalLong(eigenMCMC3$postcov,56,44)
+MargLong4 <- getMarginalLong(eigenMCMC4$postcov,56,44)
+#fpca.op1 = list(dataType = "Sparse", maxK = pc.j, FVEthreshold = .9999, nRegGrid = 44)
+#fpca.op2 = list(dataType = "Sparse", maxK = pc.k, FVEthreshold = .9999, nRegGrid = 56)
+#resProduct <- ProductFPCA(x, 17, 56, 44, fpca.op1, fpca.op2, pc.j, rep(pc.k, pc.j))
+#resProductCovSparse <- productcov(resProduct$eig, resProduct$scores)
+resProductCovSparseLong <- getMarginalLong(resProductCovSparse,56,44)
+
+#fpca.op1 = list(dataType = "Dense", maxK = pc.j, FVEthreshold = .9999, nRegGrid = 44)
+#fpca.op2 = list(dataType = "Dense", maxK = pc.k, FVEthreshold = .9999, nRegGrid = 56)
+#resProduct <- ProductFPCA(x, 17, 56, 44, fpca.op1, fpca.op2, pc.j, rep(pc.k, pc.j))
+#resProductCovDense <- productcov(resProduct$eig, resProduct$scores)
+resProductCovDenseLong <- getMarginalLong(resProductCovDense,56,44)
+
+
+mylist <- list()
+mylist[[1]] <- MargLong1
+mylist[[2]] <- MargLong2
+mylist[[3]] <- MargLong3
+mylist[[4]] <- MargLong4
+mylist[[5]] <- resProductCovDenseLong
+mylist[[6]] <- resProductCovSparseLong
+mylim <- c(min(unlist(mylist)),max(unlist(mylist)))
+par(mar = c(2,3,2,3))
+persp3D(1:56,1:56,MargLong1,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim,clim=mylim)
+persp3D(1:56,1:56,MargLong2,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE))
+persp3D(1:56,1:56,MargLong3,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE))
+persp3D(1:56,1:56,MargLong4,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim, colkey = list(plot = FALSE))
+persp3D(1:56,1:56,resProductCovDenseLong,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim,colkey = list(plot = FALSE))
+persp3D(1:56,1:56,resProductCovSparseLong,theta=30,phi=0,ylab = "Age", zlab = "C(t,t)", zlim=mylim, clim=mylim ,colkey = list(plot = FALSE))
+
+
+
+
+dev.off()
+s1 <- 1
+s2 <- 25
+s3 <- 56
+pts1 <- ((s1 - 1)*44 + 1):(s1*44)
+pts2 <- ((s2 - 1)*44 + 1):(s2*44)
+pts3 <- ((s3 - 1)*44 + 1):(s3*44)
+mommy <- x[c(17,7,12),c(pts1, pts2, pts3)]
+mommylim <- c(min(mommy), max(mommy))
+par(mfrow=c(1,3))
+plot(12:55, x[17,pts1],type="l", xlab = "Age", ylab = "Fertility rate", ylim = mommylim, font.main = 1, main = "USA",
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
+lines(12:55,x[17,pts2], lty = 2)
+lines(12:55,x[17,pts3], lty = 6)
+plot(12:55,x[7,pts1],type="l", xlab = "Age", ylab = "Fertility rate", ylim = mommylim, font.main = 1, main = "Finland",
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
+lines(12:55,x[7,pts2], lty = 2)
+lines(12:55,x[7,pts3], lty = 6)
+plot(12:55,x[12,pts1],type="l", xlab = "Age", ylab = "Fertility rate", ylim = mommylim, font.main = 1, main = "Japan",
+     cex.lab = 1.5, cex.axis = 1.5, cex.main = 2)
+lines(12:55,x[12,pts2], lty = 2)
+lines(12:55,x[12,pts3], lty = 6)
+legend("topright", c("1951", "1975", "2006"), lty = c(1,2,6))
+
+dev.off()
+load("FebruaryeigenMCMC3.RData")
+par(mfrow=c(2,3))
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecFunclower[,3]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecFuncupper[,3]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalFunc[44,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 1 (FVE: ", eig[1], "-", eig[2],"%)")
+plot(12:55,FebruaryeigenMCMC3$eigvecFuncmean[,3],type="l", xlab = "Age", ylab = "Eigenfunction 1", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5)
+lines(12:55,FebruaryeigenMCMC3$eigvecFunclower[,3], lty = 2)
+lines(12:55,FebruaryeigenMCMC3$eigvecFuncupper[,3], lty = 2)
+lines(12:55,-resProductDense$psi[,1], col="red")
+
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecFunclower[,2]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecFuncupper[,2]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalFunc[43,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 2 (FVE: ", eig[1], "-", eig[2],"%)")
+plot(12:55,FebruaryeigenMCMC3$eigvecFuncmean[,2],type="l", xlab = "Age", ylab = "Eigenfunction 2", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5)
+lines(12:55,FebruaryeigenMCMC3$eigvecFunclower[,2], lty = 2)
+lines(12:55,FebruaryeigenMCMC3$eigvecFuncupper[,2], lty = 2)
+lines(12:55,-resProductDense$psi[,2], col="red")
+
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecFunclower[,1]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecFuncupper[,1]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalFunc[42,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 3 (FVE: ", eig[1], "-", eig[2],"%)")
+plot(12:55,FebruaryeigenMCMC3$eigvecFuncmean[,1],type="l", xlab = "Age", ylab = "Eigenfunction 3", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5)
+lines(12:55,FebruaryeigenMCMC3$eigvecFunclower[,1], lty = 2)
+lines(12:55,FebruaryeigenMCMC3$eigvecFuncupper[,1], lty = 2)
+lines(12:55,-resProductDense$psi[,3], col="red")
+legend("topright", c("Bayes", "Product"), col=c("black", "red"), lty = c(1,1), cex = 1.25)
+
+
+
+#par(mfrow=c(1,3))
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecLonglower[,3]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecLongupper[,3]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalLong[56,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 1 (FVE: ", eig[1], "-", format(round(eig[2],2), nsmall = 2),"%)")
+plot(1951:2006,FebruaryeigenMCMC3$eigvecLongmean[,3],type="l", xlab = "Year", ylab = "Eigenfunction 1", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, xaxt = 'n')
+axis(1, at = c(1951, 1975, 2006), labels = c(1951, 1975, 2006), cex.axis = 1.5)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLonglower[,3], lty = 2)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLongupper[,3], lty = 2)
+lines(1951:2006,resProductDense$phi[,1], col="red")
+
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecLonglower[,2]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecLongupper[,2]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalLong[55,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 2 (FVE: ", eig[1], "-", eig[2],"%)")
+plot(1951:2006,FebruaryeigenMCMC3$eigvecLongmean[,2],type="l", xlab = "Year", ylab = "Eigenfunction 2", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, xaxt = 'n')
+axis(1, at = c(1951, 1975, 2006), labels = c(1951, 1975, 2006), cex.axis = 1.5)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLonglower[,2], lty = 2)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLongupper[,2], lty = 2)
+lines(1951:2006,-resProductDense$phi[,2], col="red")
+
+mylim <- list()
+mylim[[1]] <- FebruaryeigenMCMC3$eigvecLonglower[,1]-.1
+mylim[[2]] <- FebruaryeigenMCMC3$eigvecLongupper[,1]+.1
+mylim <- c(min(unlist(mylim)), max(unlist(mylim)))
+eig <- round(quantile(FebruaryeigenMCMC3$eigvalLong[54,],c(0.025,.975)),4)*100
+mytext <- paste0("Eigenfunction 3 (FVE: ", eig[1], "-", eig[2],"%)")
+plot(1951:2006,FebruaryeigenMCMC3$eigvecLongmean[,1],type="l", xlab = "Year", ylab = "Eigenfunction 3", ylim = mylim,
+     main = mytext, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, xaxt = 'n')
+axis(1, at = c(1951, 1975, 2006), labels = c(1951, 1975, 2006), cex.axis = 1.5)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLonglower[,1], lty = 2)
+lines(1951:2006,FebruaryeigenMCMC3$eigvecLongupper[,1], lty = 2)
+lines(1951:2006,resProductDense$phi[,3], col="red")
+#legend("topright", c("Bayes", "Product"), col=c("black", "red"), lty = c(1,1), cex = 1.25)
+

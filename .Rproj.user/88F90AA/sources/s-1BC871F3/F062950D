@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1562779842243.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F062950D",
+    "lastKnownWriteTime" : 1568152851,
+    "last_content_update" : 1568152851,
+    "path" : "~/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns/EM.R",
+    "project_path" : "Rfuns/EM.R",
+    "properties" : {
+        "cursorPosition" : "90,2",
+        "scrollLine" : "94"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
