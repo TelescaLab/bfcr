@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "1545408108",
+    "hash" : "0",
     "id" : "FF0351F7",
-    "lastKnownWriteTime" : 1568152851,
-    "last_content_update" : 1568152851295,
+    "lastKnownWriteTime" : 1568155470,
+    "last_content_update" : 1568155470345,
     "path" : "~/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns/EM.R",
     "project_path" : "Rfuns/EM.R",
     "properties" : {
-        "cursorPosition" : "169,0",
-        "scrollLine" : "144"
+        "cursorPosition" : "14,12",
+        "scrollLine" : "0"
     },
     "relative_order" : 1,
     "source_on_save" : false,
