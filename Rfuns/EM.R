@@ -1,5 +1,5 @@
-#setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
-setwd("E:/Rcpp stuff/BFPCA")
+setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
+#setwd("E:/Rcpp stuff/BFPCA")
 {
   library(MASS)
   library(splines)
