@@ -7,7 +7,7 @@
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, int iter, int nchains, int thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init){
+List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init){
   int p = B.n_cols;
   int N = Y.n_rows;
   int D = X.n_cols;
@@ -41,9 +41,9 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, int iter, int nchains, i
   //Eta = Eta_init;
   //Y_noise = Y + .05*arma::randn<arma::mat>(N, Y.n_cols);
   Rcpp::Rcout << "Starting MCMC..." << std::endl;
-  omp_set_num_threads(12);
-  #pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
-  for(int u = 0; u < nchains; u++){
+  //omp_set_num_threads(12);
+  //#pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
+  for(arma::uword u = 0; u < nchains; u++){
     // Set initial values
     
     //Sigma.ones();
@@ -69,10 +69,10 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, int iter, int nchains, i
     
     
     //double Prec = PrecEM;
-    for(int i = 0; i < iter; i++){
+    for(arma::uword i = 0; i < iter; i++){
       
       //Rcpp::Rcout << i << std::endl;
-      for(int j = 0; j < thin; j++){
+      for(arma::uword j = 0; j < thin; j++){
         
         updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
         
