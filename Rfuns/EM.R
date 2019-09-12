@@ -1,4 +1,5 @@
-setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
+#setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
+setwd("E:/Rcpp stuff/BFPCA")
 {
   library(MASS)
   library(splines)
@@ -8,6 +9,7 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   library(Rcpp)
   library(microbenchmark)
   library(dlnm)
+  library(BayesianConditionalFPCA)
   mu <- function(t, z){
     t + z*sin(t) + (1-z)*cos(t)
   }
@@ -80,7 +82,7 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   Lambda2 <- L2
   #Lambda%*%t(Lambda)
   #Theta <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = dim(X)[2])
-  E <- matrix(rnorm(tmax * n,sd=.001), nrow = n, ncol = tmax)
+  E <- matrix(rnorm(tmax * n,sd=.05), nrow = n, ncol = tmax)
   Y <- X%*%t(Theta)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + E + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru)# + E
   inflation <- 5
   Et1 <- matrix(rnorm(tmax * n, sd = inflation), nrow = n, ncol = tmax)
@@ -107,9 +109,9 @@ plot(Y[1,],type="p")
   Lambda_init <- array(param$Lambda, dim = c(p, 2, 2))
   Eta_init <- t(param$EtaM)
   bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, param$Theta, Lambda_init, Eta_init)
-  bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
+  #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
 }
-plot(bayes_logliks,type="l")
+#plot(bayes_logliks,type="l")
 dev.off()
 x <- c(1,-1)
 bayes_mean <- matrix(0, nrow = p, ncol = 2)
