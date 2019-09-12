@@ -142,9 +142,10 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
   arma::cube pEtaV = arma::cube(K, K, n);
   pEtaV.each_slice() = arma::eye<arma::mat>(K, K);
   arma::mat newx = arma::zeros<arma::mat>((K + 1) * n, (K + 1) * D);
-  double inflation = 1;
+  double inflation = 10;
   arma::vec precision(1);
   precision(0) = 1/std::pow(inflation, 2);
+  //precision(0) = 1;
   arma::mat Yt = Y + inflation * arma::randn<arma::mat>(n, tmax);
   arma::mat Et;
   arma::mat newy = arma::zeros<arma::mat>((K + 1) * n, tmax);

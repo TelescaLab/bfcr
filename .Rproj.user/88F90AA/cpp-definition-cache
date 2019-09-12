@@ -57,7 +57,7 @@
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/EMfuncs.cpp",
-        "file_last_write" : 1567124418
+        "file_last_write" : 1568317639
     },
     {
         "definitions" : [
@@ -66,13 +66,13 @@
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
                 "kind" : 6,
                 "line" : 10,
-                "name" : "MCMC(arma::mat, arma::mat, arma::mat, int, int, int, int, arma::mat, arma::cube, arma::mat)",
+                "name" : "MCMC(arma::mat, arma::mat, arma::mat, int, arma::uword, arma::uword, arma::uword, arma::mat, arma::cube, arma::mat)",
                 "parent_name" : "",
-                "usr" : "c:@F@MCMC#$@N@arma@C@Mat>#d#S0_#S0_#I#I#I#I#S0_#$@N@arma@C@Cube>#d#S0_#"
+                "usr" : "c:@F@MCMC#$@N@arma@C@Mat>#d#S0_#S0_#I#i#i#i#S0_#$@N@arma@C@Cube>#d#S0_#"
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
-        "file_last_write" : 1568151581
+        "file_last_write" : 1568300979
     },
     {
         "definitions" : [

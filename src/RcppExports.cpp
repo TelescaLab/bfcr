@@ -102,7 +102,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // MCMC
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, int iter, int nchains, int thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init);
+List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init);
 RcppExport SEXP _BayesianConditionalFPCA_MCMC(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP nchainsSEXP, SEXP thinSEXP, SEXP Theta_initSEXP, SEXP Lambda_initSEXP, SEXP Eta_initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -111,9 +111,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
     Rcpp::traits::input_parameter< int >::type K(KSEXP);
-    Rcpp::traits::input_parameter< int >::type iter(iterSEXP);
-    Rcpp::traits::input_parameter< int >::type nchains(nchainsSEXP);
-    Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nchains(nchainsSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type thin(thinSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Theta_init(Theta_initSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type Lambda_init(Lambda_initSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Eta_init(Eta_initSEXP);
