@@ -1,5 +1,5 @@
 setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
-#setwd("E:/Rcpp stuff/BFPCA")
+setwd("E:/Rcpp stuff/BFPCA")
 {
   library(MASS)
   library(splines)
@@ -61,7 +61,7 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   
 {
   set.seed(1)
-  n <- 100
+  n <- 500
   tmax <- 50
   p <- 12
   T <- seq(from = 0, to = 1, length.out = tmax)
@@ -78,9 +78,13 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   Y <- matrix(0, nrow = n, ncol = tmax)
   #Lambda1 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
-  Lambda1 <-  5*L1
-  Lambda2 <-  5*L2
-  Theta1 <- 15*Theta
+  #Lambda1 <- L1[,1]
+  #Lambda2 <- L2[,1]
+  Lambda1 <-  .1*L1
+  Lambda2 <-  .1*L2
+  #Theta1 <- Theta[,1]
+  Theta1 <- Theta
+  #X <- as.matrix(X[,1])
   #Lambda%*%t(Lambda)
   #Theta <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = dim(X)[2])
   noise_sd <- .0001
@@ -91,45 +95,49 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   Yt <- Y + Et1
 }
 plot(Y[1,],type="p")
-{
-  set.seed(3)
-  p <- 25
-  #B <- bs(T, df = p, intercept = TRUE)
-  B <- ps(T, df = p, diff = 1, intercept = TRUE)
-  K <- 2
-  Xmat <- kronecker(B, X)
-  reg <- lm(c(Y) ~ Xmat - 1)
-  Theta_init <- t(matrix(reg$coefficients, nrow = 2))
-  #Theta_init <- matrix(rnorm(p*2), ncol = 2)
-  param <- cpp_EM(X, B, Y, K,Theta_init, 12)
-  cpploglik(Theta1, cbind(Lambda1,Lambda2), 1/noise_sd^2, X, Btru, Y, 2, 6)
-  cpploglik(param$Theta, param$Lambda, param$Precision, X, B, Y, K,1)
-
-  max_iter <- 5000
-  burnin <- 1000
-  thin <- 1
-  nchain <- 4
-  Lambda_init <- array(param$Lambda, dim = c(p, 2, 2))
-  Eta_init <- t(param$EtaM)
-  bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, param$Theta, Lambda_init, Eta_init)
-  #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
+n_500_high_noise_high_between <- numeric(100)
+for(i in 1:100){
+  {
+    set.seed(1)
+    p <- 15
+    #B <- bs(T, df = p, intercept = TRUE)
+    B <- ps(T, df = p, diff = 1, intercept = TRUE)
+    K <- 4
+    Xmat <- kronecker(B, X)
+    reg <- lm(c(Y) ~ Xmat - 1)
+    Theta_init <- t(matrix(reg$coefficients, nrow = 2))
+    #Theta_init <- matrix(rnorm(p*2), ncol = 2)
+    param <- cpp_EM(X, B, Y, K,Theta_init, 12)
+    cpploglik(Theta1, cbind(Lambda1,Lambda2), 1/noise_sd^2, X, Btru, Y, 2, 6)
+#    n_500_high_noise_high_between[i] <- cpploglik(param$Theta, param$Lambda, param$Precision, X, B, Y, K,1)
+    
+    max_iter <- 5000
+    burnin <- 1000
+    thin <- 1
+    nchain <- 1
+    Lambda_init <- array(param$Lambda, dim = c(p, 2, K))
+    Eta_init <- t(param$EtaM)
+    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, param$Theta, Lambda_init, Eta_init)
+    bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
+  }
 }
-#plot(bayes_logliks,type="l")
+
+plot(bayes_logliks,type="l")
 dev.off()
-x <- c(1,1)
+x <- c(1,-1)
 bayes_mean <- matrix(0, nrow = p, ncol = 2)
 for(i in 1:nchain){
   bayes_mean <- bayes_mean + apply(bayes_param$Theta[[i]][,,burnin:max_iter], c(1,2), mean)
 }
 bayes_mean <- bayes_mean / nchain
 
-plot(Btru%*%Theta1%*%x, type = "l")
-lines(B%*%Theta_init%*%x,col="green")
-lines(B%*%param$Theta%*%x, col = "blue")
-lines(B%*%bayes_mean%*%x, col = "red")
+plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean", xlab = "t")
+#lines(B%*%Theta_init%*%x,col="green")
+lines(T,B%*%param$Theta%*%x, col = "blue")
+lines(T,B%*%bayes_mean%*%x, col = "red")
 for(chain in 1:nchain){
   for(i in seq(from = burnin, to = max_iter, by = 10)){
-    lines(B%*%bayes_param$Theta[[chain]][,,i]%*%x, col = "gray")
+    lines(T,B%*%bayes_param$Theta[[chain]][,,i]%*%x, col = "gray")
   }
 }
 lines(Btru%*%Theta1%*%x, type = "l",col="red")
@@ -158,9 +166,9 @@ covtruth <- Btru%*%Lambda1%*%outer(x,x)%*%t(Lambda1)%*%t(Btru) + Btru%*%Lambda2%
 sum((covfreq - covtruth)^2)/sum((covtruth)^2)*100
 sum((covbayes - covtruth)^2)/sum((covtruth^2))*100
 par(mfrow = c(1,3))
-persp3D(1:tmax,1:tmax, covtruth, theta=90,phi=10)
-persp3D(1:tmax,1:tmax, covfreq, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))))
-persp3D(1:tmax,1:tmax, covbayes, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))))
+persp3D(1:tmax,1:tmax, covtruth, theta=90,phi=10, main = "Truth", colkey = FALSE)
+persp3D(1:tmax,1:tmax, covfreq, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "EM algorithm", colkey = FALSE)
+persp3D(1:tmax,1:tmax, covbayes, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "Gibbs sampling", colkey = FALSE)
 
 
 dev.off()

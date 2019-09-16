@@ -102,8 +102,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // MCMC
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init);
-RcppExport SEXP _BayesianConditionalFPCA_MCMC(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP nchainsSEXP, SEXP thinSEXP, SEXP Theta_initSEXP, SEXP Lambda_initSEXP, SEXP Eta_initSEXP) {
+List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init, double Prec_init);
+RcppExport SEXP _BayesianConditionalFPCA_MCMC(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP nchainsSEXP, SEXP thinSEXP, SEXP Theta_initSEXP, SEXP Lambda_initSEXP, SEXP Eta_initSEXP, SEXP Prec_initSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -117,7 +117,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Theta_init(Theta_initSEXP);
     Rcpp::traits::input_parameter< arma::cube >::type Lambda_init(Lambda_initSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Eta_init(Eta_initSEXP);
-    rcpp_result_gen = Rcpp::wrap(MCMC(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init));
+    Rcpp::traits::input_parameter< double >::type Prec_init(Prec_initSEXP);
+    rcpp_result_gen = Rcpp::wrap(MCMC(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init, Prec_init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -154,6 +155,26 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type nchains(nchainsSEXP);
     Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     rcpp_result_gen = Rcpp::wrap(MCMC_Sparse(Y, X, B, K, iter, nchains, thin));
+    return rcpp_result_gen;
+END_RCPP
+}
+// MCMC_Wrapper
+List MCMC_Wrapper(arma::mat Y, arma::mat X, arma::mat B, arma::uword K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init);
+RcppExport SEXP _BayesianConditionalFPCA_MCMC_Wrapper(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP nchainsSEXP, SEXP thinSEXP, SEXP Theta_initSEXP, SEXP Lambda_initSEXP, SEXP Eta_initSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type iter(iterSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type nchains(nchainsSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type thin(thinSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Theta_init(Theta_initSEXP);
+    Rcpp::traits::input_parameter< arma::cube >::type Lambda_init(Lambda_initSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Eta_init(Eta_initSEXP);
+    rcpp_result_gen = Rcpp::wrap(MCMC_Wrapper(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -518,9 +539,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_cpploglik", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik, 8},
     {"_BayesianConditionalFPCA_cpp_EM2", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM2, 4},
     {"_BayesianConditionalFPCA_cpp_EM", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM, 6},
-    {"_BayesianConditionalFPCA_MCMC", (DL_FUNC) &_BayesianConditionalFPCA_MCMC, 10},
+    {"_BayesianConditionalFPCA_MCMC", (DL_FUNC) &_BayesianConditionalFPCA_MCMC, 11},
     {"_BayesianConditionalFPCA_MCMC_Impute", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Impute, 9},
     {"_BayesianConditionalFPCA_MCMC_Sparse", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Sparse, 7},
+    {"_BayesianConditionalFPCA_MCMC_Wrapper", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Wrapper, 10},
     {"_BayesianConditionalFPCA_DiffOp", (DL_FUNC) &_BayesianConditionalFPCA_DiffOp, 1},
     {"_BayesianConditionalFPCA_getPenalty2", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty2, 2},
     {"_BayesianConditionalFPCA_getPenalty", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty, 1},

@@ -7,7 +7,7 @@
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init){
+List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init, double Prec_init){
   int p = B.n_cols;
   int N = Y.n_rows;
   int D = X.n_cols;
@@ -58,12 +58,12 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     arma::mat Eta(N, K);
     arma::mat Tau(K + 1, D);
     arma::mat Theta(p, D);
-    double Prec = 1;
+    //double Prec = 1;
     
     Lambda = Lambda_init;
     Eta = Eta_init;
     Theta = Theta_init;
-    
+    double Prec = Prec_init;
     
     
     
