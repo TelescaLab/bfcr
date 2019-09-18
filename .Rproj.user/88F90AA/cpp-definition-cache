@@ -57,7 +57,7 @@
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/EMfuncs.cpp",
-        "file_last_write" : 1568317639
+        "file_last_write" : 1568317675
     },
     {
         "definitions" : [
@@ -66,13 +66,13 @@
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
                 "kind" : 6,
                 "line" : 10,
-                "name" : "MCMC(arma::mat, arma::mat, arma::mat, int, arma::uword, arma::uword, arma::uword, arma::mat, arma::cube, arma::mat)",
+                "name" : "MCMC(arma::mat, arma::mat, arma::mat, int, arma::uword, arma::uword, arma::uword, arma::mat, arma::cube, arma::mat, double)",
                 "parent_name" : "",
-                "usr" : "c:@F@MCMC#$@N@arma@C@Mat>#d#S0_#S0_#I#i#i#i#S0_#$@N@arma@C@Cube>#d#S0_#"
+                "usr" : "c:@F@MCMC#$@N@arma@C@Mat>#d#S0_#S0_#I#i#i#i#S0_#$@N@arma@C@Cube>#d#S0_#d#"
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
-        "file_last_write" : 1568300979
+        "file_last_write" : 1568824483
     },
     {
         "definitions" : [
@@ -103,6 +103,27 @@
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC_Sparse.cpp",
         "file_last_write" : 1559842674
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC_Wrapper.cpp",
+                "kind" : 6,
+                "line" : 11,
+                "name" : "MCMC_Wrapper(arma::mat, arma::mat, arma::mat, arma::uword, arma::uword, arma::uword, arma::uword, arma::mat, arma::cube, arma::mat)",
+                "parent_name" : "",
+                "usr" : "c:@F@MCMC_Wrapper#$@N@arma@C@Mat>#d#S0_#S0_#i#i#i#i#S0_#$@N@arma@C@Cube>#d#S0_#"
+            }
+        ],
+        "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC_Wrapper.cpp",
+        "file_last_write" : 1568824483
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC_Wrapper.h",
+        "file_last_write" : 1568824483
     },
     {
         "definitions" : [
@@ -323,7 +344,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 193,
+                "line" : 194,
                 "name" : "updateSigma(arma::mat &, arma::vec &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateSigma#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#"
@@ -332,7 +353,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 204,
+                "line" : 205,
                 "name" : "updatec(arma::cube &, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updatec#&$@N@arma@C@Cube>#d#&$@N@arma@C@Mat>#d#"
@@ -341,14 +362,14 @@
                 "column" : 8,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 223,
+                "line" : 224,
                 "name" : "gam_trunc_left(double, double, double)",
                 "parent_name" : "",
                 "usr" : "c:@F@gam_trunc_left#d#d#d#"
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
-        "file_last_write" : 1568150552
+        "file_last_write" : 1568826995
     },
     {
         "definitions" : [

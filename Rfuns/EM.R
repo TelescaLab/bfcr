@@ -1,5 +1,5 @@
 setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
-setwd("E:/Rcpp stuff/BFPCA")
+#setwd("E:/Rcpp stuff/BFPCA")
 {
   library(MASS)
   library(splines)
@@ -61,7 +61,7 @@ setwd("E:/Rcpp stuff/BFPCA")
   
 {
   set.seed(5)
-  n <- 500
+  n <- 1000
   tmax <- 50
   p <- 12
   T <- seq(from = 0, to = 1, length.out = tmax)
@@ -81,16 +81,16 @@ setwd("E:/Rcpp stuff/BFPCA")
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda1 <- L1[,1]
   #Lambda2 <- L2[,1]
-  Lambda1 <-  1*L1
+  Lambda1 <-  3*L1
   Lambda2 <-  1*L2
   #Theta1 <- Theta[,1]
   Theta1 <- 1*Theta
   #X <- as.matrix(X[,1])
   #Lambda%*%t(Lambda)
   #Theta <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = dim(X)[2])
-  noise_sd <- .1
+  noise_sd <- .01
   E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
-  Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + E + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru)# + E
+  Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + E #+ diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru)# + E
   inflation <- 5
   Et1 <- matrix(rnorm(tmax * n, sd = inflation), nrow = n, ncol = tmax)
   Yt <- Y + Et1
@@ -100,11 +100,11 @@ plot(Y[1,],type="p")
 n_500_high_noise_high_between <- numeric(100)
 for(i in 1:100){
   {
-    set.seed(2)
-    p <- 12
+    set.seed(4)
+    p <- 20
     #B <- bs(T, df = p, intercept = TRUE)
     B <- ps(T, df = p, diff = 1, intercept = TRUE)
-    K <- 2
+    K <- 1
     Xmat <- kronecker(B, X)
     reg <- lm(c(Y) ~ Xmat - 1)
     Theta_init <- t(matrix(reg$coefficients, nrow = 2))
@@ -120,7 +120,8 @@ for(i in 1:100){
     Lambda_init <- array(param$Lambda, dim = c(p, 2, K))
     Eta_init <- t(param$EtaM)
     Prec_init <- param$Precision
-    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, Theta1, array(cbind(Lambda1, Lambda2), dim = c(p, 2, K)), cbind(Eta1, Eta2), Prec_init)
+    set.seed(1)
+    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, param$Theta, Lambda_init, Eta_init, Prec_init)
     #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
   }
 }
@@ -133,7 +134,7 @@ for(i in 1:nchain){
 }
 bayes_mean <- bayes_mean / nchain
 
-plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean, x = -1", xlab = "t")
+plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean, x = -1", xlab = "t", ylim = c(1.30, 1.75))
 lines(T,B%*%Theta_init%*%x,col="green")
 lines(T,B%*%param$Theta%*%x, col = "blue")
 lines(T,B%*%bayes_mean%*%x, col = "red")
@@ -163,7 +164,7 @@ for(chain in 1:nchain){
 }
 covbayes <- covbayes / ((max_iter - burnin + 1) * nchain)
 
-covtruth <- Btru%*%Lambda1%*%outer(x,x)%*%t(Lambda1)%*%t(Btru) + Btru%*%Lambda2%*%outer(x,x)%*%t(Lambda2)%*%t(Btru)
+covtruth <- Btru%*%Lambda1%*%outer(x,x)%*%t(Lambda1)%*%t(Btru) #+ Btru%*%Lambda2%*%outer(x,x)%*%t(Lambda2)%*%t(Btru)
 
 sum((covfreq - covtruth)^2)/sum((covtruth)^2)*100
 sum((covbayes - covtruth)^2)/sum((covtruth^2))*100

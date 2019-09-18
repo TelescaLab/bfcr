@@ -174,8 +174,8 @@ double updatePrec(arma::mat& Y, arma::cube& Lambda, arma::mat Gamma, arma::mat& 
 
 // [[Rcpp::export]]
 void updateTau(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau){
-  double t_alpha = 1;
-  double t_beta = 1;
+  double t_alpha = .01;
+  double t_beta = .01;
   //double t_beta = 1;
   arma::mat P = getPenalty2(Lambda.n_rows, 2);
   arma::uword R = Lambda.n_slices;
