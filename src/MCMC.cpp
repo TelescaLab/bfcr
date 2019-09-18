@@ -32,7 +32,7 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
   //arma::cube Lambda(p, D, K);
   //arma::mat Eta(N, K);
   //arma::mat Tau(K + 1, D);
-  arma::mat c(K, D);
+//  arma::mat c(K, D);
   //arma::mat Theta(p, D);
   arma::vec Sigma(K);
   //double Prec = 1;
@@ -73,15 +73,12 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       
       //Rcpp::Rcout << i << std::endl;
       for(arma::uword j = 0; j < thin; j++){
-        
         updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
-        
         Prec = updatePrec(Y, Lambda, Eta, X, B, Theta);
-        
         updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
-        
         updateTheta(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         updateTau(Theta, Lambda, Tau);
+      //Tau.zeros();
       }
     
       LambdaF(u, i) = Lambda;
@@ -89,7 +86,6 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       EtaF(u).slice(i) = Eta;
       PrecF(u)(i) = Prec;
       TauF(u).slice(i) = Tau;
-         
     }
   }
 

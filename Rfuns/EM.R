@@ -60,7 +60,7 @@ setwd("E:/Rcpp stuff/BFPCA")
 }
   
 {
-  set.seed(2)
+  set.seed(5)
   n <- 500
   tmax <- 50
   p <- 12
@@ -70,6 +70,7 @@ setwd("E:/Rcpp stuff/BFPCA")
   #Btru <- ps(T, df = p)
   Btru <- bs(T, df = p, intercept = TRUE)
   #X <- cbind(rep(1,n))
+  #X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
   #X <- cbind(rep(1,n),runif(n,min=-1,max=1))
   X <- cbind(rep(1,n), rnorm(n, sd = 1))
   d <- dim(X)[2]
@@ -80,8 +81,8 @@ setwd("E:/Rcpp stuff/BFPCA")
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda1 <- L1[,1]
   #Lambda2 <- L2[,1]
-  Lambda1 <-  10*L1
-  Lambda2 <-  10*L2
+  Lambda1 <-  1*L1
+  Lambda2 <-  1*L2
   #Theta1 <- Theta[,1]
   Theta1 <- 1*Theta
   #X <- as.matrix(X[,1])
@@ -94,12 +95,13 @@ setwd("E:/Rcpp stuff/BFPCA")
   Et1 <- matrix(rnorm(tmax * n, sd = inflation), nrow = n, ncol = tmax)
   Yt <- Y + Et1
 }
+dev.off()
 plot(Y[1,],type="p")
 n_500_high_noise_high_between <- numeric(100)
 for(i in 1:100){
   {
-    set.seed(1)
-    p <- 25
+    set.seed(2)
+    p <- 12
     #B <- bs(T, df = p, intercept = TRUE)
     B <- ps(T, df = p, diff = 1, intercept = TRUE)
     K <- 2
@@ -108,7 +110,7 @@ for(i in 1:100){
     Theta_init <- t(matrix(reg$coefficients, nrow = 2))
     #Theta_init <- Theta1
     param <- cpp_EM(X, B, Y, K,Theta_init, 12)
-    cpploglik(Theta1, cbind(Lambda1,Lambda2), 1/noise_sd^2, X, Btru, Y, 2, 6)
+    print(c("log likelihood to beat is", cpploglik(Theta1, cbind(Lambda1,Lambda2), 1/noise_sd^2, X, Btru, Y, 2, 6)))
 #    n_500_high_noise_high_between[i] <- cpploglik(param$Theta, param$Lambda, param$Precision, X, B, Y, K,1)
     
     max_iter <- 5000
@@ -118,20 +120,20 @@ for(i in 1:100){
     Lambda_init <- array(param$Lambda, dim = c(p, 2, K))
     Eta_init <- t(param$EtaM)
     Prec_init <- param$Precision
-    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, param$Theta, Lambda_init, Eta_init, Prec_init)
+    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, Theta1, array(cbind(Lambda1, Lambda2), dim = c(p, 2, K)), cbind(Eta1, Eta2), Prec_init)
     #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
   }
 }
 
 dev.off()
-x <- c(1,-1)
+x <- c(1,-.5)
 bayes_mean <- matrix(0, nrow = p, ncol = 2)
 for(i in 1:nchain){
   bayes_mean <- bayes_mean + apply(bayes_param$Theta[[i]][,,burnin:max_iter], c(1,2), mean)
 }
 bayes_mean <- bayes_mean / nchain
 
-plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean", xlab = "t")
+plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean, x = -1", xlab = "t")
 lines(T,B%*%Theta_init%*%x,col="green")
 lines(T,B%*%param$Theta%*%x, col = "blue")
 lines(T,B%*%bayes_mean%*%x, col = "red")
@@ -140,7 +142,7 @@ for(chain in 1:nchain){
     lines(T,B%*%bayes_param$Theta[[chain]][,,i]%*%x, col = "gray")
   }
 }
-lines(Btru%*%Theta1%*%x, type = "l",col="red")
+lines(T,Btru%*%Theta1%*%x,col="red")
 
 sum((B%*%param$Theta%*%x - Btru%*%Theta1%*%x)^2)/sum((Btru%*%Theta1%*%x)^2)*100
 sum((B%*%bayes_mean%*%x - Btru%*%Theta1%*%x)^2)/sum((Btru%*%Theta1%*%x)^2)*100
