@@ -3,30 +3,30 @@ basis_version <- "
     int<lower=0> N; // Number of samples
     int<lower=0> P; // Dimension of basis
     int<lower=0> Q; // Dimension of loading matrix
-    vector[p * N] Theta; // Treating basis coefficients as response
+    vector[P * N] Theta; // Treating basis coefficients as response
     matrix[N,2] X;
   }
   parameters{
     matrix[10, Q] Lambda; // Loading matrix
-    vector<lower=0>[p] Phi_t;
+    vector<lower=0>[P] Phi_t;
     matrix[2, Q] Beta; // Latent mean matrix
     matrix[2, Q] D; // Latent covariance matrix
     vector[N] Xi; //Latent cov random effect
   }
   transformed parameters{
-    vector[p * N] Theta_hat;
+    vector[P * N] Theta_hat;
     vector[N * Q] Eta;
     for(i in 1:N){
       Eta[((i-1)*Q + 1):(i*Q)] = Beta' * X[i]' + D' * X[i]' * Xi[i];
     }
     for(i in 1:N){
-      Theta_hat[((i-1)*p + 1):(i*p)] = Lambda * Eta[((i-1)*Q + 1):(i*Q)];
+      Theta_hat[((i-1)*P + 1):(i*P)] = Lambda * Eta[((i-1)*Q + 1):(i*Q)];
     }
   }
   model{
     for(i in 1:N){
-      for(j in 1:p){
-        Theta[(i-1)*p + j] ~ normal(Theta_hat[(i-1)*p + j], Phi_t[j]);
+      for(j in 1:P){
+        Theta[(i-1)*P + j] ~ normal(Theta_hat[(i-1)*P + j], Phi_t[j]);
       }
     }
     Phi_t ~ inv_gamma(.001,.001);
@@ -35,18 +35,19 @@ basis_version <- "
   }
 "
 library(rstan)
+library(MASS)
 options(mc.cores =parallel::detectCores())
 rstan_options(auto_write = TRUE)
 m <- stan_model(model_code = basis_version)
-set.seed(2)
-n <- 400
+set.seed(1)
+n <- 500
 p <- 10
 q <- 3
 x_d <- 2
 X <- cbind(rep(1,n), rnorm(n))
 phi_t <- matrix(0, nrow = n, ncol = p)
 for(i in 1:n){
-  phi_t[i,] <- .5*mvrnorm(1, mu = rep(0, p), Sigma = diag(p))
+  phi_t[i,] <- 1*mvrnorm(1, mu = rep(0, p), Sigma = diag(p))
 }
 Lambda <- matrix(rnorm(p * q), nrow = p, ncol = q)
 D <- 5*matrix(rnorm(x_d * q), nrow = x_d, ncol = q)
@@ -62,12 +63,12 @@ for(i in 1:n){
 }
 Theta_vec <- c(t(Theta))
 output_samples <- 2000
-my_data <- list(N = n, p = p, Theta = Theta_vec, X = X)
-set.seed(3)
+my_data <- list(N = n, P = p, Theta = Theta_vec, X = X, Q = 3)
+set.seed(4)
 fit_vb <- vb(m, data = my_data, par = c("Beta", "D", "Lambda"), output_samples = output_samples)
 posterior <- extract(fit_vb)
-fit_sampling <- sampling(m, data = my_data, iter = 50000)
-posterior_sampling <- extract(fit_sampling)
+#fit_sampling <- sampling(m, data = my_data, iter = 50000)
+#posterior_sampling <- extract(fit_sampling)
 x <- c(1,-.5)
 true_mean <- Lambda%*%t(Beta)%*%x
 true_cov <- Lambda%*%t(D)%*%outer(x,x)%*%D%*%t(Lambda) + diag(p)
@@ -85,5 +86,12 @@ est_cov <- est_cov / output_samples
 #true_cov
 plot(est_mean)
 points(true_mean, col = "red")
+for(i in 1:output_samples){
+  points(posterior$Lambda[i,,]%*%t(posterior$Beta[i,,])%*%x)
+}
 plot(est_cov[lower.tri(est_cov)])
 points(true_cov[lower.tri(true_cov)], col = "red")
+for(i in 1:output_samples){
+  temp <- posterior$Lambda[i,,]%*%t(posterior$D[i,,])%*%outer(x,x)%*%posterior$D[i,,]%*%t(posterior$Lambda[i,,]) + diag(p)
+  points(temp[lower.tri(temp)])
+}
