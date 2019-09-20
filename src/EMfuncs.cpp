@@ -45,7 +45,7 @@ void cppupdateall(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision,
   arma::uword tmax = B.n_rows;
   arma::mat C = arma::solve(arma::trans(B) * B, arma::trans(B) * arma::trans(arma::solve(arma::trans(newX) * newX, arma::trans(newX) * newY, arma::solve_opts::likely_sympd)), arma::solve_opts::likely_sympd);
   precision(0) = (double(n) * double(tmax)) / arma::trace(arma::trans(newY - newX * arma::trans(C) * arma::trans(B)) * ((newY - newX * arma::trans(C) * arma::trans(B))));
-  Theta = C.cols(0, D - 1);
+  Theta = C.cols(0, D - 1); 
   Lambda = C.cols(D, C.n_cols - 1);
 }
 
@@ -152,7 +152,6 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
   newy.rows(0, n - 1) = Y;
   arma::uword i = 0;
   double loglik = cpploglik(pTheta, pLambda, precision, X, B, Y, K);
-  //Rcout << loglik << std::endl;
   double logliknew;
   double delta;
   bool taco = true;
@@ -168,7 +167,6 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
   }
   }
   */
-  
   while(taco == true){
     cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Yt, K);
     cppgetX(pEtaM, pEtaV, X, newx, cores);
@@ -176,9 +174,9 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
     if((i+1) % 100 == 0){
       logliknew = cpploglik(pTheta, pLambda, precision, X, B, Yt, K, cores);
       delta = (logliknew - loglik)/std::abs(loglik);
-      Rcout << delta << std::endl;
-      Rcout << logliknew << std::endl;
-      if(delta < 1e-6){
+      Rcout << "Delta: " << delta << std::endl;
+      Rcout << "Log-likelihood " << logliknew << std::endl;
+      if(delta < 1e-8){
         if(myswitch == true){
           taco = false;
         }
@@ -197,5 +195,51 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
     loglik = logliknew;
     i = i + 1;
   }
+  return(List::create(Named("Theta", pTheta), Named("Lambda", pLambda), Named("Precision", precision), Named("EtaM", pEtaM), Named("EtaV", pEtaV)));
+}
+
+// [[Rcpp::export]]
+List cpp_EM_new(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Theta_init, arma::mat Lambda_init, int cores = 1){
+  arma::uword D = X.n_cols;
+  arma::uword p = B.n_cols;
+  arma::uword n = Y.n_rows;
+  arma::uword tmax = B.n_rows;
+  arma::mat pTheta = Theta_init;
+  arma::mat pLambda = arma::randn<arma::mat>(p, D * K);
+  arma::mat pEtaM = arma::randn<arma::mat>(K, n);
+  arma::cube pEtaV = arma::cube(K, K, n);
+  pEtaV.each_slice() = arma::eye<arma::mat>(K, K);
+  arma::mat newx = arma::zeros<arma::mat>((K + 1) * n, (K + 1) * D);
+  arma::vec precision(1);
+  precision(0) = 1;
+  arma::mat newy = arma::zeros<arma::mat>((K + 1) * n, tmax);
+  newy.rows(0, n - 1) = Y;
+  arma::uword i = 0;
+  double loglik = cpploglik(pTheta, pLambda, precision, X, B, Y, K);
+  double logliknew;
+  double delta;
+  bool taco = true;
+
+  while(taco == true){
+    cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Y, K);
+    cppgetX(pEtaM, pEtaV, X, newx, cores);
+    cppupdateall(pTheta, pLambda, precision, newx, B, newy, K);
+    if(i % 1000 == 0){
+      Rcpp::Rcout << "Theta(1,1) = " << pTheta(0,0) << std::endl;
+      logliknew = cpploglik(pTheta, pLambda, precision, X, B, Y, K);
+      Rcpp::Rcout << "Log-likelihood " << logliknew << std::endl;
+      delta = (logliknew - loglik)/std::abs(loglik);
+      Rcpp::Rcout << "Delta " << delta << std::endl;
+    }
+    if(delta < 1e-6){
+      taco = false;
+    } else{
+      loglik = logliknew;
+    }
+    i = i + 1;
+  }
+
+  
+  
   return(List::create(Named("Theta", pTheta), Named("Lambda", pLambda), Named("Precision", precision), Named("EtaM", pEtaM), Named("EtaV", pEtaV)));
 }

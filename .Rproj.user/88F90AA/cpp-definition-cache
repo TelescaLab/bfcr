@@ -54,10 +54,19 @@
                 "name" : "cpp_EM(arma::mat, arma::mat, arma::mat, arma::uword, arma::mat, int)",
                 "parent_name" : "",
                 "usr" : "c:@F@cpp_EM#$@N@arma@C@Mat>#d#S0_#S0_#i#S0_#I#"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/EMfuncs.cpp",
+                "kind" : 6,
+                "line" : 202,
+                "name" : "cpp_EM_new(arma::mat, arma::mat, arma::mat, arma::uword, arma::mat, arma::mat, int)",
+                "parent_name" : "",
+                "usr" : "c:@F@cpp_EM_new#$@N@arma@C@Mat>#d#S0_#S0_#i#S0_#S0_#I#"
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/EMfuncs.cpp",
-        "file_last_write" : 1568317675
+        "file_last_write" : 1568933816
     },
     {
         "definitions" : [
@@ -72,7 +81,7 @@
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
-        "file_last_write" : 1568824483
+        "file_last_write" : 1568937222
     },
     {
         "definitions" : [

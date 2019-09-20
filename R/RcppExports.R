@@ -25,6 +25,10 @@ cpp_EM <- function(X, B, Y, K, Theta_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM`, X, B, Y, K, Theta_init, cores)
 }
 
+cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
+    .Call(`_BayesianConditionalFPCA_cpp_EM_new`, X, B, Y, K, Theta_init, Lambda_init, cores)
+}
+
 MCMC <- function(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init, Prec_init) {
     .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init, Prec_init)
 }
