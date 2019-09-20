@@ -121,10 +121,11 @@ for(i in 1:100){
     burnin <- 1000
     thin <- 1
     nchain <- 1
-    Lambda_init <- array(param$Lambda, dim = c(p, 2, K))
+    Lambda_init <- array(rnorm(p*2*K), dim = c(p, 2, K))
     #Lambda_init <- array(cbind(Lambda1, Lambda2), dim = c(p, 2, K))
-    Eta_init <- t(param$EtaM)
+    #Eta_init <- t(param$EtaM)
     #Eta_init <- cbind(Eta1, Eta2)
+    Eta_init <- matrix(rnorm(n*K), ncol = K)
     Prec_init <- param$Precision
     set.seed(1)
     bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, Theta_init, Lambda_init, Eta_init, Prec_init)
