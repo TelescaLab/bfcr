@@ -105,6 +105,14 @@ updateTheta <- function(Y, Lambda, Tau, Gamma, X, B, prec, Theta) {
     invisible(.Call(`_BayesianConditionalFPCA_updateTheta`, Y, Lambda, Tau, Gamma, X, B, prec, Theta))
 }
 
+updateTheta2 <- function(Y, Lambda, Tau, X, B, prec, Theta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateTheta2`, Y, Lambda, Tau, X, B, prec, Theta))
+}
+
+updateThetaLambda <- function(Y, Lambda, Eta, Tau, X, B, prec, Theta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambda`, Y, Lambda, Eta, Tau, X, B, prec, Theta))
+}
+
 updateEta <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
     invisible(.Call(`_BayesianConditionalFPCA_updateEta`, Y, Lambda, Sigma, Eta, X, B, prec, Theta))
 }

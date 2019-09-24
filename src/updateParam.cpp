@@ -85,6 +85,53 @@ void updateTheta(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& Ga
   Theta = arma::trans(arma::reshape(mymean + arma::solve(arma::trimatl(mychol), arma::randn<arma::vec>(Theta.n_rows * Theta.n_cols)), Theta.n_cols, Theta.n_rows));
 }
 
+// Marginalizing over distribution of random effects...
+// [[Rcpp::export]]
+void updateTheta2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
+  arma::mat P = getPenalty2(Theta.n_rows, 2);
+  arma::uword n = Y.n_rows;
+  arma::uword d = Theta.n_cols;
+  arma::mat V = arma::zeros<arma::mat>(Theta.n_rows * d, Theta.n_rows * d);
+  arma::vec Mu = arma::zeros<arma::vec>(Theta.n_rows * d);
+  for(arma::uword i = 0; i < n; i++){
+    arma::mat Vx = arma::zeros<arma::mat>(B.n_rows, B.n_rows);
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      Vx = Vx + B * Lambda.slice(k) * X.row(i).t() * X.row(i) * Lambda.slice(k).t() * B.t();
+    }
+    Vx = Vx + 1/prec * arma::eye(B.n_rows, B.n_rows);
+    arma::mat Vx_inv = arma::inv_sympd(Vx);
+    V = V + arma::kron(X.row(i).t(), B.t()) * Vx_inv * arma::kron(X.row(i), B);
+    Mu = Mu + arma::kron(X.row(i).t(), B.t()) * Vx_inv * Y.row(i).t();
+  }
+  V = V + arma::kron(P, arma::diagmat(Tau.row(0)));
+  arma::mat mychol = arma::chol(V, "lower");
+  arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), Mu));
+  Theta = arma::reshape(mymean + arma::solve(arma::trimatl(mychol), arma::randn(Theta.n_cols * Theta.n_rows)), Theta.n_rows, Theta.n_cols);
+}
+
+// [[Rcpp::export]]
+void updateThetaLambda(arma::mat &Y, arma::cube& Lambda, arma::mat& Eta, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
+  arma::uword n = Y.n_rows;
+  arma::uword p = Theta.n_rows;
+  arma::uword d = Theta.n_cols;
+  arma::uword K = Lambda.n_slices;
+  arma::mat P = getPenalty2(p, 2);
+  arma::mat X_eta(n, (1 + K) * d);
+  arma::vec result((K+1)*d*p);
+  X_eta.cols(0, d - 1) = X;
+  for(arma::uword k = 0; k < K; k++){
+    X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * X;
+  }
+  arma::mat Prior = arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
+  arma::mat Precision = prec * arma::kron(X_eta.t() * X_eta, B.t() * B) + Prior;
+  arma::mat mychol = arma::chol(Precision, "lower");
+  arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), prec * arma::vectorise(B.t() * Y.t() * X_eta)));
+  result = mymean + arma::solve(arma::trimatl(mychol), arma::randn((1+K)*p*d));
+  Theta = arma::reshape(result.rows(0, p*d-1), p, d);
+  for(arma::uword k = 0; k < K; k++){
+    Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
+  }
+}
 // [[Rcpp::export]]
 void updateEta(arma::mat& Y, arma::cube& Lambda, arma::vec& Sigma, arma::mat& Eta, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
   arma::uword nsubj = Y.n_rows;
@@ -174,8 +221,8 @@ double updatePrec(arma::mat& Y, arma::cube& Lambda, arma::mat Gamma, arma::mat& 
 
 // [[Rcpp::export]]
 void updateTau(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau){
-  double t_alpha = .01;
-  double t_beta = .01;
+  double t_alpha = 1;
+  double t_beta = .00001;
   //double t_beta = 1;
   arma::mat P = getPenalty2(Lambda.n_rows, 2);
   arma::uword R = Lambda.n_slices;

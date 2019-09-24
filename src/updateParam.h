@@ -18,4 +18,7 @@ double updatePrecS(arma::field<arma::vec>& Y, arma::cube& Lambda, arma::mat Gamm
 void updateTau(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau);
 void updateSigma(arma::mat& Eta, arma::vec& Sigma);
 void updatec(arma::cube& Lambda, arma::mat& c);
+void updateTheta2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
+void updateThetaLambda(arma::mat &Y, arma::cube& Lambda, arma::mat& Eta, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
+  
 #endif

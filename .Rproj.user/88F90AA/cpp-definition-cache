@@ -81,7 +81,7 @@
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/MCMC.cpp",
-        "file_last_write" : 1568937222
+        "file_last_write" : 1569346628
     },
     {
         "definitions" : [
@@ -308,7 +308,25 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 89,
+                "line" : 90,
+                "name" : "updateTheta2(arma::mat &, arma::cube &, arma::mat &, arma::mat &, arma::mat &, double, arma::mat &)",
+                "parent_name" : "",
+                "usr" : "c:@F@updateTheta2#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#S0_#S0_#S0_#d#S0_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
+                "kind" : 6,
+                "line" : 113,
+                "name" : "updateThetaLambda(arma::mat &, arma::cube &, arma::mat &, arma::mat &, arma::mat &, arma::mat &, double, arma::mat &)",
+                "parent_name" : "",
+                "usr" : "c:@F@updateThetaLambda#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#S0_#S0_#S0_#S0_#d#S0_#"
+            },
+            {
+                "column" : 6,
+                "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
+                "kind" : 6,
+                "line" : 136,
                 "name" : "updateEta(arma::mat &, arma::cube &, arma::vec &, arma::mat &, arma::mat &, arma::mat &, double, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateEta#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#&$@N@arma@C@Col>#d#S0_#S0_#S0_#d#S0_#"
@@ -317,7 +335,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 111,
+                "line" : 158,
                 "name" : "updateEta2(arma::mat &, arma::cube &, arma::vec &, arma::mat &, arma::mat &, arma::mat &, double, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateEta2#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#&$@N@arma@C@Col>#d#S0_#S0_#S0_#d#S0_#"
@@ -326,7 +344,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 129,
+                "line" : 176,
                 "name" : "updateEta3(arma::mat &, arma::cube &, arma::mat &, arma::mat &, arma::mat &, double, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateEta3#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#S0_#S0_#S0_#d#S0_#"
@@ -335,7 +353,7 @@
                 "column" : 8,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 153,
+                "line" : 200,
                 "name" : "updatePrec(arma::mat &, arma::cube &, arma::mat, arma::mat &, arma::mat &, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updatePrec#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#S1_#S0_#S0_#S0_#"
@@ -344,7 +362,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 176,
+                "line" : 223,
                 "name" : "updateTau(arma::mat &, arma::cube &, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateTau#&$@N@arma@C@Mat>#d#&$@N@arma@C@Cube>#d#S0_#"
@@ -353,7 +371,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 194,
+                "line" : 241,
                 "name" : "updateSigma(arma::mat &, arma::vec &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updateSigma#&$@N@arma@C@Mat>#d#&$@N@arma@C@Col>#d#"
@@ -362,7 +380,7 @@
                 "column" : 6,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 205,
+                "line" : 252,
                 "name" : "updatec(arma::cube &, arma::mat &)",
                 "parent_name" : "",
                 "usr" : "c:@F@updatec#&$@N@arma@C@Cube>#d#&$@N@arma@C@Mat>#d#"
@@ -371,20 +389,20 @@
                 "column" : 8,
                 "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
                 "kind" : 6,
-                "line" : 224,
+                "line" : 271,
                 "name" : "gam_trunc_left(double, double, double)",
                 "parent_name" : "",
                 "usr" : "c:@F@gam_trunc_left#d#d#d#"
             }
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.cpp",
-        "file_last_write" : 1568826995
+        "file_last_write" : 1569361227
     },
     {
         "definitions" : [
         ],
         "file" : "/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/src/updateParam.h",
-        "file_last_write" : 1568150558
+        "file_last_write" : 1569277254
     },
     {
         "definitions" : [

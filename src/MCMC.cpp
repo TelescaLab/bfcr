@@ -46,41 +46,48 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
   for(arma::uword u = 0; u < nchains; u++){
     // Set initial values
     
-    //Sigma.ones();
-    //Tau.ones();
-    //c.zeros();
-    //Tau = Tau * 10000;
-    //Theta.randn()
-    //Lambda.randn();
-     //;
-    //Eta.randn();
+    
     arma::cube Lambda(p, D, K);
     arma::mat Eta(N, K);
     arma::mat Tau(K + 1, D);
     arma::mat Theta(p, D);
-    //double Prec = 1;
-    
+    double Prec;
+    Tau.ones();
+    /*
+    Theta.randn();
+    Lambda.randn();
+    Eta.randn();
+    Prec = 1;
+    */
     Lambda = Lambda_init;
     Eta = Eta_init;
     Theta = Theta_init;
-    double Prec = Prec_init;
+    Prec = Prec_init;
     
     
     
     
     //double Prec = PrecEM;
     for(arma::uword i = 0; i < iter; i++){
-      
+      if(i % 100 == 0){
+        Rcpp::Rcout << i << std::endl;
+      }
       //Rcpp::Rcout << i << std::endl;
       for(arma::uword j = 0; j < thin; j++){
-        updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
+        
+        //updateEta3(Y, Lambda, Eta, X, B, Prec, Theta);
         Prec = updatePrec(Y, Lambda, Eta, X, B, Theta);
-        updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
+        updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
+        //updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         //updateTheta(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
+        //updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
         updateTau(Theta, Lambda, Tau);
       //Tau.zeros();
+        //if(i % 10 == 0){
+          updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
+        //}
       }
-    
+
       LambdaF(u, i) = Lambda;
       ThetaF(u).slice(i) = Theta;
       EtaF(u).slice(i) = Eta;
