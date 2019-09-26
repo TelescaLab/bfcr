@@ -1,4 +1,5 @@
 #include <RcppArmadillo.h>
+#include <cmath>
 #include "Utility.h"
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -106,7 +107,9 @@ void updateTheta2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& X
   V = V + arma::kron(P, arma::diagmat(Tau.row(0)));
   arma::mat mychol = arma::chol(V, "lower");
   arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), Mu));
-  Theta = arma::reshape(mymean + arma::solve(arma::trimatl(mychol), arma::randn(Theta.n_cols * Theta.n_rows)), Theta.n_rows, Theta.n_cols);
+  Theta = arma::reshape(arma::mvnrnd(mymean, arma::inv_sympd(V)), Theta.n_rows, Theta.n_cols);
+  //Rcpp::Rcout << arma::reshape(mymean, Theta.n_rows, Theta.n_cols);
+  //Theta = arma::reshape(mymean + arma::solve(arma::trimatl(mychol), arma::randn(Theta.n_cols * Theta.n_rows)), Theta.n_rows, Theta.n_cols);
 }
 
 // [[Rcpp::export]]
@@ -131,6 +134,58 @@ void updateThetaLambda(arma::mat &Y, arma::cube& Lambda, arma::mat& Eta, arma::m
   for(arma::uword k = 0; k < K; k++){
     Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
   }
+}
+
+// [[Rcpp::export]]
+void updateThetaLambdaMH(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau, double prec, arma::mat& X, arma::mat& B, double noise, arma::uword n){
+  arma::uword D = X.n_cols;
+  arma::mat Theta_Proposal = Theta;
+  arma::cube Lambda_Proposal = Lambda;
+  double J, P, A;
+  for(arma::uword d = 0; d < D; d++){
+    arma::mat Lambda_temp = Lambda.col(d);
+    double prior_prop_lambda = 0;
+    double prior_curr_lambda = 0;
+    //Rcpp::List Proposals = Proposal(Theta.col(d), arma::mat(Lambda.col(d)), noise, n);
+    //arma::vec new_theta = Proposals["Theta_Proposal"];
+    //arma::mat new_lambda = Proposals["Lambda_Proposal"];
+    arma::vec new_theta = Theta.col(d) + noise * arma::randn<arma::vec>(Lambda.n_rows);
+    arma::mat new_lambda = Lambda_temp + noise * arma::randn<arma::mat>(Lambda.n_rows, Lambda.n_slices);
+    Theta_Proposal.col(d) = new_theta;
+    Lambda_Proposal.col(d) = new_lambda;
+    J = cpploglik_bayes(Theta_Proposal, Lambda, prec, X, B, Y, 12);
+    if(d == 0){
+      P = cpploglik_bayes(Theta, Lambda, prec, X, B, Y, 12);
+    }
+    A = J - P -1/2 * Tau(0, d) * arma::as_scalar(Theta.col(d).t() * getPenalty2(Lambda.n_rows, 2) * Theta.col(d) + 1/2 *
+      Theta_Proposal.col(d).t() * getPenalty2(Lambda.n_rows, 2) * Theta_Proposal.col(d));
+    if(R::runif(0.0, 1.0) < exp(A)){
+       Theta.col(d) = Theta_Proposal.col(d);
+       P = J;
+    } else{
+      Theta_Proposal.col(d) = Theta.col(d);
+    }
+    
+    J = cpploglik_bayes(Theta, Lambda_Proposal, prec, X, B, Y, 12);
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      prior_prop_lambda = prior_prop_lambda + Tau(k + 1, d) * arma::as_scalar(Lambda_Proposal.slice(k).col(d).t() *
+        getPenalty2(Lambda.n_rows, 2) * Lambda_Proposal.slice(k).col(d));
+      prior_curr_lambda = prior_curr_lambda + Tau(k + 1, d) * arma::as_scalar(Lambda.slice(k).col(d).t() *
+        getPenalty2(Lambda.n_rows, 2) * Lambda.slice(k).col(d));
+    }
+    
+    A = J - P -1/2 * prior_curr_lambda + 1/2 * prior_prop_lambda;
+    if(R::runif(0.0, 1.0) < exp(A)){
+      Lambda.col(d) = Lambda_Proposal.col(d);
+      P = J;
+    }
+    else{
+      Lambda_Proposal.col(d) = Lambda.col(d);
+    }
+  }
+  //arma::mat Lambda_current.col
+  //Rcpp::List Proposals = Proposal(Theta.col(0), Lambda.slice(0).col(0));
+  //arma::vec Theta_Proposal = d["Theta_Proposal"];
 }
 // [[Rcpp::export]]
 void updateEta(arma::mat& Y, arma::cube& Lambda, arma::vec& Sigma, arma::mat& Eta, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
@@ -222,7 +277,7 @@ double updatePrec(arma::mat& Y, arma::cube& Lambda, arma::mat Gamma, arma::mat& 
 // [[Rcpp::export]]
 void updateTau(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau){
   double t_alpha = 1;
-  double t_beta = .00001;
+  double t_beta = 1;
   //double t_beta = 1;
   arma::mat P = getPenalty2(Lambda.n_rows, 2);
   arma::uword R = Lambda.n_slices;

@@ -7,7 +7,7 @@
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init, double Prec_init){
+List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword nchains, arma::uword thin, double noise, arma::uword n, arma::mat Theta_init, arma::cube Lambda_init, arma::mat Eta_init, double Prec_init){
   int p = B.n_cols;
   int N = Y.n_rows;
   int D = X.n_cols;
@@ -77,14 +77,16 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
         
         //updateEta3(Y, Lambda, Eta, X, B, Prec, Theta);
         Prec = updatePrec(Y, Lambda, Eta, X, B, Theta);
-        updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
-        //updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
+        //updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
+        //updateThetaLambdaMH(Y, Theta, Lambda, Tau, Prec, X, B, noise, n);
+        
+        updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         //updateTheta(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
-        //updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
+        updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
         updateTau(Theta, Lambda, Tau);
       //Tau.zeros();
         //if(i % 10 == 0){
-          updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
+         updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
         //}
       }
 

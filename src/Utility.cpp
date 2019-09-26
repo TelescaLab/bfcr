@@ -1,4 +1,6 @@
 #include <RcppArmadillo.h>
+#include <omp.h>
+// [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
 
 // [[Rcpp::export]]
@@ -13,6 +15,7 @@ arma::mat DiffOp(arma::uword n){
 // [[Rcpp::export]]
 arma::mat getPenalty2(arma::uword n, arma::uword D){
   arma::mat DiffMat = DiffOp(n);
+  DiffMat.rows(0, D-1).zeros();
   for(arma::uword d = 1; d < D; d++){
     DiffMat = DiffMat * DiffMat;
   }
@@ -98,4 +101,52 @@ void PredictY2(arma::mat& ImputedY, arma::field<arma::uvec> observedOrder, arma:
 }
 arma::uvec test(arma::field<arma::vec> observedTimes, arma::vec fullTimes){
   return(getObservedOrder(observedTimes(0), fullTimes));
+}
+
+// Propose a new column of Theta and new columns of Lambda 
+// [[Rcpp::export]]
+Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise = .1, arma::uword samples = 200){
+  arma::mat Y = arma::mvnrnd(Theta, Lambda * Lambda.t() + noise * arma::eye(Lambda.n_rows, Lambda.n_rows), samples);
+  arma::mat coeff;
+  arma::mat score;
+  arma::vec latent;
+  arma::princomp(coeff, score, latent, Y.t());
+  arma::mat Lambda_Proposal = coeff.cols(0, Lambda.n_cols - 1) * arma::diagmat(arma::sqrt(latent.subvec(0, Lambda.n_cols - 1)));
+  return(Rcpp::List::create(Rcpp::Named("Theta_Proposal", arma::mean(Y, 1)), Rcpp::Named("Lambda_Proposal", Lambda_Proposal)));
+}
+
+// [[Rcpp::export]]
+double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision,
+                 arma::mat &X, arma::mat &B, arma::mat &Y, int cores = 1){
+  arma::uword K = Lambda.n_slices;
+  arma::uword n = Y.n_rows;
+  arma::uword tmax = Y.n_cols;
+  arma::uword p = Lambda.n_rows;
+  
+  double loglik = 0;
+  double constants = -double(tmax) / 2 * log(2 * PI);
+  omp_set_num_threads(cores);
+  #pragma omp parallel for reduction(+:loglik)
+  for(arma::uword i = 0; i < n; i++){
+    arma::vec mean(tmax);
+    arma::mat cov(tmax, tmax);
+    arma::mat LambdaCov = arma::zeros<arma::mat>(p, p);
+    arma::mat precisionmat = 1/precision * arma::eye<arma::mat>(tmax, tmax);
+    arma::mat rooti;
+    double rootisum;
+    arma::mat rootsum;
+    arma::vec z;
+    for(arma::uword k = 0; k < K; k++){
+      LambdaCov = Lambda.slice(k) * X.row(i).t() * X.row(i) * Lambda.slice(k).t() + LambdaCov;
+    }
+    mean = B * Theta * arma::trans(X.row(i));
+    cov = B * LambdaCov * arma::trans(B) + precisionmat;
+    LambdaCov.zeros();
+    rooti = arma::trans(arma::inv(trimatu(arma::chol(cov))));
+    rootisum = arma::sum(log(rooti.diag()));
+    z = rooti * arma::trans(Y.row(i) - arma::trans(mean));
+    loglik = constants - 0.5 * arma::sum(z % z) + rootisum + loglik;
+  }
+  
+  return(loglik);
 }

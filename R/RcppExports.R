@@ -29,8 +29,8 @@ cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM_new`, X, B, Y, K, Theta_init, Lambda_init, cores)
 }
 
-MCMC <- function(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init, Prec_init) {
-    .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init, Prec_init)
+MCMC <- function(Y, X, B, K, iter, nchains, thin, noise, n, Theta_init, Lambda_init, Eta_init, Prec_init) {
+    .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, nchains, thin, noise, n, Theta_init, Lambda_init, Eta_init, Prec_init)
 }
 
 MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
@@ -73,6 +73,14 @@ PredictY2 <- function(ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec) {
     invisible(.Call(`_BayesianConditionalFPCA_PredictY2`, ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec))
 }
 
+Proposal <- function(Theta, Lambda, noise = .1, samples = 200L) {
+    .Call(`_BayesianConditionalFPCA_Proposal`, Theta, Lambda, noise, samples)
+}
+
+cpploglik_bayes <- function(Theta, Lambda, precision, X, B, Y, cores = 1L) {
+    .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, X, B, Y, cores)
+}
+
 rcpparma_hello_world <- function() {
     .Call(`_BayesianConditionalFPCA_rcpparma_hello_world`)
 }
@@ -111,6 +119,10 @@ updateTheta2 <- function(Y, Lambda, Tau, X, B, prec, Theta) {
 
 updateThetaLambda <- function(Y, Lambda, Eta, Tau, X, B, prec, Theta) {
     invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambda`, Y, Lambda, Eta, Tau, X, B, prec, Theta))
+}
+
+updateThetaLambdaMH <- function(Y, Theta, Lambda, Tau, prec, X, B, noise, n) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaMH`, Y, Theta, Lambda, Tau, prec, X, B, noise, n))
 }
 
 updateEta <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
