@@ -150,3 +150,37 @@ double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision,
   
   return(loglik);
 }
+
+// [[Rcpp::export]]
+void find_stepsize(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, double prec, arma::mat& X, arma::mat& B, double noise){
+  arma::uword D = X.n_cols;
+  arma::mat Theta_Proposal = Theta;
+  arma::cube Lambda_Proposal = Lambda;
+  double J, P;
+  for(arma::uword d = 0; d < D; d++){
+    arma::mat Lambda_temp = Lambda.col(d);
+    arma::mat new_lambda = Lambda_temp + noise * arma::randn<arma::mat>(Lambda.n_rows, Lambda.n_slices);
+    
+    //Theta_Proposal.col(d) = new_theta;
+    Lambda_Proposal.col(d) = new_lambda;
+    //J = cpploglik_bayes(Theta_Proposal, Lambda, prec, X, B, Y, 12);
+    
+    if(d == 0){
+      P = cpploglik_bayes(Theta, Lambda, prec, X, B, Y, 12);
+    }
+    /*
+    A = J - P -1/2 * Tau(0, d) * arma::as_scalar(Theta.col(d).t() * getPenalty2(Lambda.n_rows, 2) * Theta.col(d) + 1/2 *
+    Theta_Proposal.col(d).t() * getPenalty2(Lambda.n_rows, 2) * Theta_Proposal.col(d));
+    if(R::runif(0.0, 1.0) < exp(A)){
+    Theta.col(d) = Theta_Proposal.col(d);
+    P = J;
+    } else{
+    Theta_Proposal.col(d) = Theta.col(d);
+    }
+    */
+    J = cpploglik_bayes(Theta, Lambda_Proposal, prec, X, B, Y, 12);
+    Rcpp::Rcout << "Current likelihood: " << P << std::endl << "Proposal likelihood: " << J << std::endl << 
+      "Probability of acceptance: " << exp(J-P)*100 << "%" << std::endl;
+
+  }
+}

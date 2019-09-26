@@ -320,6 +320,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// find_stepsize
+void find_stepsize(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, double prec, arma::mat& X, arma::mat& B, double noise);
+RcppExport SEXP _BayesianConditionalFPCA_find_stepsize(SEXP YSEXP, SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP precSEXP, SEXP XSEXP, SEXP BSEXP, SEXP noiseSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< double >::type prec(precSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< double >::type noise(noiseSEXP);
+    find_stepsize(Y, Theta, Lambda, prec, X, B, noise);
+    return R_NilValue;
+END_RCPP
+}
 // rcpparma_hello_world
 arma::mat rcpparma_hello_world();
 RcppExport SEXP _BayesianConditionalFPCA_rcpparma_hello_world() {
@@ -654,6 +670,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_PredictY2", (DL_FUNC) &_BayesianConditionalFPCA_PredictY2, 8},
     {"_BayesianConditionalFPCA_Proposal", (DL_FUNC) &_BayesianConditionalFPCA_Proposal, 4},
     {"_BayesianConditionalFPCA_cpploglik_bayes", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_bayes, 7},
+    {"_BayesianConditionalFPCA_find_stepsize", (DL_FUNC) &_BayesianConditionalFPCA_find_stepsize, 7},
     {"_BayesianConditionalFPCA_rcpparma_hello_world", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_hello_world, 0},
     {"_BayesianConditionalFPCA_rcpparma_outerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_outerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},

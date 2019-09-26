@@ -149,9 +149,9 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
   arma::mat Yt = Y + inflation * arma::randn<arma::mat>(n, tmax);
   arma::mat Et;
   arma::mat newy = arma::zeros<arma::mat>((K + 1) * n, tmax);
-  newy.rows(0, n - 1) = Y;
+  newy.rows(0, n - 1) = Yt;
   arma::uword i = 0;
-  double loglik = cpploglik(pTheta, pLambda, precision, X, B, Y, K);
+  double loglik = cpploglik(pTheta, pLambda, precision, X, B, Yt, K);
   double logliknew;
   double delta;
   bool taco = true;
@@ -174,6 +174,9 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
     if((i+1) % 100 == 0){
       logliknew = cpploglik(pTheta, pLambda, precision, X, B, Yt, K, cores);
       delta = (logliknew - loglik)/std::abs(loglik);
+      if(delta < 0){
+        break;
+      }
       Rcout << "Delta: " << delta << std::endl;
       Rcout << "Log-likelihood " << logliknew << std::endl;
       if(delta < 1e-8){

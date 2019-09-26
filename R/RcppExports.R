@@ -81,6 +81,10 @@ cpploglik_bayes <- function(Theta, Lambda, precision, X, B, Y, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, X, B, Y, cores)
 }
 
+find_stepsize <- function(Y, Theta, Lambda, prec, X, B, noise) {
+    invisible(.Call(`_BayesianConditionalFPCA_find_stepsize`, Y, Theta, Lambda, prec, X, B, noise))
+}
+
 rcpparma_hello_world <- function() {
     .Call(`_BayesianConditionalFPCA_rcpparma_hello_world`)
 }

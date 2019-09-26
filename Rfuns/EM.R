@@ -1,5 +1,5 @@
-#setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
-setwd("E:/Rcpp stuff/BFPCA")
+setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
+#setwd("E:/Rcpp stuff/BFPCA")
 {
   library(MASS)
   library(splines)
@@ -60,8 +60,8 @@ setwd("E:/Rcpp stuff/BFPCA")
 }
   
 {
-  set.seed(2)
-  n <- 200
+  set.seed(1)
+  n <- 400
   tmax <- 50
   p <- 12
   T <- seq(from = 0, to = 1, length.out = tmax)
@@ -70,9 +70,9 @@ setwd("E:/Rcpp stuff/BFPCA")
   #Btru <- ps(T, df = p)
   Btru <- bs(T, df = p, intercept = TRUE)
   #X <- cbind(rep(1,n))
-  #X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
+  X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
   #X <- cbind(rep(1,n),runif(n,min=-1,max=1))
-  X <- cbind(rep(1,n), rnorm(n, sd = 1))
+  #X <- cbind(rep(1,n), rnorm(n, sd = 1))
   d <- dim(X)[2]
   Eta1 <- rnorm(n)
   Eta2 <- rnorm(n)
@@ -81,8 +81,8 @@ setwd("E:/Rcpp stuff/BFPCA")
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda1 <- L1[,1]
   #Lambda2 <- L2[,1]
-  Lambda1 <-  1*L1
-  Lambda2 <-  1*L2
+  Lambda1 <-  10*L1
+  Lambda2 <-  10*L2
   #Theta1 <- Theta[,1]
   Theta1 <- 1*Theta
   #X <- as.matrix(X[,1])
@@ -96,11 +96,11 @@ setwd("E:/Rcpp stuff/BFPCA")
   Yt <- Y + Et1
 }
 dev.off()
-plot(Y[1,],type="p")
+plot(Y[2,],type="p")
 n_500_high_noise_high_between <- numeric(100)
 for(i in 1:100){
   {
-    set.seed(4)
+    set.seed(2)
     p <- 12
     #B <- bs(T, df = p, intercept = TRUE)
     B <- ps(T, df = p, diff = 1, intercept = TRUE)
@@ -126,16 +126,20 @@ for(i in 1:100){
       Eta_init <- matrix(rnorm(n*K), ncol = K)
       Prec_init <- 200
     }
-    max_iter <- 2000
+    max_iter <- 1000
     burnin <- 100
     thin <- 1
     nchain <- 1
     set.seed(2)
-    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, .01, 100, Theta_init, Lambda_init, Eta_init, Prec_init)
-    #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
+    find_stepsize(Y, Theta_init, Lambda_init, Prec_init, X, B, .0015)
+    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, .001, 100, Theta_init, Lambda_init, Eta_init, Prec_init)
+    bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
   }
 }
-updateThetaLambdaMH(Y, Theta_init, Lambda_init, matrix(1, nrow = 3, ncol = 2), Prec_init, X, B)
+L <- sapply(1:max_iter, function(i)bayes_param$Lambda[[1,i]][3,1,1])
+plot(L, type = "l")
+
+find_stepsize(Y, Theta_init, Lambda_init, Prec_init, X, B, .001)
 dev.off()
 x <- c(1,1)
 bayes_mean <- matrix(0, nrow = p, ncol = 2)
@@ -144,12 +148,12 @@ for(i in 1:nchain){
 }
 bayes_mean <- bayes_mean / nchain
 
-plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean, x = -1", xlab = "t", ylim = c(0,2))
+plot(T,Btru%*%Theta1%*%x, type = "l", ylab = "Mean, x = -0.5", xlab = "t", ylim = c(1, 2))
 lines(T,B%*%Theta_init%*%x,col="green")
 lines(T,B%*%param$Theta%*%x, col = "blue")
 lines(T,B%*%bayes_mean%*%x, col = "red")
 for(chain in 1:nchain){
-  for(i in seq(from = burnin, to = max_iter, by = 10)){
+  for(i in seq(from = burnin, to = max_iter, by = 1)){
     lines(T,B%*%bayes_param$Theta[[chain]][,,i]%*%x, col = "gray")
   }
 }
@@ -183,6 +187,28 @@ persp3D(1:tmax,1:tmax, covtruth, theta=90,phi=10, main = "Truth", colkey = FALSE
 persp3D(1:tmax,1:tmax, covfreq, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "EM algorithm", colkey = FALSE)
 persp3D(1:tmax,1:tmax, covbayes, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "Gibbs sampling", colkey = FALSE)
 
+
+cov1 <- matrix(0, nrow = tmax, ncol = tmax)
+iter <- 1
+for(a in 1:K){
+  cov1 <- cov1 + B%*%bayes_param$Lambda[[chain,iter]][,,a]%*%outer(x,x)%*%t(bayes_param$Lambda[[chain,iter]][,,a])%*%t(B) 
+}
+  
+cov2 <- matrix(0, nrow = tmax, ncol = tmax)
+iter <- 1000
+for(a in 1:K){
+  cov2 <- cov2 + B%*%bayes_param$Lambda[[chain,iter]][,,a]%*%outer(x,x)%*%t(bayes_param$Lambda[[chain,iter]][,,a])%*%t(B) 
+}
+
+cov3 <- matrix(0, nrow = tmax, ncol = tmax)
+iter <- 500
+for(a in 1:K){
+  cov3 <- cov3 + B%*%bayes_param$Lambda[[chain,iter]][,,a]%*%outer(x,x)%*%t(bayes_param$Lambda[[chain,iter]][,,a])%*%t(B) 
+}
+
+persp3D(1:tmax,1:tmax, cov1, theta=90,phi=10, main = "Truth", colkey = FALSE)
+persp3D(1:tmax,1:tmax, cov2, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "EM algorithm", colkey = FALSE)
+persp3D(1:tmax,1:tmax, cov3, theta=90,phi=10, zlim = c(min(unlist(covtruth)),max(unlist(covtruth))), main = "Gibbs sampling", colkey = FALSE)
 
 dev.off()
 subj <- 2
@@ -228,3 +254,9 @@ matrix(mvrnorm(1, mu = solve(V)%*%mu_f, Sigma = solve(V)), ncol = 2)
 Theta_init2 <- Theta_init
 updateTheta2(Y, Lambda_init, matrix(1, nrow = 3, ncol = 2), X, B, Prec_init, Theta_init2)
 Theta_init2
+
+A <- Proposal(Theta_init[,1], Lambda_init[,1,], noise = .0001, 10000)
+Lambda_init2 <- Lambda_init
+Lambda_init2[,1,] <- A$Lambda_Proposal
+cpploglik_bayes(Theta_init, Lambda_init, Prec_init, X, B, Y, 12)
+cpploglik_bayes(Theta_init, Lambda_init2, Prec_init, X, B, Y, 12)
