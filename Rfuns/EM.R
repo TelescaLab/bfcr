@@ -81,14 +81,14 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda1 <- L1[,1]
   #Lambda2 <- L2[,1]
-  Lambda1 <-  1*L1
-  Lambda2 <-  1*L2
+  Lambda1 <-  5*L1
+  Lambda2 <-  5*L2
   #Theta1 <- Theta[,1]
   Theta1 <- 1*Theta
   #X <- as.matrix(X[,1])
   #Lambda%*%t(Lambda)
   #Theta <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = dim(X)[2])
-  noise_sd <- .01
+  noise_sd <- .0001
   E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
   Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + E + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru)# + E
   inflation <- 5
@@ -97,11 +97,13 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
 }
 dev.off()
 plot(Y[2,],type="p")
+matplot(t(Y[1:100,]), type="l")
+lines(B%*%Theta1%*%c(1,0))
 n_500_high_noise_high_between <- numeric(100)
 for(i in 1:100){
   {
-    set.seed(1)
-    p <- 20
+    set.seed(3)
+    p <- 12
     #B <- bs(T, df = p, intercept = TRUE)
     B <- ps(T, df = p, diff = 1, intercept = TRUE)
     K <- 2
@@ -129,7 +131,7 @@ for(i in 1:100){
     max_iter <- 1000
     burnin <- 500
     thin <- 1
-    nchain <- 1
+    nchain <- 10
     set.seed(2)
     find_stepsize(Y, Theta_init, Lambda_init, Prec_init, X, B, .0015)
     bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, .001, 100, Theta_init, Lambda_init, Eta_init, Prec_init)
@@ -142,7 +144,7 @@ plot(L, type = "l")
 
 find_stepsize(Y, Theta_init, Lambda_init, Prec_init, X, B, .001)
 dev.off()
-x <- c(1,1)
+x <- c(1,0)
 bayes_mean <- matrix(0, nrow = p, ncol = 2)
 for(i in 1:nchain){
   bayes_mean <- bayes_mean + apply(bayes_param$Theta[[i]][,,burnin:max_iter], c(1,2), mean)
@@ -196,13 +198,13 @@ for(a in 1:K){
 }
   
 cov2 <- matrix(0, nrow = tmax, ncol = tmax)
-iter <- 10000
+iter <- 1000
 for(a in 1:K){
   cov2 <- cov2 + B%*%bayes_param$Lambda[[chain,iter]][,,a]%*%outer(x,x)%*%t(bayes_param$Lambda[[chain,iter]][,,a])%*%t(B) 
 }
 
 cov3 <- matrix(0, nrow = tmax, ncol = tmax)
-iter <- 5000
+iter <- 500
 for(a in 1:K){
   cov3 <- cov3 + B%*%bayes_param$Lambda[[chain,iter]][,,a]%*%outer(x,x)%*%t(bayes_param$Lambda[[chain,iter]][,,a])%*%t(B) 
 }

@@ -129,8 +129,14 @@ void updateThetaLambda(arma::mat &Y, arma::cube& Lambda, arma::mat& Eta, arma::m
   arma::mat Prior = arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
   arma::mat Precision = prec * arma::kron(X_eta.t() * X_eta, B.t() * B) + Prior;
   arma::mat mychol = arma::chol(Precision, "lower");
-  arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), prec * arma::vectorise(B.t() * Y.t() * X_eta)));
-  result = mymean + arma::solve(arma::trimatl(mychol), arma::randn((1+K)*p*d));
+  arma::vec w = solve(arma::trimatl(mychol), prec * arma::vectorise(B.t() * Y.t() * X_eta));
+  arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+  arma::vec z = arma::randn<arma::vec>(p*d*(K+1));
+  arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+  result = mu + v;
+  //arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), prec * arma::vectorise(B.t() * Y.t() * X_eta)));
+  //result = mymean + arma::solve(arma::trimatl(mychol), arma::randn((1+K)*p*d));
+  //result = arma::mvnrnd(arma::inv_sympd(Precision) * prec * arma::vectorise(B.t() * Y.t() * X_eta), arma::inv_sympd(Precision));
   Theta = arma::reshape(result.rows(0, p*d-1), p, d);
   for(arma::uword k = 0; k < K; k++){
     Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
@@ -201,7 +207,13 @@ void updateEta(arma::mat& Y, arma::cube& Lambda, arma::vec& Sigma, arma::mat& Et
     for(arma::uword k = 0; k < Lambda.n_slices; k++){
       Xtilde.col(k) = B * Lambda.slice(k) * X.row(i).t();
     }
-    Precision = prec * Xtilde.t() * Xtilde + PriorPrecision;
+    Precision = prec * Xtilde.t() * Xtilde + PriorPrecision;/*
+    arma::mat mychol = arma::chol(Precision, "lower");
+    arma::vec w = arma::solve(arma::trimatl(mychol), prec * Xtilde.t() * (Y.row(i).t() - B * Theta * X.row(i).t()));
+    arma::vec mu = arma::solve(trimatu(mychol.t()), w);
+    arma::vec z = arma::randn<arma::vec>(Lambda.n_slices);
+    arma::vec v = arma::solve(trimatu(mychol.t()), z);
+    Eta.row(i) = arma::trans(mu + v);*/
     Eta.row(i) = arma::mvnrnd(prec * arma::inv_sympd(Precision) * Xtilde.t() * (Y.row(i).t() - B * Theta * X.row(i).t()), arma::inv_sympd(Precision)).t();
     //mychol = arma::chol(Precision, "lower");
     //Eta.row(i) = arma::trans(arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), prec * Xtilde.t() * (Y.row(i).t() - B * Theta * X.row(i).t()))) +
