@@ -77,12 +77,12 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
         
         //updateEta3(Y, Lambda, Eta, X, B, Prec, Theta);
         Prec = updatePrec(Y, Lambda, Eta, X, B, Theta);
-        //updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
-        updateThetaLambdaMH(Y, Theta, Lambda, Tau, Prec, X, B, noise, n);
+        updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
+        //updateThetaLambdaMH(Y, Theta, Lambda, Tau, Prec, X, B, noise, n);
         
         //updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         //updateTheta(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
-        updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
+        //updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
         updateTau(Theta, Lambda, Tau);
         //Tau.fill(0);
         
