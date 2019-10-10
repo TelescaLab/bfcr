@@ -72,6 +72,36 @@ void updateLambda2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& 
 
 }
 
+// Doesn't work so well
+void updateLambda3(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& Eta, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
+  arma::mat P = getPenalty2(Theta.n_rows, 2);
+  arma::uword n = Y.n_rows;
+  arma::uword d = Theta.n_cols;
+  arma::mat V = arma::zeros<arma::mat>(Theta.n_rows * d, Theta.n_rows * d);
+  arma::vec Mu = arma::zeros<arma::vec>(Theta.n_rows * d);
+  for(arma::uword k_curr = 0; k_curr < Lambda.n_slices; k_curr++){
+    for(arma::uword i = 0; i < n; i++){
+      arma::mat Vx = arma::zeros<arma::mat>(B.n_rows, B.n_rows);
+      for(arma::uword k = 0; k < Lambda.n_slices; k++){
+        if(k != k_curr){
+          Vx = Vx + B * Lambda.slice(k) * X.row(i).t() * X.row(i) * Lambda.slice(k).t() * B.t();
+        }
+      }
+      Vx = Vx + 1/prec * arma::eye(B.n_rows, B.n_rows);
+      arma::mat Vx_inv = arma::inv_sympd(Vx);
+      V = V + arma::kron(X.row(i).t() * Eta(i, k_curr), B.t()) * Vx_inv * arma::kron(X.row(i) * Eta(i, k_curr), B);
+      Mu = Mu + arma::kron(X.row(i).t() * Eta(i, k_curr), B.t()) * Vx_inv * (Y.row(i).t() - (B * Theta * X.row(i).t()));
+    }
+    //V = V + arma::kron(P, arma::diagmat(Tau.row(0)));
+    //V = V + arma::kron(P, arma::diagmat(Tau.row(k_curr + 1)));
+    arma::mat mymean = arma::solve(V, Mu);
+    //arma::vec mymean = arma::solve(arma::trimatu(mychol.t()), arma::solve(arma::trimatl(mychol), Mu));
+    Lambda.slice(k_curr) = arma::reshape(arma::mvnrnd(mymean, arma::inv_sympd(V)), Theta.n_rows, Theta.n_cols);
+    V.zeros();
+    Mu.zeros();
+  }
+}
+
 // [[Rcpp::export]]
 void updateTheta(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta){
   arma::mat P = getPenalty2(Theta.n_rows, 2);
@@ -273,8 +303,8 @@ double updatePrec(arma::mat& Y, arma::cube& Lambda, arma::mat Gamma, arma::mat& 
   arma::vec mean;
   //double a = .0001;
   //double b = .0001;
-  double a = 1;
-  double b = 1;
+  double a = .00001;
+  double b = .00001;
   double mycumsum = 0;
   double totalN = Y.n_elem;
   for(arma::uword i = 0; i < nsubj; i++){
@@ -292,7 +322,7 @@ double updatePrec(arma::mat& Y, arma::cube& Lambda, arma::mat Gamma, arma::mat& 
 // [[Rcpp::export]]
 void updateTau(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau){
   double t_alpha = 1;
-  double t_beta = .0005;
+  double t_beta = .000005;
   //double t_beta = 1;
   arma::mat P = getPenalty2(Lambda.n_rows, 2);
   arma::uword R = Lambda.n_slices;

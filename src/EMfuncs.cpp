@@ -174,6 +174,7 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
     if((i+1) % 100 == 0){
       logliknew = cpploglik(pTheta, pLambda, precision, X, B, Yt, K, cores);
       delta = (logliknew - loglik)/std::abs(loglik);
+      Rcpp::Rcout << "loglik: " << loglik << std::endl << "logliknew: " << logliknew << std::endl << "delta: " << delta << std::endl; 
       if(delta < 0){
         break;
       }
@@ -194,8 +195,8 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
       else {
         myswitch = false;
       }
+      loglik = logliknew;
     }
-    loglik = logliknew;
     i = i + 1;
   }
   return(List::create(Named("Theta", pTheta), Named("Lambda", pLambda), Named("Precision", precision), Named("EtaM", pEtaM), Named("EtaV", pEtaV)));

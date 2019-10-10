@@ -81,6 +81,7 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
         //updateThetaLambdaMH(Y, Theta, Lambda, Tau, Prec, X, B, noise, n);
         
         //updateLambda2(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
+        //updateLambda3(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         //updateTheta(Y, Lambda, Tau, Eta, X, B, Prec, Theta);
         //updateTheta2(Y, Lambda, Tau, X, B, Prec, Theta);
         updateTau(Theta, Lambda, Tau);
