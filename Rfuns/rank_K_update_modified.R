@@ -79,14 +79,14 @@ Sys.setenv(LOCAL_CPPFLAGS = '-march=core2')
 set.seed(3)
 K <- 2
 tmax <- 50
-N = 200
+N <- 400
 num_basis_true <- 12
 sigma = .0001
 tp <- seq(from=0, to=1, length.out = tmax) # generating inputs
 B_true <- bs(tp, df = num_basis_true, intercept = TRUE)
 #alpha <- matrix(rnorm(num_basis_true*2), nrow = num_basis_true, ncol = 2)
 alpha <- Theta1
-X <- cbind(rep(1,N), rnorm(N))
+#X <- cbind(rep(1,N), rnorm(N))
 Z <- matrix(rnorm(N*2), ncol = 2)
 #L <- matrix(rnorm(num_basis_true*2), num_basis_true, 2)
 #Y_true <- B_true%*%alpha%*%t(X) + B_true%*%L%*%t(X)%*%diag(Z)
@@ -103,14 +103,21 @@ data1 = list(N = N, num_basis = num_basis_est, t = tmax, Y = Ycol, X = X, B = B_
 
 reg <- lm(Ycol ~ kronecker(X, B_est)-1)
 init <- list(list(a = matrix(reg$coefficients, ncol = 2)))
-fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv", "phi_inv_sqrt", "projectionp"))
+m <- stan_model(model_code = splines)
+fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv", "phi_inv_sqrt", "projectionp"), tol_rel_obj = 0.01)
 posterior <- extract(fitvb)
 
+Lambda_init <- array(0, dim=c(p, dim(X)[2], K))
+for(k in 1:K){
+  Lambda_init[,,k] <- apply(posterior$Lam,c(2,3,4),mean)[k,,]
+}
+Theta_init <- apply(posterior$a, c(2,3), mean)
+Eta_init <- t(apply(posterior$Z, c(2,3), mean))
+Prec_init <- mean(1/posterior$sigma^2)
 
 #fit <- stan(file = "stan_file.stan", data = data1, cores = 1)
 
-m <- stan_model(model_code = splines)
-fit <- sampling(m, data = data1, chains=1, iter=1000, thin = 1, par = c("a", "Lam", "Z", "sigma"), init = init2, warmup = 500)
+fit <- sampling(m, data = data1, chains=1, iter=100, thin = 1, par = c("a", "Lam", "Z", "sigma", "phi_inv_sqrt", "smooth_inv", "projectionp"), init = init2, warmup = 50)
 
 posterior <- extract(fit)
 dim(posterior$Lam)
@@ -126,28 +133,29 @@ for(i in 1:1000){
 }
 lines(tp,c(Y_true)[((subj-1) * tmax + 1):(subj*tmax)], col = "red")
 
-subj <- 1
+subj <- 2
 plot(tp,Ycol[((subj-1) * tmax + 1):(subj*tmax)])
-for(i in 1:1000){
+for(i in 1:50){
   lines(tp, B_est%*%posterior$projectionp[i, ((subj-1) * num_basis_est + 1):(subj*num_basis_est)], col = "gray")
 }
 lines(tp,c(Y_true)[((subj-1) * tmax + 1):(subj*tmax)], col = "red")
 
 
-x <- c(1,.5)
+x <- c(1,-.5)
 cov_true <- B_true%*%Lambda1%*%outer(x,x)%*%t(Lambda1)%*%t(B_true) + B_true%*%Lambda2%*%outer(x,x)%*%t(Lambda2)%*%t(B_true)
 cov_est <- matrix(0,nrow = length(tp), ncol = length(tp))
-for(i in 1:500){
+for(i in 1:1000){
+  cov_est <- B_est%*%diag(posterior$phi_inv_sqrt[i,])%*%t(B_est) + cov_est
   for(k in 1:K){
     cov_est <- B_est%*%posterior$Lam[i,k,,]%*%outer(x,x)%*%t(posterior$Lam[i,k,,])%*%t(B_est) + cov_est
   }
 }
-cov_est <- cov_est / 500
- cov1 <- matrix(0, nrow = tmax, ncol = tmax)
- j <- 500
- for(k in 1:K){
-   cov1 <- B_est%*%posterior$Lam[j,k,,]%*%outer(x,x)%*%t(posterior$Lam[j,k,,])%*%t(B_est) + cov1
- }
+cov_est <- cov_est / 1000
+j <- 10
+cov1 <- B_est%*%diag(posterior$phi_inv_sqrt[j,])%*%t(B_est)
+for(k in 1:K){
+  cov1 <- B_est%*%posterior$Lam[j,k,,]%*%outer(x,x)%*%t(posterior$Lam[j,k,,])%*%t(B_est) + cov1
+}
 library(plot3D)
 par(mfrow = c(1,3))
 persp3D(tp,tp, cov_est, phi = 10, theta = 90, zlim = c(min(cov_true), max(cov_true)))
@@ -155,7 +163,7 @@ persp3D(tp,tp, cov_true, phi = 10, theta = 90, zlim = c(min(cov_true), max(cov_t
 persp3D(tp,tp, cov1, phi = 10, theta = 90, zlim = c(min(cov_true), max(cov_true)))
 dev.off()
 plot(B_true%*%alpha%*%x,type="l",col="red")
-for(i in 1:500){
+for(i in 1:1000){
   lines(B_est%*%posterior$a[i,,]%*%x,col="gray")
   
 }
@@ -164,8 +172,11 @@ lines(B_true%*%alpha%*%x,type="l",col="red")
 data1 = list(N = N, num_basis = num_basis_est, t = tmax, Y = Ycol, X = X, B = B_est, K = 2)
 fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv"))
 posterior <- extract(fitvb)
-init2 <- list(list(a = apply(posterior$a, c(2,3), mean), Lam = apply(posterior$Lam, c(2,3,4), mean), smooth_inv = apply(posterior$smooth_inv, c(2,3), mean), sigma = mean(posterior$sigma), Z = apply(posterior$Z, c(2,3), mean)))
-
+#init2 <- list(list(a = apply(posterior$a, c(2,3), mean), Lam = apply(posterior$Lam, c(2,3,4), mean), smooth_inv = apply(posterior$smooth_inv, c(2,3), mean), sigma = mean(posterior$sigma), Z = apply(posterior$Z, c(2,3), mean)))
+init2 <- list()
+for(i in 1:nchains){
+  init2[[i]] <-list(a = apply(posterior$a, c(2,3), mean), Lam = apply(posterior$Lam, c(2,3,4), mean), smooth_inv = apply(posterior$smooth_inv, c(2,3), mean), sigma = mean(posterior$sigma), Z = apply(posterior$Z, c(2,3), mean))
+}
 dim(summary(fitvb)$c_summary)
 avb <- t(matrix((summary(fitvb)$c_summary[1:24,1,1]), nrow = 2))
 Lamvb <- t(matrix((summary(fitvb)$c_summary[25:48,1,1]), nrow = 2))

@@ -390,6 +390,83 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// updateProj
+void updateProj(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj);
+RcppExport SEXP _BayesianConditionalFPCA_updateProj(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP PrecSEXP, SEXP XSEXP, SEXP YSEXP, SEXP BSEXP, SEXP ProjSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< double >::type Prec(PrecSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    updateProj(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj);
+    return R_NilValue;
+END_RCPP
+}
+// updateThetaLambdaP
+void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X);
+RcppExport SEXP _BayesianConditionalFPCA_updateThetaLambdaP(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP ProjSEXP, SEXP TauSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Tau(TauSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    updateThetaLambdaP(Lambda, Theta, Eta, Delta, Proj, Tau, X);
+    return R_NilValue;
+END_RCPP
+}
+// updateEtaP
+void updateEtaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X);
+RcppExport SEXP _BayesianConditionalFPCA_updateEtaP(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP ProjSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    updateEtaP(Lambda, Theta, Eta, Delta, Proj, X);
+    return R_NilValue;
+END_RCPP
+}
+// updateDelta
+void updateDelta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X);
+RcppExport SEXP _BayesianConditionalFPCA_updateDelta(SEXP ProjSEXP, SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP XSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    updateDelta(Proj, Theta, Lambda, Eta, Delta, X);
+    return R_NilValue;
+END_RCPP
+}
+// updatePrecP
+double updatePrecP(arma::mat& Proj, arma::mat& Y, arma::mat& B);
+RcppExport SEXP _BayesianConditionalFPCA_updatePrecP(SEXP ProjSEXP, SEXP YSEXP, SEXP BSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
+    rcpp_result_gen = Rcpp::wrap(updatePrecP(Proj, Y, B));
+    return rcpp_result_gen;
+END_RCPP
+}
 // updateLambda
 void updateLambda(arma::mat& Y, arma::cube& Lambda, arma::vec& r, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec);
 RcppExport SEXP _BayesianConditionalFPCA_updateLambda(SEXP YSEXP, SEXP LambdaSEXP, SEXP rSEXP, SEXP GammaSEXP, SEXP XSEXP, SEXP BSEXP, SEXP precSEXP) {
@@ -676,6 +753,11 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_bothproducts", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_bothproducts, 1},
     {"_BayesianConditionalFPCA_timesTwo", (DL_FUNC) &_BayesianConditionalFPCA_timesTwo, 1},
+    {"_BayesianConditionalFPCA_updateProj", (DL_FUNC) &_BayesianConditionalFPCA_updateProj, 9},
+    {"_BayesianConditionalFPCA_updateThetaLambdaP", (DL_FUNC) &_BayesianConditionalFPCA_updateThetaLambdaP, 7},
+    {"_BayesianConditionalFPCA_updateEtaP", (DL_FUNC) &_BayesianConditionalFPCA_updateEtaP, 6},
+    {"_BayesianConditionalFPCA_updateDelta", (DL_FUNC) &_BayesianConditionalFPCA_updateDelta, 6},
+    {"_BayesianConditionalFPCA_updatePrecP", (DL_FUNC) &_BayesianConditionalFPCA_updatePrecP, 3},
     {"_BayesianConditionalFPCA_updateLambda", (DL_FUNC) &_BayesianConditionalFPCA_updateLambda, 7},
     {"_BayesianConditionalFPCA_updateLambda2", (DL_FUNC) &_BayesianConditionalFPCA_updateLambda2, 8},
     {"_BayesianConditionalFPCA_updateTheta", (DL_FUNC) &_BayesianConditionalFPCA_updateTheta, 8},

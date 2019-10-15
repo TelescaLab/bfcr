@@ -18,6 +18,8 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
   arma::field<arma::cube> ThetaF(nchains);
   arma::field<arma::mat> SigmaF(nchains);
   arma::field<arma::vec> PrecF(nchains);
+  arma::field<arma::cube> ProjF(nchains);
+  arma::field<arma::mat> DeltaF(nchains);
   for(arma::uword u = 0; u < nchains; u++){
     for(arma::uword i = 0; i < iter; i++){
       LambdaF(u, i) = arma::cube(p, D, K);
@@ -28,6 +30,8 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     ThetaF(u) = arma::cube(p, D, iter);
     SigmaF(u) = arma::mat(K, iter);
     PrecF(u) = arma::vec(iter);
+    ProjF(u) = arma::cube(N, p, iter);
+    DeltaF(u) = arma::mat(p, iter);
   }
   //arma::cube Lambda(p, D, K);
   //arma::mat Eta(N, K);
@@ -51,8 +55,11 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     arma::mat Eta(N, K);
     arma::mat Tau(K + 1, D);
     arma::mat Theta(p, D);
+    arma::vec Delta(p);
+    arma::mat Proj(N, p);
     double Prec;
     Tau.ones();
+    Delta.ones();
     /*
     Theta.randn();
     Lambda.randn();
@@ -74,8 +81,14 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       }
       //Rcpp::Rcout << i << std::endl;
       for(arma::uword j = 0; j < thin; j++){
+        updateProj(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj);
+        Prec = updatePrecP(Proj, Y, B);
+        updateEtaP(Lambda, Theta, Eta, Delta, Proj, X);
+        updateThetaLambdaP(Lambda, Theta, Eta, Delta, Proj, Tau, X);
+        updateDelta(Proj, Theta, Lambda, Eta, Delta, X);
+        updateTau(Theta, Lambda, Tau);
         
-        //updateEta3(Y, Lambda, Eta, X, B, Prec, Theta);
+        /*
         Prec = updatePrec(Y, Lambda, Eta, X, B, Theta);
         updateThetaLambda(Y, Lambda, Eta, Tau, X, B, Prec, Theta);
         //updateThetaLambdaMH(Y, Theta, Lambda, Tau, Prec, X, B, noise, n);
@@ -87,23 +100,24 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
         updateTau(Theta, Lambda, Tau);
         //Tau.fill(0);
         
-        //if(i % 10 == 0){
          updateEta(Y, Lambda, Sigma, Eta, X, B, Prec, Theta);
-        //}
+         */
       }
-
+      
       LambdaF(u, i) = Lambda;
       ThetaF(u).slice(i) = Theta;
       EtaF(u).slice(i) = Eta;
       PrecF(u)(i) = Prec;
       TauF(u).slice(i) = Tau;
+      DeltaF(u).col(i) = Delta;
+      ProjF(u).slice(i) = Proj;
     }
   }
 
   Rcpp::Rcout << "All done!";
   List mod = List::create(Named("Lambda", LambdaF), Named("Theta", ThetaF),
-                          Named("Eta", EtaF), Named("Sigma", SigmaF),
-                          Named("Prec", PrecF), Named("Tau", TauF),
-                          Named("c", cF));
+                          Named("Eta", EtaF), Named("Proj", ProjF),
+                          Named("Delta", DeltaF),
+                          Named("Prec", PrecF), Named("Tau", TauF));
   return(mod);
 }

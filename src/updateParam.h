@@ -22,4 +22,10 @@ void updatec(arma::cube& Lambda, arma::mat& c);
 void updateTheta2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
 void updateThetaLambda(arma::mat &Y, arma::cube& Lambda, arma::mat& Eta, arma::mat& Tau, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
 void updateThetaLambdaMH(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau, double prec, arma::mat& X, arma::mat& B, double noise, arma::uword n);
+
+void updateProj(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj);
+void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X);
+void updateEtaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X);
+void updateDelta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X);
+double updatePrecP(arma::mat& Proj, arma::mat& Y, arma::mat& B);
 #endif

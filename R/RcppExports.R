@@ -105,6 +105,26 @@ timesTwo <- function(x) {
     .Call(`_BayesianConditionalFPCA_timesTwo`, x)
 }
 
+updateProj <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateProj`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj))
+}
+
+updateThetaLambdaP <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaP`, Lambda, Theta, Eta, Delta, Proj, Tau, X))
+}
+
+updateEtaP <- function(Lambda, Theta, Eta, Delta, Proj, X) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateEtaP`, Lambda, Theta, Eta, Delta, Proj, X))
+}
+
+updateDelta <- function(Proj, Theta, Lambda, Eta, Delta, X) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateDelta`, Proj, Theta, Lambda, Eta, Delta, X))
+}
+
+updatePrecP <- function(Proj, Y, B) {
+    .Call(`_BayesianConditionalFPCA_updatePrecP`, Proj, Y, B)
+}
+
 updateLambda <- function(Y, Lambda, r, Gamma, X, B, prec) {
     invisible(.Call(`_BayesianConditionalFPCA_updateLambda`, Y, Lambda, r, Gamma, X, B, prec))
 }

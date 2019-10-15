@@ -5,6 +5,100 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 // [[Rcpp::export]]
+void updateProj(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj){
+  arma::uword p = B.n_cols;
+  for(arma::uword i = 0; i < Y.n_rows; i++){
+    arma::vec b = Prec * B.t() * Y.row(i).t() + arma::diagmat(Delta) * Theta * X.row(i).t();
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      b = b + arma::diagmat(Delta) * Lambda.slice(k) * X.row(i).t() * Eta(i, k);
+    }
+    arma::mat C = Prec * B.t() * B + arma::diagmat(Delta);
+    arma::mat mychol = arma::chol(C, "lower");
+    arma::vec w = solve(arma::trimatl(mychol), b);
+    arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+    arma::vec z = arma::randn<arma::vec>(p);
+    arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+    Proj.row(i) = (mu + v).t();
+  }
+}
+
+// [[Rcpp::export]]
+void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X){
+  arma::uword d = X.n_cols;
+  arma::uword p = Theta.n_rows;
+  arma::uword K = Lambda.n_slices;
+  arma::uword n = Proj.n_rows;
+  arma::mat P = getPenalty2(p, 2);
+  arma::mat X_eta(n, (1 + K) * d);
+  X_eta.cols(0, d - 1) = X;
+  for(arma::uword k = 0; k < K; k++){
+    X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * X;
+  }
+  arma::vec b = arma::vectorise(arma::diagmat(Delta) * Proj.t() * X_eta);
+  arma::mat C = arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
+  arma::mat mychol = arma::chol(C, "lower");
+  arma::vec w = solve(arma::trimatl(mychol), b);
+  arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+  arma::vec z = arma::randn<arma::vec>(p*d*(K+1));
+  arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+
+  arma::vec result = mu + v;
+
+  Theta = arma::reshape(result.rows(0, p*d-1), p, d);
+  for(arma::uword k = 0; k < K; k++){
+    Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
+  }
+}
+
+// [[Rcpp::export]]
+void updateEtaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X){
+  arma::uword n = Proj.n_rows;
+  arma::mat Xtilde(Proj.n_cols, Lambda.n_slices);
+  for(arma::uword i = 0; i < n; i++){
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      Xtilde.col(k) = Lambda.slice(k) * X.row(i).t();
+    }
+    arma::vec b = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
+    arma::mat C = Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices);
+    arma::mat mychol = arma::chol(C, "lower");
+    arma::vec w = solve(arma::trimatl(mychol), b);
+    arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+    arma::vec z = arma::randn<arma::vec>(Lambda.n_slices);
+    arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+    Eta.row(i) = (mu + v).t();
+  }
+}
+
+// [[Rcpp::export]]
+void updateDelta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X){
+  arma::uword p = Proj.n_cols;
+  arma::uword n = Proj.n_rows;
+  arma::uword K = Lambda.n_slices;
+  double a = .1;
+  double b = .1;
+  arma::vec my_sum = arma::zeros<arma::vec>(p);
+  arma::vec ptm;
+  for(arma::uword i = 0; i < n; i++){
+    ptm = Theta * X.row(i).t();
+    for(arma::uword k = 0; k < K; k++){
+      ptm = ptm + Lambda.slice(k) * X.row(i).t() * Eta(i, k); 
+    }
+    my_sum = my_sum + arma::square(Proj.row(i).t() - ptm);
+  }
+  for(arma::uword lp = 0; lp < p; lp++){
+    Delta(lp) = R::rgamma(a + n/2, 1.0 / (b + 1.0/2.0 * my_sum(lp)));
+  }
+}
+
+// [[Rcpp::export]]
+double updatePrecP(arma::mat& Proj, arma::mat& Y, arma::mat& B){
+  double a = .00001;
+  double b = .00001;
+  //double my_sum = arma::sum(arma::square(Y.t() - B * Proj.t()));
+  double my_sum = arma::accu(arma::square(Y.t() - B * Proj.t()));
+  return(R::rgamma(a + Y.n_elem/2, 1.0 / (b + 1.0/2.0 * my_sum)));
+}
+// [[Rcpp::export]]
 void updateLambda(arma::mat& Y, arma::cube& Lambda, arma::vec& r, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec){
   arma::mat G;
   arma::mat condMean = arma::zeros<arma::mat>(Y.n_rows, Y.n_cols);
