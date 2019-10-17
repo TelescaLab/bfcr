@@ -30,7 +30,7 @@ double updateProjT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::v
     arma::vec mu = solve(arma::trimatu(mychol.t()), w);
     arma::vec z = arma::randn<arma::vec>(p);
     if(u < 0.5){
-      v = sqrt(beta) * arma::solve(arma::trimatu(mychol.t()), z);
+      v = 1/sqrt(beta) * arma::solve(arma::trimatu(mychol.t()), z);
     } else{
       v = arma::solve(arma::trimatu(mychol.t()), z);
     }
@@ -69,17 +69,17 @@ double updateThetaLambdaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
   arma::mat C_sample;
   arma::log_det(val_beta, sign, C_beta);
   arma::log_det(val, sign, C);
-  if(u < 0.5){
-    C_sample = C_beta;
-  } else{
-    C_sample = C;
-  }
-  arma::mat mychol = arma::chol(C_sample, "lower");
+  
+  arma::mat mychol = arma::chol(C, "lower");
   arma::vec w = solve(arma::trimatl(mychol), b);
   arma::vec mu = solve(arma::trimatu(mychol.t()), w);
   arma::vec z = arma::randn<arma::vec>(p*d*(K+1));
-  arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
-  
+  arma::vec v;
+  if(u < 0.5){
+    v = 1/sqrt(beta) * arma::solve(arma::trimatu(mychol.t()), z);
+  } else{
+    v = arma::solve(arma::trimatu(mychol.t()), z);
+  }
   arma::vec result = mu + v;
   
   Theta = arma::reshape(result.rows(0, p*d-1), p, d);
@@ -109,19 +109,27 @@ void updateEtaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
       Xtilde.col(k) = Lambda.slice(k) * X.row(i).t();
     }
     arma::vec b = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
-    if(u < 0.5){
-      C = beta * (Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices));
-    } else{
-      C = Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices);
-      
-    }
+    
     arma::mat mychol = arma::chol(C, "lower");
     arma::vec w = solve(arma::trimatl(mychol), b);
     arma::vec mu = solve(arma::trimatu(mychol.t()), w);
     arma::vec z = arma::randn<arma::vec>(Lambda.n_slices);
+    if(u < 0.5){
+      z = 1/sqrt(beta) * arma::randn<arma::vec>(Lambda.n_slices);
+    } else{
+      z = arma::randn<arma::vec>(Lambda.n_slices);
+    }
     arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
     Eta.row(i) = (mu + v).t();
+    if(u < 0.5){
+      double f = 1.0 / 2.0 * val
+      - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C * (result - mu));
+      double g = 1.0 / 2.0 * val_beta
+        - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C_beta * (result - mu));
+      pr = .5 + .5 * exp(g-f);
+    } 
   }
+  
 }
 
 // [[Rcpp::export]]
