@@ -50,6 +50,19 @@ void cppupdateall(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision,
 }
 
 // [[Rcpp::export]]
+void cppupdateall_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi,
+                  arma::mat &newX, arma::mat &newY, arma::uword K){
+  arma::uword n = newX.n_rows / (K + 1);
+  arma::uword D = newX.n_cols / (K + 1);
+  arma::uword p = Theta.n_rows;
+  arma::mat C = arma::solve(arma::trans(newX) * newX, arma::trans(newX) * newY, arma::solve_opts::likely_sympd).t();
+  arma::mat Temp = 1.0 / double(n)  * (arma::trans(newY - newX * C.t()) * ((newY - newX * C.t())));
+  Phi =  Temp.diag();
+  Theta = C.cols(0, D - 1); 
+  Lambda = C.cols(D, C.n_cols - 1);
+}
+
+// [[Rcpp::export]]
 void cppupdateeta(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision, arma::mat &EtaM, arma::cube &EtaV, arma::mat &X, arma::mat &B, arma::mat &Y, double K){
   arma::uword n = Y.n_rows;
   arma::uword D = X.n_cols;
@@ -65,6 +78,21 @@ void cppupdateeta(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision, arm
   }
 }
 
+// [[Rcpp::export]]
+void cppupdateeta_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi, arma::mat &EtaM, arma::cube &EtaV, arma::mat &X, arma::mat &Y, double K){
+  arma::uword n = Y.n_rows;
+  arma::uword D = X.n_cols;
+  arma::mat Ltilde(Lambda.n_rows, K);
+  for(arma::uword i = 0; i < n; i++){
+    Ltilde.zeros();
+    for(arma::uword k = 0; k < K; k++){
+      Ltilde.col(k) = Lambda.cols(D * k, D * (k + 1) - 1) * arma::trans(X.row(i));
+    }
+    
+    EtaV.slice(i) = arma::inv_sympd(arma::eye<arma::mat>(K, K) +  arma::trans(Ltilde) * arma::inv(arma::diagmat(Phi)) * Ltilde);
+    EtaM.col(i) = EtaV.slice(i) * arma::trans(Ltilde) * arma::inv_sympd(arma::diagmat(Phi)) * (arma::trans(Y.row(i)) - Theta * arma::trans(X.row(i)));
+  }
+}
 // [[Rcpp::export]]
 double cpploglik(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision,
                  arma::mat &X, arma::mat &B, arma::mat &Y, arma::uword K, int cores = 1){
@@ -102,6 +130,47 @@ double cpploglik(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision,
   
   return(loglik);
 }
+
+// [[Rcpp::export]]
+double cpploglik_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi,
+                 arma::mat &X, arma::mat &Y, arma::uword K, int cores = 1){
+  
+  arma::uword n = Y.n_rows;
+  arma::uword D = X.n_cols;
+  arma::uword p = Y.n_cols;
+  
+  double loglik = 0;
+  double constants = -double(p) / 2 * log(2 * PI);
+
+  omp_set_num_threads(cores);
+#pragma omp parallel for reduction(+:loglik)
+  for(arma::uword i = 0; i < n; i++){
+    
+    arma::vec mean(p);
+    arma::mat cov(p, p);
+    arma::mat LambdaCov = arma::zeros<arma::mat>(p, p);
+    arma::mat rooti;
+    double rootisum;
+    arma::mat rootsum;
+    arma::vec z;
+    for(arma::uword k = 0; k < K; k++){
+      LambdaCov = Lambda.cols(D * k, D * (k + 1) - 1) * arma::trans(X.row(i)) * X.row(i) *
+        arma::trans(Lambda.cols(D * k, D * (k + 1) - 1)) + LambdaCov;
+    }
+    mean = Theta * arma::trans(X.row(i));
+    
+
+    cov = LambdaCov + arma::diagmat(Phi);
+    
+    LambdaCov.zeros();
+    rooti = arma::trans(arma::inv(trimatu(arma::chol(cov))));
+    rootisum = arma::sum(log(rooti.diag()));
+    z = rooti * arma::trans(Y.row(i) - arma::trans(mean));
+    loglik = constants - 0.5 * arma::sum(z % z) + rootisum + loglik;
+  }
+  return(loglik);
+}
+
 // [[Rcpp::export]]
 void cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K){
   arma::uword D = X.n_cols;
@@ -200,6 +269,83 @@ List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Thet
     i = i + 1;
   }
   return(List::create(Named("Theta", pTheta), Named("Lambda", pLambda), Named("Precision", precision), Named("EtaM", pEtaM), Named("EtaV", pEtaV)));
+}
+
+
+// [[Rcpp::export]]
+List cpp_EM_Proj(arma::mat X, arma::mat Y, arma::uword K, arma::mat Theta_init, int cores = 1){
+  arma::uword D = X.n_cols;
+  arma::uword n = Y.n_rows;
+  arma::uword p = Y.n_cols;
+  arma::mat pTheta = Theta_init;
+  arma::mat pLambda = arma::randn<arma::mat>(p, D * K);
+  arma::mat pEtaM = arma::randn<arma::mat>(K, n);
+  arma::cube pEtaV = arma::cube(K, K, n);
+  pEtaV.each_slice() = arma::eye<arma::mat>(K, K);
+  arma::mat newx = arma::zeros<arma::mat>((K + 1) * n, (K + 1) * D);
+  double inflation = 10;
+  arma::vec Phi(p);
+  Phi.ones();
+  arma::mat Yt = Y + inflation * arma::randn<arma::mat>(n, p);
+  arma::mat Et;
+  arma::mat newy = arma::zeros<arma::mat>((K + 1) * n, p);
+  newy.rows(0, n - 1) = Yt;
+  arma::uword i = 0;
+  
+  double loglik = cpploglik_Proj(pTheta, pLambda, Phi, X, Yt, K, cores);
+  
+  double logliknew;
+  double delta;
+  bool taco = true;
+  bool myswitch = false;
+  /*
+  for(arma::uword i = 0; i < 100; i++){
+  cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Yt, K);
+  cppgetX(pEtaM, pEtaV, X, newx, cores);
+  cppupdateall(pTheta, pLambda, precision, newx, B, newy, K);
+  if((i+1) % 10 == 0){
+  loglik = cpploglik(pTheta, pLambda, precision, X, B, Yt, K, cores);
+  
+  }
+  }
+  */
+  
+  while(taco == true){
+
+    cppupdateeta_Proj(pTheta, pLambda, Phi, pEtaM, pEtaV, X, Yt, K);
+
+    cppgetX(pEtaM, pEtaV, X, newx, cores);
+    cppupdateall_Proj(pTheta, pLambda, Phi, newx, newy, K);
+
+    if((i+1) % 100 == 0){
+      logliknew = cpploglik_Proj(pTheta, pLambda, Phi, X, Yt, K, cores);
+      delta = (logliknew - loglik)/std::abs(loglik);
+      Rcpp::Rcout << "loglik: " << loglik << std::endl << "logliknew: " << logliknew << std::endl << "delta: " << delta << std::endl; 
+      if(delta < 0){
+        break;
+      }
+      Rcout << "Delta: " << delta << std::endl;
+      Rcout << "Log-likelihood " << logliknew << std::endl;
+      if(delta < 1e-8){
+        if(myswitch == true){
+          taco = false;
+        }
+        if(myswitch == false){
+          inflation = .1 * inflation;
+          Et = inflation * arma::randn<arma::mat>(n, p);
+          Yt = Y + Et;
+          newy.rows(0, n - 1) = Yt;
+          myswitch = true;
+        }
+      }
+      else {
+        myswitch = false;
+      }
+      loglik = logliknew;
+    }
+    i = i + 1;
+  }
+  return(List::create(Named("Theta", pTheta), Named("Lambda", pLambda), Named("Phi", Phi), Named("EtaM", pEtaM), Named("EtaV", pEtaV)));
 }
 
 // [[Rcpp::export]]

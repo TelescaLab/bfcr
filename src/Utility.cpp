@@ -116,7 +116,7 @@ Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise = .1, arma::
 }
 
 // [[Rcpp::export]]
-double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision,
+double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision, arma::vec& Phi,
                  arma::mat &X, arma::mat &B, arma::mat &Y, int cores = 1){
   arma::uword K = Lambda.n_slices;
   arma::uword n = Y.n_rows;
@@ -131,7 +131,7 @@ double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision,
     arma::vec mean(tmax);
     arma::mat cov(tmax, tmax);
     arma::mat LambdaCov = arma::zeros<arma::mat>(p, p);
-    arma::mat precisionmat = 1/precision * arma::eye<arma::mat>(tmax, tmax);
+    arma::mat precisionmat = 1/precision * arma::eye<arma::mat>(tmax, tmax) + B * arma::diagmat(1.0 / Phi) * B.t();
     arma::mat rooti;
     double rootisum;
     arma::mat rootsum;
@@ -166,7 +166,7 @@ void find_stepsize(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, double pr
     //J = cpploglik_bayes(Theta_Proposal, Lambda, prec, X, B, Y, 12);
     
     if(d == 0){
-      P = cpploglik_bayes(Theta, Lambda, prec, X, B, Y, 12);
+      //P = cpploglik_bayes(Theta, Lambda, prec, X, B, Y, 12);
     }
     /*
     A = J - P -1/2 * Tau(0, d) * arma::as_scalar(Theta.col(d).t() * getPenalty2(Lambda.n_rows, 2) * Theta.col(d) + 1/2 *
@@ -178,7 +178,7 @@ void find_stepsize(arma::mat& Y, arma::mat& Theta, arma::cube& Lambda, double pr
     Theta_Proposal.col(d) = Theta.col(d);
     }
     */
-    J = cpploglik_bayes(Theta, Lambda_Proposal, prec, X, B, Y, 12);
+    //J = cpploglik_bayes(Theta, Lambda_Proposal, prec, X, B, Y, 12);
     Rcpp::Rcout << "Current likelihood: " << P << std::endl << "Proposal likelihood: " << J << std::endl << 
       "Probability of acceptance: " << exp(J-P)*100 << "%" << std::endl;
 

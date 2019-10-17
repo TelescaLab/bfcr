@@ -59,7 +59,7 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     arma::mat Proj(N, p);
     double Prec;
     Tau.ones();
-    Delta.ones();
+    Delta.fill(1);
     /*
     Theta.randn();
     Lambda.randn();
@@ -81,11 +81,13 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       }
       //Rcpp::Rcout << i << std::endl;
       for(arma::uword j = 0; j < thin; j++){
+        
+        
         updateProj(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj);
         Prec = updatePrecP(Proj, Y, B);
+        updateDelta(Proj, Theta, Lambda, Eta, Delta, X);
         updateEtaP(Lambda, Theta, Eta, Delta, Proj, X);
         updateThetaLambdaP(Lambda, Theta, Eta, Delta, Proj, Tau, X);
-        updateDelta(Proj, Theta, Lambda, Eta, Delta, X);
         updateTau(Theta, Lambda, Tau);
         
         /*

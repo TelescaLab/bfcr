@@ -9,12 +9,24 @@ cppupdateall <- function(Theta, Lambda, precision, newX, B, newY, K) {
     invisible(.Call(`_BayesianConditionalFPCA_cppupdateall`, Theta, Lambda, precision, newX, B, newY, K))
 }
 
+cppupdateall_Proj <- function(Theta, Lambda, Phi, newX, newY, K) {
+    invisible(.Call(`_BayesianConditionalFPCA_cppupdateall_Proj`, Theta, Lambda, Phi, newX, newY, K))
+}
+
 cppupdateeta <- function(Theta, Lambda, precision, EtaM, EtaV, X, B, Y, K) {
     invisible(.Call(`_BayesianConditionalFPCA_cppupdateeta`, Theta, Lambda, precision, EtaM, EtaV, X, B, Y, K))
 }
 
+cppupdateeta_Proj <- function(Theta, Lambda, Phi, EtaM, EtaV, X, Y, K) {
+    invisible(.Call(`_BayesianConditionalFPCA_cppupdateeta_Proj`, Theta, Lambda, Phi, EtaM, EtaV, X, Y, K))
+}
+
 cpploglik <- function(Theta, Lambda, precision, X, B, Y, K, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpploglik`, Theta, Lambda, precision, X, B, Y, K, cores)
+}
+
+cpploglik_Proj <- function(Theta, Lambda, Phi, X, Y, K, cores = 1L) {
+    .Call(`_BayesianConditionalFPCA_cpploglik_Proj`, Theta, Lambda, Phi, X, Y, K, cores)
 }
 
 cpp_EM2 <- function(X, B, Y, K) {
@@ -23,6 +35,10 @@ cpp_EM2 <- function(X, B, Y, K) {
 
 cpp_EM <- function(X, B, Y, K, Theta_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM`, X, B, Y, K, Theta_init, cores)
+}
+
+cpp_EM_Proj <- function(X, Y, K, Theta_init, cores = 1L) {
+    .Call(`_BayesianConditionalFPCA_cpp_EM_Proj`, X, Y, K, Theta_init, cores)
 }
 
 cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
@@ -77,8 +93,8 @@ Proposal <- function(Theta, Lambda, noise = .1, samples = 200L) {
     .Call(`_BayesianConditionalFPCA_Proposal`, Theta, Lambda, noise, samples)
 }
 
-cpploglik_bayes <- function(Theta, Lambda, precision, X, B, Y, cores = 1L) {
-    .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, X, B, Y, cores)
+cpploglik_bayes <- function(Theta, Lambda, precision, Phi, X, B, Y, cores = 1L) {
+    .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, Phi, X, B, Y, cores)
 }
 
 find_stepsize <- function(Y, Theta, Lambda, prec, X, B, noise) {
@@ -103,6 +119,26 @@ rcpparma_bothproducts <- function(x) {
 
 timesTwo <- function(x) {
     .Call(`_BayesianConditionalFPCA_timesTwo`, x)
+}
+
+updateProjT <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta) {
+    .Call(`_BayesianConditionalFPCA_updateProjT`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta)
+}
+
+updateThetaLambdaPT <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
+    .Call(`_BayesianConditionalFPCA_updateThetaLambdaPT`, Lambda, Theta, Eta, Delta, Proj, Tau, X, beta)
+}
+
+updateEtaPT <- function(Lambda, Theta, Eta, Delta, Proj, X, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateEtaPT`, Lambda, Theta, Eta, Delta, Proj, X, beta))
+}
+
+updateDeltaT <- function(Proj, Theta, Lambda, Eta, Delta, X, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateDeltaT`, Proj, Theta, Lambda, Eta, Delta, X, beta))
+}
+
+updatePrecPT <- function(Proj, Y, B, beta) {
+    .Call(`_BayesianConditionalFPCA_updatePrecPT`, Proj, Y, B, beta)
 }
 
 updateProj <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj) {

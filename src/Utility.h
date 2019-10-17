@@ -14,6 +14,6 @@ void PredictY2(arma::mat& ImputedY, arma::field<arma::uvec> observedOrder, arma:
                arma::mat B, arma::mat Theta, arma::cube Lambda, arma::mat Eta, double Prec);
 double gam_trunc_left(double a, double b,  double cut);
 Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise = .01, arma::uword samples = 100);
-double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision,
+double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision, arma::vec& Phi,
                        arma::mat &X, arma::mat &B, arma::mat &Y, int cores = 1);
 #endif

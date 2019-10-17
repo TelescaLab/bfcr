@@ -3,17 +3,18 @@ splines <- "
     int<lower=0> N; // Number of samples
     int<lower=0> num_basis; // Dimension of basis matrix
     int<lower=0> t; // number of time points
+    int<lower=0> d; // number of covariates
     vector[t * N] Y;
-    matrix[N,2] X;
+    matrix[N,d] X;
     matrix[t, num_basis] B;
     int<lower=0> K;
   }
   parameters{
-    matrix[num_basis,2] a;
+    matrix[num_basis,d] a;
     real<lower=0> precision;
     vector[N] Z[K];
-    matrix[num_basis, 2] Lam[K];
-    matrix<lower=0>[2, 2] smooth_inv;
+    matrix[num_basis, d] Lam[K];
+    matrix<lower=0>[(K+1), d] smooth_inv;
     vector<lower=0>[num_basis] phi;
     vector[N * num_basis] projectionp;
   }
@@ -21,7 +22,7 @@ splines <- "
     vector[t * N] Y_hat;
     real<lower=0> sigma;
     vector<lower=0>[num_basis] phi_inv_sqrt;
-    matrix<lower=0>[2, 2] smooth;
+    matrix<lower=0>[(K+1), d] smooth;
     vector[num_basis * N] projection;
     projection = to_vector(a*X');
     for(k in 1:K){
@@ -43,17 +44,17 @@ splines <- "
     to_vector(smooth_inv) ~ gamma(1, .00005);
     for(k in 1:K){
       for(i in 1:num_basis){
-        for(j in 1:2){
+        for(j in 1:d){
           if(i == 1){
-            Lam[k, i, j] ~ normal(0, smooth[2,j]);
-            a[i, j] ~ normal(0, smooth[1,j]);
+            Lam[k, i, j] ~ normal(0, smooth[k+1,j]);
+            a[i, j] ~ normal(0, smooth[1,d]);
           }
           else if(i == 2){
-            Lam[k, i, j] ~ normal(2*Lam[k, i-1,j], smooth[2,j]);
+            Lam[k, i, j] ~ normal(2*Lam[k, i-1,j], smooth[k+1,j]);
             a[i, j] ~ normal(2*a[i-1,j], smooth[1,j]);
           }
           else {
-            Lam[k, i, j] ~ normal(2*Lam[k, i-1,j] - Lam[k,i-2,j], smooth[2,j]);
+            Lam[k, i, j] ~ normal(2*Lam[k, i-1,j] - Lam[k,i-2,j], smooth[k+1,j]);
             a[i, j] ~ normal(2*a[i-1,j] - a[i-2,j], smooth[1,j]);
     
           }
@@ -99,12 +100,12 @@ plot(Y[,2], type = "p")
 #data = list(N = N, num_basis = num_basis, Y = Y, X = X, B = B)
 num_basis_est <- 15
 B_est <- ps(tp, df = num_basis_est, intercept = TRUE)
-data1 = list(N = N, num_basis = num_basis_est, t = tmax, Y = Ycol, X = X, B = B_est, K = 2)
+data1 = list(N = N, num_basis = num_basis_est, t = tmax, Y = Ycol, X = X1, B = B_est, K = 2, d = dim(X1)[2])
 
-reg <- lm(Ycol ~ kronecker(X, B_est)-1)
-init <- list(list(a = matrix(reg$coefficients, ncol = 2)))
+reg <- lm(Ycol ~ kronecker(X1, B_est)-1)
+init <- list(list(a = matrix(reg$coefficients, ncol = 3)))
 m <- stan_model(model_code = splines)
-fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv", "phi_inv_sqrt", "projectionp"), tol_rel_obj = 0.01)
+fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 5000, par = c("a", "Lam", "Z", "sigma", "smooth_inv", "phi_inv_sqrt", "projectionp"), tol_rel_obj = 0.01, grad_samples = 1, elbo_eval = 500)
 posterior <- extract(fitvb)
 
 Lambda_init <- array(0, dim=c(p, dim(X)[2], K))
@@ -125,15 +126,15 @@ dim(posterior$Lam)
 subj <- 5
 plot(tp,Ycol[((subj-1) * tmax + 1):(subj*tmax)])
 for(i in 1:1000){
-  y_hat <- B_est%*%posterior$a[i,,]%*%X[subj,]
+  y_hat <- B_est%*%posterior$a[i,,]%*%X1[subj,]
   for(k in 1:K){
-    y_hat <- y_hat + B_est%*%posterior$Lam[i,k,,]%*%X[subj,]*posterior$Z[i,k,subj]
+    y_hat <- y_hat + B_est%*%posterior$Lam[i,k,,]%*%X1[subj,]*posterior$Z[i,k,subj]
   }
   lines(tp, y_hat, col="gray")
 }
 lines(tp,c(Y_true)[((subj-1) * tmax + 1):(subj*tmax)], col = "red")
 
-subj <- 2
+subj <- 4
 plot(tp,Ycol[((subj-1) * tmax + 1):(subj*tmax)])
 for(i in 1:50){
   lines(tp, B_est%*%posterior$projectionp[i, ((subj-1) * num_basis_est + 1):(subj*num_basis_est)], col = "gray")
@@ -141,7 +142,7 @@ for(i in 1:50){
 lines(tp,c(Y_true)[((subj-1) * tmax + 1):(subj*tmax)], col = "red")
 
 
-x <- c(1,-.5)
+x <- c(1,-.5,0)
 cov_true <- B_true%*%Lambda1%*%outer(x,x)%*%t(Lambda1)%*%t(B_true) + B_true%*%Lambda2%*%outer(x,x)%*%t(Lambda2)%*%t(B_true)
 cov_est <- matrix(0,nrow = length(tp), ncol = length(tp))
 for(i in 1:1000){
@@ -170,7 +171,7 @@ for(i in 1:1000){
 lines(B_true%*%alpha%*%x,type="l",col="red")
 
 data1 = list(N = N, num_basis = num_basis_est, t = tmax, Y = Ycol, X = X, B = B_est, K = 2)
-fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv"))
+fitvb <- vb(m, data = data1, algorithm = "meanfield",  init = init[[1]], iter = 200000, par = c("a", "Lam", "Z", "sigma", "smooth_inv"), grad_samples = 5)
 posterior <- extract(fitvb)
 #init2 <- list(list(a = apply(posterior$a, c(2,3), mean), Lam = apply(posterior$Lam, c(2,3,4), mean), smooth_inv = apply(posterior$smooth_inv, c(2,3), mean), sigma = mean(posterior$sigma), Z = apply(posterior$Z, c(2,3), mean)))
 init2 <- list()

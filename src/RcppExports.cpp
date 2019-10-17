@@ -36,6 +36,21 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// cppupdateall_Proj
+void cppupdateall_Proj(arma::mat& Theta, arma::mat& Lambda, arma::vec& Phi, arma::mat& newX, arma::mat& newY, arma::uword K);
+RcppExport SEXP _BayesianConditionalFPCA_cppupdateall_Proj(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP PhiSEXP, SEXP newXSEXP, SEXP newYSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type newX(newXSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type newY(newYSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
+    cppupdateall_Proj(Theta, Lambda, Phi, newX, newY, K);
+    return R_NilValue;
+END_RCPP
+}
 // cppupdateeta
 void cppupdateeta(arma::mat& Theta, arma::mat& Lambda, arma::vec& precision, arma::mat& EtaM, arma::cube& EtaV, arma::mat& X, arma::mat& B, arma::mat& Y, double K);
 RcppExport SEXP _BayesianConditionalFPCA_cppupdateeta(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP precisionSEXP, SEXP EtaMSEXP, SEXP EtaVSEXP, SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP KSEXP) {
@@ -54,6 +69,23 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// cppupdateeta_Proj
+void cppupdateeta_Proj(arma::mat& Theta, arma::mat& Lambda, arma::vec& Phi, arma::mat& EtaM, arma::cube& EtaV, arma::mat& X, arma::mat& Y, double K);
+RcppExport SEXP _BayesianConditionalFPCA_cppupdateeta_Proj(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP PhiSEXP, SEXP EtaMSEXP, SEXP EtaVSEXP, SEXP XSEXP, SEXP YSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type EtaM(EtaMSEXP);
+    Rcpp::traits::input_parameter< arma::cube& >::type EtaV(EtaVSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< double >::type K(KSEXP);
+    cppupdateeta_Proj(Theta, Lambda, Phi, EtaM, EtaV, X, Y, K);
+    return R_NilValue;
+END_RCPP
+}
 // cpploglik
 double cpploglik(arma::mat& Theta, arma::mat& Lambda, arma::vec& precision, arma::mat& X, arma::mat& B, arma::mat& Y, arma::uword K, int cores);
 RcppExport SEXP _BayesianConditionalFPCA_cpploglik(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP precisionSEXP, SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP KSEXP, SEXP coresSEXP) {
@@ -69,6 +101,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(cpploglik(Theta, Lambda, precision, X, B, Y, K, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpploglik_Proj
+double cpploglik_Proj(arma::mat& Theta, arma::mat& Lambda, arma::vec& Phi, arma::mat& X, arma::mat& Y, arma::uword K, int cores);
+RcppExport SEXP _BayesianConditionalFPCA_cpploglik_Proj(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP PhiSEXP, SEXP XSEXP, SEXP YSEXP, SEXP KSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Phi(PhiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpploglik_Proj(Theta, Lambda, Phi, X, Y, K, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -98,6 +147,21 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::mat >::type Theta_init(Theta_initSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
     rcpp_result_gen = Rcpp::wrap(cpp_EM(X, B, Y, K, Theta_init, cores));
+    return rcpp_result_gen;
+END_RCPP
+}
+// cpp_EM_Proj
+List cpp_EM_Proj(arma::mat X, arma::mat Y, arma::uword K, arma::mat Theta_init, int cores);
+RcppExport SEXP _BayesianConditionalFPCA_cpp_EM_Proj(SEXP XSEXP, SEXP YSEXP, SEXP KSEXP, SEXP Theta_initSEXP, SEXP coresSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Theta_init(Theta_initSEXP);
+    Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_EM_Proj(X, Y, K, Theta_init, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -304,19 +368,20 @@ BEGIN_RCPP
 END_RCPP
 }
 // cpploglik_bayes
-double cpploglik_bayes(arma::mat& Theta, arma::cube& Lambda, double precision, arma::mat& X, arma::mat& B, arma::mat& Y, int cores);
-RcppExport SEXP _BayesianConditionalFPCA_cpploglik_bayes(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP precisionSEXP, SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP coresSEXP) {
+double cpploglik_bayes(arma::mat& Theta, arma::cube& Lambda, double precision, arma::vec& Phi, arma::mat& X, arma::mat& B, arma::mat& Y, int cores);
+RcppExport SEXP _BayesianConditionalFPCA_cpploglik_bayes(SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP precisionSEXP, SEXP PhiSEXP, SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP coresSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
     Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
     Rcpp::traits::input_parameter< double >::type precision(precisionSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Phi(PhiSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
     Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
     Rcpp::traits::input_parameter< int >::type cores(coresSEXP);
-    rcpp_result_gen = Rcpp::wrap(cpploglik_bayes(Theta, Lambda, precision, X, B, Y, cores));
+    rcpp_result_gen = Rcpp::wrap(cpploglik_bayes(Theta, Lambda, precision, Phi, X, B, Y, cores));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -387,6 +452,90 @@ BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< NumericVector >::type x(xSEXP);
     rcpp_result_gen = Rcpp::wrap(timesTwo(x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// updateProjT
+double updateProjT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj, double beta);
+RcppExport SEXP _BayesianConditionalFPCA_updateProjT(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP PrecSEXP, SEXP XSEXP, SEXP YSEXP, SEXP BSEXP, SEXP ProjSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< double >::type Prec(PrecSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(updateProjT(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// updateThetaLambdaPT
+double updateThetaLambdaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X, double beta);
+RcppExport SEXP _BayesianConditionalFPCA_updateThetaLambdaPT(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP ProjSEXP, SEXP TauSEXP, SEXP XSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Tau(TauSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(updateThetaLambdaPT(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// updateEtaPT
+void updateEtaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X, double beta);
+RcppExport SEXP _BayesianConditionalFPCA_updateEtaPT(SEXP LambdaSEXP, SEXP ThetaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP ProjSEXP, SEXP XSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    updateEtaPT(Lambda, Theta, Eta, Delta, Proj, X, beta);
+    return R_NilValue;
+END_RCPP
+}
+// updateDeltaT
+void updateDeltaT(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X, double beta);
+RcppExport SEXP _BayesianConditionalFPCA_updateDeltaT(SEXP ProjSEXP, SEXP ThetaSEXP, SEXP LambdaSEXP, SEXP EtaSEXP, SEXP DeltaSEXP, SEXP XSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Theta(ThetaSEXP);
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Eta(EtaSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    updateDeltaT(Proj, Theta, Lambda, Eta, Delta, X, beta);
+    return R_NilValue;
+END_RCPP
+}
+// updatePrecPT
+double updatePrecPT(arma::mat& Proj, arma::mat& Y, arma::mat& B, double beta);
+RcppExport SEXP _BayesianConditionalFPCA_updatePrecPT(SEXP ProjSEXP, SEXP YSEXP, SEXP BSEXP, SEXP betaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Proj(ProjSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< double >::type beta(betaSEXP);
+    rcpp_result_gen = Rcpp::wrap(updatePrecPT(Proj, Y, B, beta));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -729,10 +878,14 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_cppgetX", (DL_FUNC) &_BayesianConditionalFPCA_cppgetX, 5},
     {"_BayesianConditionalFPCA_cppupdateall", (DL_FUNC) &_BayesianConditionalFPCA_cppupdateall, 7},
+    {"_BayesianConditionalFPCA_cppupdateall_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cppupdateall_Proj, 6},
     {"_BayesianConditionalFPCA_cppupdateeta", (DL_FUNC) &_BayesianConditionalFPCA_cppupdateeta, 9},
+    {"_BayesianConditionalFPCA_cppupdateeta_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cppupdateeta_Proj, 8},
     {"_BayesianConditionalFPCA_cpploglik", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik, 8},
+    {"_BayesianConditionalFPCA_cpploglik_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_Proj, 7},
     {"_BayesianConditionalFPCA_cpp_EM2", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM2, 4},
     {"_BayesianConditionalFPCA_cpp_EM", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM, 6},
+    {"_BayesianConditionalFPCA_cpp_EM_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_Proj, 5},
     {"_BayesianConditionalFPCA_cpp_EM_new", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_new, 7},
     {"_BayesianConditionalFPCA_MCMC", (DL_FUNC) &_BayesianConditionalFPCA_MCMC, 13},
     {"_BayesianConditionalFPCA_MCMC_Impute", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Impute, 9},
@@ -746,13 +899,18 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_PredictY", (DL_FUNC) &_BayesianConditionalFPCA_PredictY, 7},
     {"_BayesianConditionalFPCA_PredictY2", (DL_FUNC) &_BayesianConditionalFPCA_PredictY2, 8},
     {"_BayesianConditionalFPCA_Proposal", (DL_FUNC) &_BayesianConditionalFPCA_Proposal, 4},
-    {"_BayesianConditionalFPCA_cpploglik_bayes", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_bayes, 7},
+    {"_BayesianConditionalFPCA_cpploglik_bayes", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_bayes, 8},
     {"_BayesianConditionalFPCA_find_stepsize", (DL_FUNC) &_BayesianConditionalFPCA_find_stepsize, 7},
     {"_BayesianConditionalFPCA_rcpparma_hello_world", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_hello_world, 0},
     {"_BayesianConditionalFPCA_rcpparma_outerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_outerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_bothproducts", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_bothproducts, 1},
     {"_BayesianConditionalFPCA_timesTwo", (DL_FUNC) &_BayesianConditionalFPCA_timesTwo, 1},
+    {"_BayesianConditionalFPCA_updateProjT", (DL_FUNC) &_BayesianConditionalFPCA_updateProjT, 10},
+    {"_BayesianConditionalFPCA_updateThetaLambdaPT", (DL_FUNC) &_BayesianConditionalFPCA_updateThetaLambdaPT, 8},
+    {"_BayesianConditionalFPCA_updateEtaPT", (DL_FUNC) &_BayesianConditionalFPCA_updateEtaPT, 7},
+    {"_BayesianConditionalFPCA_updateDeltaT", (DL_FUNC) &_BayesianConditionalFPCA_updateDeltaT, 7},
+    {"_BayesianConditionalFPCA_updatePrecPT", (DL_FUNC) &_BayesianConditionalFPCA_updatePrecPT, 4},
     {"_BayesianConditionalFPCA_updateProj", (DL_FUNC) &_BayesianConditionalFPCA_updateProj, 9},
     {"_BayesianConditionalFPCA_updateThetaLambdaP", (DL_FUNC) &_BayesianConditionalFPCA_updateThetaLambdaP, 7},
     {"_BayesianConditionalFPCA_updateEtaP", (DL_FUNC) &_BayesianConditionalFPCA_updateEtaP, 6},
