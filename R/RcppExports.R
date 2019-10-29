@@ -57,8 +57,16 @@ MCMC_Sparse <- function(Y, X, B, K, iter, nchains, thin) {
     .Call(`_BayesianConditionalFPCA_MCMC_Sparse`, Y, X, B, K, iter, nchains, thin)
 }
 
+MCMC_Tempered <- function(Y, X, B, K, iter, nchains, thin, beta, Theta_init, Lambda_init, Eta_init, Prec_init) {
+    .Call(`_BayesianConditionalFPCA_MCMC_Tempered`, Y, X, B, K, iter, nchains, thin, beta, Theta_init, Lambda_init, Eta_init, Prec_init)
+}
+
 MCMC_Wrapper <- function(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init) {
     .Call(`_BayesianConditionalFPCA_MCMC_Wrapper`, Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init)
+}
+
+TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta) {
+    .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
 }
 
 DiffOp <- function(n) {
@@ -121,8 +129,32 @@ timesTwo <- function(x) {
     .Call(`_BayesianConditionalFPCA_timesTwo`, x)
 }
 
-updateProjT <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta) {
-    .Call(`_BayesianConditionalFPCA_updateProjT`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta)
+updateProjBeta <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateProjBeta`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta))
+}
+
+updateDeltaBeta <- function(Proj, Theta, Lambda, Eta, Delta, X, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateDeltaBeta`, Proj, Theta, Lambda, Eta, Delta, X, beta))
+}
+
+updateEtaPBeta <- function(Lambda, Theta, Eta, Delta, Proj, X, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateEtaPBeta`, Lambda, Theta, Eta, Delta, Proj, X, beta))
+}
+
+updatePrecPBeta <- function(Proj, Y, B, beta) {
+    .Call(`_BayesianConditionalFPCA_updatePrecPBeta`, Proj, Y, B, beta)
+}
+
+updateThetaLambdaBeta <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaBeta`, Lambda, Theta, Eta, Delta, Proj, Tau, X, beta))
+}
+
+updateTauBeta <- function(Theta, Lambda, Tau, beta) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateTauBeta`, Theta, Lambda, Tau, beta))
+}
+
+choose_coordinate <- function(log_weights) {
+    .Call(`_BayesianConditionalFPCA_choose_coordinate`, log_weights)
 }
 
 updateThetaLambdaPT <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
@@ -130,15 +162,7 @@ updateThetaLambdaPT <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
 }
 
 updateEtaPT <- function(Lambda, Theta, Eta, Delta, Proj, X, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEtaPT`, Lambda, Theta, Eta, Delta, Proj, X, beta))
-}
-
-updateDeltaT <- function(Proj, Theta, Lambda, Eta, Delta, X, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateDeltaT`, Proj, Theta, Lambda, Eta, Delta, X, beta))
-}
-
-updatePrecPT <- function(Proj, Y, B, beta) {
-    .Call(`_BayesianConditionalFPCA_updatePrecPT`, Proj, Y, B, beta)
+    .Call(`_BayesianConditionalFPCA_updateEtaPT`, Lambda, Theta, Eta, Delta, Proj, X, beta)
 }
 
 updateProj <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj) {

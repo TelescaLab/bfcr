@@ -1,9 +1,134 @@
 #include <RcppArmadillo.h>
+#include <RcppArmadilloExtensions/sample.h>
 #include <cmath>
 #include "Utility.h"
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
+
+// [[Rcpp::export]]
+void updateProjBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta,
+                double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj, double beta){
+  arma::uword p = B.n_cols;
+  for(arma::uword i = 0; i < Y.n_rows; i++){
+    arma::vec b = Prec * B.t() * Y.row(i).t() + arma::diagmat(Delta) * Theta * X.row(i).t();
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      b = b + arma::diagmat(Delta) * Lambda.slice(k) * X.row(i).t() * Eta(i, k);
+    }
+    arma::mat C = (Prec * B.t() * B + arma::diagmat(Delta));
+    arma::mat mychol = arma::chol(C, "lower");
+    arma::vec w = solve(arma::trimatl(mychol), b);
+    arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+    arma::vec z = 1 / sqrt(beta) * arma::randn<arma::vec>(p);
+    arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+    Proj.row(i) = (mu + v).t();
+  }
+}
+
+// [[Rcpp::export]]
+void updateDeltaBeta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda,
+                     arma::mat& Eta, arma::vec& Delta, arma::mat& X, double beta){
+  arma::uword p = Proj.n_cols;
+  arma::uword n = Proj.n_rows;
+  arma::uword K = Lambda.n_slices;
+  double a = .1;
+  double b = .1;
+  arma::vec my_sum = arma::zeros<arma::vec>(p);
+  arma::vec ptm;
+  for(arma::uword i = 0; i < n; i++){
+    ptm = Theta * X.row(i).t();
+    for(arma::uword k = 0; k < K; k++){
+      ptm = ptm + Lambda.slice(k) * X.row(i).t() * Eta(i, k); 
+    }
+    my_sum = my_sum + arma::square(Proj.row(i).t() - ptm);
+  }
+  for(arma::uword lp = 0; lp < p; lp++){
+    Delta(lp) = R::rgamma(beta * (a + n/2) + 1 - beta, 1.0 / (beta * (b + 1.0/2.0 * my_sum(lp))));
+  }
+}
+
+// [[Rcpp::export]]
+void updateEtaPBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                    arma::vec& Delta, arma::mat& Proj, arma::mat& X, double beta){
+  arma::uword n = Proj.n_rows;
+  arma::mat Xtilde(Proj.n_cols, Lambda.n_slices);
+  for(arma::uword i = 0; i < n; i++){
+    for(arma::uword k = 0; k < Lambda.n_slices; k++){
+      Xtilde.col(k) = Lambda.slice(k) * X.row(i).t();
+    }
+    arma::vec b = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
+    arma::mat C = (Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices));
+    arma::mat mychol = arma::chol(C, "lower");
+    arma::vec w = solve(arma::trimatl(mychol), b);
+    arma::vec mu = solve(arma::trimatu(mychol.t()), w);
+    arma::vec z = 1/sqrt(beta) * arma::randn<arma::vec>(Lambda.n_slices);
+    arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
+    Eta.row(i) = (mu + v).t();
+  }
+}
+
+// [[Rcpp::export]]
+double updatePrecPBeta(arma::mat& Proj, arma::mat& Y, arma::mat& B, double beta){
+  double a = 0;
+  double b = 0;
+  //double my_sum = arma::sum(arma::square(Y.t() - B * Proj.t()));
+  double my_sum = arma::accu(arma::square(Y.t() - B * Proj.t()));
+  return(R::rgamma(beta * (a + Y.n_elem/2) + 1 - beta, 1.0 / (beta * (b + 1.0/2.0 * my_sum))));
+}
+
+// [[Rcpp::export]]
+void updateThetaLambdaBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                           arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X,
+                           double beta){
+  arma::uword d = X.n_cols;
+  arma::uword p = Theta.n_rows;
+  arma::uword K = Lambda.n_slices;
+  arma::uword n = Proj.n_rows;
+  arma::mat P = getPenalty2(p, 2);
+  arma::mat X_eta(n, (1 + K) * d);
+  arma::mat C, mychol;
+  arma::vec b, w, mu, z, v, result;
+  X_eta.cols(0, d - 1) = X;
+  for(arma::uword k = 0; k < K; k++){
+    X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * X;
+  }
+  b = arma::vectorise(arma::diagmat(Delta) * Proj.t() * X_eta);
+  C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P));
+  mychol = arma::chol(C, "lower");
+  w = solve(arma::trimatl(mychol), b);
+  mu = solve(arma::trimatu(mychol.t()), w);
+  z = 1 / sqrt(beta) * arma::randn<arma::vec>(p*d*(K+1));
+  v = arma::solve(arma::trimatu(mychol.t()), z);
+  result = mu + v;
+
+  
+  Theta = arma::reshape(result.rows(0, p*d-1), p, d);
+  for(arma::uword k = 0; k < K; k++){
+    Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
+  }
+   
+  //return(C);
+}
+
+// [[Rcpp::export]]
+void updateTauBeta(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau, double beta){
+  double t_alpha = 1;
+  double t_beta = .000005;
+  //double t_beta = 1;
+  arma::mat P = getPenalty2(Lambda.n_rows, 2);
+  arma::uword R = Lambda.n_slices;
+  arma::uword D = Lambda.n_cols;
+  for(arma::uword d = 0; d < D; d++){
+    Tau(0, d) = R::rgamma(beta * (t_alpha + (Lambda.n_rows - 1.0) / 2.0) + 1 - beta, 1.0 / (beta * (t_beta + 1.0 / 2.0 * arma::as_scalar(Theta.col(d).t() * P * Theta.col(d)))));
+  }
+  for(arma::uword r = 0; r < R; r++){
+    for(arma::uword d = 0; d < D; d++){
+      Tau(r + 1, d) = R::rgamma(beta * (t_alpha + (Lambda.n_rows - 1.0) / 2.0) + 1 - beta, 1.0 / (beta * (t_beta + 1.0 / 2.0 * arma::as_scalar(Lambda.slice(r).col(d).t() * P * Lambda.slice(r).col(d)))));
+    }
+  }
+}
+
+/*
 // [[Rcpp::export]]
 double updateProjT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta,
                  double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj, double beta){
@@ -45,6 +170,17 @@ double updateProjT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::v
   }
   return(.5 + .5*exp(g-f));
 }
+*/
+
+// [[Rcpp::export]]
+arma::uword choose_coordinate(arma::vec log_weights){
+  arma::uvec sequence = arma::linspace<arma::uvec>(1, log_weights.n_elem, log_weights.n_elem);
+  double max = log_weights.max();
+  arma::vec normalized = arma::exp(log_weights - max);
+  normalized = normalized / arma::sum(normalized);
+  arma::uvec out = Rcpp::RcppArmadillo::sample(sequence, 1, false, normalized);
+  return(out(0));
+}
 
 // [[Rcpp::export]]
 double updateThetaLambdaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
@@ -57,119 +193,98 @@ double updateThetaLambdaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
   arma::mat P = getPenalty2(p, 2);
   arma::mat X_eta(n, (1 + K) * d);
   double val, val_beta, sign;
-  double pr = 1;
+  arma::mat C, C_beta, mychol, mychol_beta;
+  arma::vec b, b_beta, w, mu, z, v, w_beta, mu_beta, z_beta, v_beta, result;
+  double pr = 0;
   double u = R::runif(0.0, 1.0);
   X_eta.cols(0, d - 1) = X;
   for(arma::uword k = 0; k < K; k++){
     X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * X;
   }
-  arma::vec b = arma::vectorise(arma::diagmat(Delta) * Proj.t() * X_eta);
-  arma::mat C = arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
-  arma::mat C_beta = beta * C;
-  arma::mat C_sample;
-  arma::log_det(val_beta, sign, C_beta);
-  arma::log_det(val, sign, C);
-  
-  arma::mat mychol = arma::chol(C, "lower");
-  arma::vec w = solve(arma::trimatl(mychol), b);
-  arma::vec mu = solve(arma::trimatu(mychol.t()), w);
-  arma::vec z = arma::randn<arma::vec>(p*d*(K+1));
-  arma::vec v;
+  b = arma::vectorise(arma::diagmat(Delta) * Proj.t() * X_eta);
+  C = arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
+  mychol = arma::chol(C, "lower");
+  w = solve(arma::trimatl(mychol), b);
+  mu = solve(arma::trimatu(mychol.t()), w);
+  z = arma::randn<arma::vec>(p*d*(K+1));
+  v = arma::solve(arma::trimatu(mychol.t()), z);
+  result = mu + v;
   if(u < 0.5){
-    v = 1/sqrt(beta) * arma::solve(arma::trimatu(mychol.t()), z);
-  } else{
-    v = arma::solve(arma::trimatu(mychol.t()), z);
+    
+    b_beta = beta * arma::vectorise(arma::diagmat(Delta) * Proj.t() * X_eta);
+    C_beta = beta * arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + beta * arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P);
+    arma::log_det(val_beta, sign, C_beta);
+    arma::log_det(val, sign, C);
+    mychol_beta = arma::chol(C_beta, "lower");
+    w_beta = solve(arma::trimatl(mychol_beta), b_beta);
+    mu_beta = solve(arma::trimatu(mychol_beta.t()), w_beta);
+    z_beta = arma::randn<arma::vec>(p*d*(K+1));
+    v_beta = arma::solve(arma::trimatu(mychol_beta.t()), z_beta);
+    result = mu_beta + v_beta;
+    double f = 1.0 / 2.0 * val - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C * (result - mu));
+    double g = 1.0 / 2.0 * val_beta - 1.0 / 2.0 * arma::as_scalar((result - mu_beta).t() * C_beta * (result - mu_beta));
+    pr = g - f + log(1 + .5 / exp(g-f));
+
   }
-  arma::vec result = mu + v;
-  
+
   Theta = arma::reshape(result.rows(0, p*d-1), p, d);
   for(arma::uword k = 0; k < K; k++){
     Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
   }
-  if(u < 0.5){
-    double f = 1.0 / 2.0 * val
-      - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C * (result - mu));
-    double g = 1.0 / 2.0 * val_beta
-      - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C_beta * (result - mu));
-    pr = .5 + .5 * exp(g-f);
-  } 
   return(pr);
 }
 
 // [[Rcpp::export]]
-void updateEtaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+double updateEtaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
                  arma::vec& Delta, arma::mat& Proj, arma::mat& X, double beta){
   arma::uword n = Proj.n_rows;
   arma::mat Xtilde(Proj.n_cols, Lambda.n_slices);
+  double pr = 0;
   double u = R::runif(0.0, 1.0);
-  
+  double val, val_beta, sign;
+  arma::mat mychol_beta, C_beta;
+  arma::vec b_beta;
+  arma::vec w_beta;
+  arma::vec mu_beta;
+  arma::vec z_beta;
+  arma::vec v_beta;
   for(arma::uword i = 0; i < n; i++){
-    arma::mat C;
     for(arma::uword k = 0; k < Lambda.n_slices; k++){
       Xtilde.col(k) = Lambda.slice(k) * X.row(i).t();
     }
-    arma::vec b = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
     
+    arma::vec b = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
+    arma::mat C = Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices);
+
     arma::mat mychol = arma::chol(C, "lower");
     arma::vec w = solve(arma::trimatl(mychol), b);
     arma::vec mu = solve(arma::trimatu(mychol.t()), w);
     arma::vec z = arma::randn<arma::vec>(Lambda.n_slices);
-    if(u < 0.5){
-      z = 1/sqrt(beta) * arma::randn<arma::vec>(Lambda.n_slices);
-    } else{
-      z = arma::randn<arma::vec>(Lambda.n_slices);
-    }
     arma::vec v = arma::solve(arma::trimatu(mychol.t()), z);
     Eta.row(i) = (mu + v).t();
-    if(u < 0.5){
+    
+    if(u < .5){
+      arma::vec b_beta = Xtilde.t() * arma::diagmat(Delta) * (Proj.row(i).t() - Theta * X.row(i).t());
+      arma::mat C_beta = beta * Xtilde.t() * arma::diagmat(Delta) * Xtilde + beta * arma::eye(Lambda.n_slices, Lambda.n_slices);
+      
+      arma::mat mychol_beta = arma::chol(C_beta, "lower");
+      arma::vec w_beta = solve(arma::trimatl(mychol_beta), b_beta);
+      arma::vec mu_beta = solve(arma::trimatu(mychol_beta.t()), w_beta);
+      arma::vec z_beta = arma::randn<arma::vec>(Lambda.n_slices);
+      arma::vec v_beta = arma::solve(arma::trimatu(mychol_beta.t()), z_beta);
+      Eta.row(i) = (mu_beta + v_beta).t();
+    
+      arma::log_det(val, sign, C);
+      arma::log_det(val_beta, sign, C_beta);
       double f = 1.0 / 2.0 * val
-      - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C * (result - mu));
+      - 1.0 / 2.0 * arma::as_scalar((Eta.row(i).t() - mu).t() * C * (Eta.row(i).t() - mu));
       double g = 1.0 / 2.0 * val_beta
-        - 1.0 / 2.0 * arma::as_scalar((result - mu).t() * C_beta * (result - mu));
-      pr = .5 + .5 * exp(g-f);
+        - 1.0 / 2.0 * arma::as_scalar((Eta.row(i).t() - mu_beta).t() * C_beta * (Eta.row(i).t() - mu_beta));
+      pr = pr + (g - f) + log(1 + .5 / exp(g-f));
     } 
   }
+  return(pr);
   
-}
-
-// [[Rcpp::export]]
-void updateDeltaT(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda,
-                  arma::mat& Eta, arma::vec& Delta, arma::mat& X, double beta){
-  arma::uword p = Proj.n_cols;
-  arma::uword n = Proj.n_rows;
-  arma::uword K = Lambda.n_slices;
-  double a = .1;
-  double b = .1;
-  arma::vec my_sum = arma::zeros<arma::vec>(p);
-  arma::vec ptm;
-  double u = R::runif(0.0, 1.0);
-  
-  for(arma::uword i = 0; i < n; i++){
-    ptm = Theta * X.row(i).t();
-    for(arma::uword k = 0; k < K; k++){
-      ptm = ptm + Lambda.slice(k) * X.row(i).t() * Eta(i, k); 
-    }
-    my_sum = my_sum + arma::square(Proj.row(i).t() - ptm);
-  }
-  if(u < 0.5){
-    for(arma::uword lp = 0; lp < p; lp++){
-      Delta(lp) = R::rgamma((a + n/2) * beta - beta + 1, 1.0 / (beta * (b + 1.0/2.0 * my_sum(lp))));
-    }
-  } else{
-    for(arma::uword lp = 0; lp < p; lp++){
-      Delta(lp) = R::rgamma(a + n/2, 1.0 / (b + 1.0/2.0 * my_sum(lp)));
-    }
-  }
-}
-
-// [[Rcpp::export]]
-double updatePrecPT(arma::mat& Proj, arma::mat& Y, arma::mat& B, double beta){
-  double a = 0;
-  double b = 0;
-  double u = R::runif(0.0, 1.0);
-  //double my_sum = arma::sum(arma::square(Y.t() - B * Proj.t()));
-  double my_sum = arma::accu(arma::square(Y.t() - B * Proj.t()));
-  return(R::rgamma((a + Y.n_elem/2)*beta - beta + 1, 1.0 / (beta * (b + 1.0/2.0 * my_sum))));
 }
 
 // [[Rcpp::export]]
@@ -189,7 +304,6 @@ void updateProj(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec&
     Proj.row(i) = (mu + v).t();
   }
 }
-
 // [[Rcpp::export]]
 void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X){
   arma::uword d = X.n_cols;

@@ -3,6 +3,7 @@
 #include <RcppArmadillo.h>
 #include "Utility.h"
 
+
 //void updateLambda2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& c, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
 void updateLambda2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);
 void updateLambdaS(arma::field<arma::vec>& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& c, arma::mat& Gamma, arma::mat& X, arma::field<arma::mat>& B, double prec, arma::mat& Theta);
@@ -28,4 +29,25 @@ void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, ar
 void updateEtaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X);
 void updateDelta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X);
 double updatePrecP(arma::mat& Proj, arma::mat& Y, arma::mat& B);
+
+
+// Tempered stuff
+arma::uword choose_coordinate(arma::vec log_weights);
+double updateThetaLambdaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                               arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X,
+                               double beta);
+double updateEtaPT(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                   arma::vec& Delta, arma::mat& Proj, arma::mat& X, double beta);
+void updateProjBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta,
+                    double Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj, double beta);
+double updatePrecPBeta(arma::mat& Proj, arma::mat& Y, arma::mat& B, double beta);
+void updateDeltaBeta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda,
+                     arma::mat& Eta, arma::vec& Delta, arma::mat& X, double beta);
+void updateEtaPBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                    arma::vec& Delta, arma::mat& Proj, arma::mat& X, double beta);
+void updateThetaLambdaBeta(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta,
+                           arma::vec& Delta, arma::mat& Proj, arma::mat& Tau, arma::mat& X,
+                           double beta);
+void updateTauBeta(arma::mat& Theta, arma::cube& Lambda, arma::mat& Tau, double beta);
+
 #endif
