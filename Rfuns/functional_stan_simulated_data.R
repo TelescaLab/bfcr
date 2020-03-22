@@ -65,6 +65,8 @@ P %>%
 P %>%
   filter(Y > Lower_P & Y < Upper_P) %>%
   summarize(coverage = n() / (tmax * n))
+A <- omnibus_fit(AAA)
+sum(A$statistic_rep > A$statistic_obs) / 5000
 truecov <- matrix(0, nrow = tmax, ncol = tmax)
 truecov <- Btru %*% Lambda1 %*% outer(X[1,], X[1,]) %*% t(Lambda1) %*% t(Btru) +
   Btru %*% Lambda2 %*% outer(X[1,], X[1,]) %*% t(Lambda2) %*% t(Btru)

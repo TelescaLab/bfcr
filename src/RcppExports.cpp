@@ -299,6 +299,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// omnibus_fit
+List omnibus_fit(List mod);
+RcppExport SEXP _BayesianConditionalFPCA_omnibus_fit(SEXP modSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
+    rcpp_result_gen = Rcpp::wrap(omnibus_fit(mod));
+    return rcpp_result_gen;
+END_RCPP
+}
 // DiffOp
 arma::mat DiffOp(arma::uword n);
 RcppExport SEXP _BayesianConditionalFPCA_DiffOp(SEXP nSEXP) {
@@ -964,6 +975,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_MCMC_Tempered", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Tempered, 12},
     {"_BayesianConditionalFPCA_MCMC_Wrapper", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Wrapper, 10},
     {"_BayesianConditionalFPCA_TemperedMCMC", (DL_FUNC) &_BayesianConditionalFPCA_TemperedMCMC, 11},
+    {"_BayesianConditionalFPCA_omnibus_fit", (DL_FUNC) &_BayesianConditionalFPCA_omnibus_fit, 1},
     {"_BayesianConditionalFPCA_DiffOp", (DL_FUNC) &_BayesianConditionalFPCA_DiffOp, 1},
     {"_BayesianConditionalFPCA_getPenalty2", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty2, 2},
     {"_BayesianConditionalFPCA_getPenalty", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty, 1},

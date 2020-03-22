@@ -4,6 +4,36 @@
 using namespace Rcpp;
 
 // [[Rcpp::export]]
+List omnibus_fit(List mod){
+  arma::field<arma::cube> ThetaF = mod["Theta"];
+  arma::field<arma::mat> PrecF = mod["Prec"];
+  arma::mat Ymat = mod["Y"];
+  arma::mat B = mod["B"];
+  arma::uword nchains = arma::size(ThetaF)(0);
+  arma::uword iter = ThetaF(0).n_slices;
+  arma::uword subjects = Ymat.n_rows;
+  arma::uword time_points = Ymat.n_cols;
+  arma::vec statistic_rep(nchains * iter);
+  arma::vec statistic_obs(nchains * iter);
+  statistic_rep.zeros();
+  statistic_obs.zeros();
+  for(arma::uword u = 0; u < nchains; u++){
+    for(arma::uword i = 0; i < iter; i++){
+      for(arma::uword s = 0; s < subjects; s++){
+        statistic_rep(u * iter + i) = statistic_rep(u * iter + i) +
+          std::pow(PrecF(u)(s, i), 1.0 / 2.0) * arma::sum(arma::square(arma::randn<arma::vec>(time_points) *
+          std::pow(PrecF(u)(s, i), -1.0 / 2.0)));
+        statistic_obs(u * iter + i) = statistic_obs(u * iter + i) +
+          std::pow(PrecF(u)(s, i), 1.0 / 2.0) * arma::sum(arma::square(Ymat.row(s) -
+          ThetaF(u).slice(i).row(s) * B.t()));
+      }
+    }
+  }
+  
+  return(List::create(Named("statistic_obs", statistic_obs),
+                      Named("statistic_rep", statistic_rep)));
+}
+// [[Rcpp::export]]
 arma::mat DiffOp(arma::uword n){
   arma::mat D = arma::eye(n, n);
   for(arma::uword i = 1; i < n; i++){

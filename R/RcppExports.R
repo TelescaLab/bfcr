@@ -69,6 +69,10 @@ TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_in
     .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
 }
 
+omnibus_fit <- function(mod) {
+    .Call(`_BayesianConditionalFPCA_omnibus_fit`, mod)
+}
+
 DiffOp <- function(n) {
     .Call(`_BayesianConditionalFPCA_DiffOp`, n)
 }

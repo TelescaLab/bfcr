@@ -52,7 +52,7 @@ L2 <- matrix(reg3$coefficients, nrow = p, ncol = 2)
 #####################################################################
 ####################### DATA GENERATION #############################
 #####################################################################
-set.seed(7)
+set.seed(1)
 n <- 100
 tmax <- 50
 p <- 12
@@ -82,6 +82,6 @@ noise_sd <- .05
 # E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
 E <- matrix(0, nrow = n, ncol = tmax)
 for(i in 1:n){
-  E[i, ] <- rnorm(tmax, mean = 0, sd = noise_sd) 
+  E[i, ] <- rnorm(tmax, mean = 0, sd = noise_sd + runif(1)) 
 }
 Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru) + E
