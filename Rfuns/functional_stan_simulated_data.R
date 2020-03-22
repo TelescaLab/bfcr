@@ -49,11 +49,11 @@ print(loo_1)
 ### MCMC sanity check ###
 K <- 2
 AAA <- MCMC(Y, X, Btru, K, 5000, 5000, 1, 1)
-P <- posterior_predictive_bands(AAA, c(.1, .5, .9))
+P <- posterior_predictive_bands(AAA, c(.05, .5, .95))
 colnames(P) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
 P <- as_tibble(P)
 P %>%
-  filter(ID == 4) %>%
+  filter(ID == 7) %>%
   ggplot(aes(x = Time, y = Y)) +
   geom_point() +
   geom_ribbon(aes(ymin = Lower_P, ymax = Upper_P), alpha = 0.3) +
