@@ -29,7 +29,11 @@ void updateThetaLambdaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, ar
 void updateEtaP(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta, arma::mat& Proj, arma::mat& X);
 void updateDelta(arma::mat& Proj, arma::mat& Theta, arma::cube& Lambda, arma::mat& Eta, arma::vec& Delta, arma::mat& X);
 double updatePrecP(arma::mat& Proj, arma::mat& Y, arma::mat& B);
-
+//void updateProjBeta2(arma::cube& Lambda, arma::mat& Theta, arma::mat& Eta, arma::vec& Delta,
+//                     arma::vec& Prec, arma::mat& X, arma::mat& Y, arma::mat B, arma::mat& Proj, double beta);
+void updatePhiBeta(arma::mat& Proj, arma::mat& Y, arma::mat& B, arma::vec& Phi, double tausq, double alpha, double beta);
+double updateAlphaBeta(arma::mat& Proj, arma::mat& Y, arma::mat& B, arma::vec& Phi, double beta);
+//double updateTausq(arma::vec& Phi, double beta);
 
 // Tempered stuff
 arma::uword choose_coordinate(arma::vec log_weights);

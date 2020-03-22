@@ -93,9 +93,9 @@ Rcpp::List TemperedMCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uwor
       Proj = ProjF(u).slice(i);
       updateProjBeta(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta(u));
       Prec = updatePrecPBeta(Proj, Y, B, beta(u));
-      updateDeltaBeta(Proj, Theta, Lambda, Eta, Delta, X, beta(u));
-      updateEtaPBeta(Lambda, Theta, Eta, Delta, Proj, X, beta(u));
-      updateThetaLambdaBeta(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta(u));
+      //updateDeltaBeta(Proj, Theta, Lambda, Eta, Delta, X, beta(u));
+      //updateEtaPBeta(Lambda, Theta, Eta, Delta, Proj, X, beta(u));
+      //updateThetaLambdaBeta(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta(u));
       updateTauBeta(Theta, Lambda, Tau, beta(u));
       LambdaF(u, i+1) = Lambda;
       ThetaF(u).slice(i+1) = Theta;

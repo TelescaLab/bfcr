@@ -10,13 +10,16 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   library(microbenchmark)
   library(dlnm)
   library(BayesianConditionalFPCA)
+  library(rstan)
+  options(mc.cores =parallel::detectCores())
+  rstan_options(auto_write = TRUE)
   mu <- function(t, z){
     t + z*sin(t) + (1-z)*cos(t)
   }
   
   tmax <- 50
   zmax <- 30
-  t <- seq(from = 0, to = 1, length.out = tmax)
+  t <- seq(from = -pi, to = pi, length.out = tmax)
   z <- seq(from = 0, to = 1, length.out = zmax)
   
   meanfunc <- numeric(0)
@@ -72,10 +75,10 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   #X <- cbind(rep(1,n))
   #X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
   #X <- cbind(rep(1,n),runif(n,min=-1,max=1))
-  #X <- cbind(rep(1,n), rnorm(n, sd = 1))
-  X <- cbind(rep(1,n))
+  X <- cbind(rep(1,n), rnorm(n, sd = 1))
+  #X <- cbind(rep(1,n))
   #d <- dim(X)[2]
-  d <- 1
+  d <- 2
   Eta1 <- rnorm(n)
   Eta2 <- rnorm(n)
   Y <- matrix(0, nrow = n, ncol = tmax)
@@ -83,16 +86,27 @@ setwd("/Users/John/Documents/Johnstuff/BayesianConditionalFPCA/Rfuns")
   #Lambda2 <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = d)
   #Lambda1 <- L1[,1]
   #Lambda2 <- L2[,1]
-  Lambda1 <-  5*L1[,1]
-  Lambda2 <-  5*L2[,1]
+  Lambda1 <-  1*L1
+  Lambda2 <-  1*L2
   #Theta1 <- Theta[,1]
-  Theta1 <- 1*Theta[,1]
+  Theta1 <- 1*Theta
   #X <- as.matrix(X[,1])
   #Lambda%*%t(Lambda)
   #Theta <- matrix(rnorm(p * dim(X)[2]), nrow = p, ncol = dim(X)[2])
   noise_sd <- .05
   E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
   Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + E + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru)# + E
+  my_data <- list(N = n, P = 12, D = d, Q = 3, X = X, tmax = tmax, Y = c(t(Y)), B = Btru)
+  fit_vb <- vb(m, data = my_data, par = c("log_lik", "Theta", "Beta", "Lambda", "sigma", "Eta"), output_samples = 1000, iter = 30000, tol_rel_obj = .001)
+  list_of_draws <- extract(fit_vb)
+  
+  # Theta_init <- apply(list_of_draws$Beta, c(2,3), mean)
+  # Lambda_init <- aperm(apply(list_of_draws$Lambda, c(2, 3, 4), mean), c(3, 2, 1))
+  # Eta_init <- apply(list_of_draws$Eta, c(2,3), mean)
+  Theta_init <- list_of_draws$Beta[1000,,]
+  Lambda_init <- aperm(list_of_draws$Lambda[1000,,,], c(2, 3, 1))
+  Eta_init <- list_of_draws$Eta[1000,,]
+  bayes_param <- MCMC(Y, X, B, K, 1000, 1, 1, Theta_init, Lambda_init, Eta_init, 1)
   inflation <- 5
   Et1 <- matrix(rnorm(tmax * n, sd = inflation), nrow = n, ncol = tmax)
   Yt <- Y + Et1
@@ -134,7 +148,8 @@ for(i in 1:100){
     thin <- 1
     nchain <- 1
     set.seed(4)
-    bayes_param <- MCMC(Y, X, B, K, max_iter, nchain, thin, Theta_init, Lambda_init, Eta_init, Prec_init)
+    
+    bayes_param <- MCMC(Y, X, B, K, 2000, 1, 1, Theta_init, Lambda_init, Eta_init, 1)
     #bayes_logliks <- sapply(seq(from = 1, to = max_iter, by = 1), function(i) cpploglik(bayes_param$Theta[[1]][,,i], array(bayes_param$Lambda[[1,i]], dim = c(p,2*K)), bayes_param$Prec[[1]][i], X, B, Y, K, 6))
   }
 }

@@ -45,8 +45,8 @@ cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM_new`, X, B, Y, K, Theta_init, Lambda_init, cores)
 }
 
-MCMC <- function(Y, X, B, K, iter, nchains, thin, noise, n, Theta_init, Lambda_init, Eta_init, Prec_init) {
-    .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, nchains, thin, noise, n, Theta_init, Lambda_init, Eta_init, Prec_init)
+MCMC <- function(Y, X, B, K, iter, burnin, nchains, thin) {
+    .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, burnin, nchains, thin)
 }
 
 MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
@@ -109,6 +109,10 @@ find_stepsize <- function(Y, Theta, Lambda, prec, X, B, noise) {
     invisible(.Call(`_BayesianConditionalFPCA_find_stepsize`, Y, Theta, Lambda, prec, X, B, noise))
 }
 
+posterior_predictive_bands <- function(mod, quantiles) {
+    .Call(`_BayesianConditionalFPCA_posterior_predictive_bands`, mod, quantiles)
+}
+
 rcpparma_hello_world <- function() {
     .Call(`_BayesianConditionalFPCA_rcpparma_hello_world`)
 }
@@ -133,20 +137,8 @@ updateProjBeta <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta)
     invisible(.Call(`_BayesianConditionalFPCA_updateProjBeta`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta))
 }
 
-updateDeltaBeta <- function(Proj, Theta, Lambda, Eta, Delta, X, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateDeltaBeta`, Proj, Theta, Lambda, Eta, Delta, X, beta))
-}
-
-updateEtaPBeta <- function(Lambda, Theta, Eta, Delta, Proj, X, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEtaPBeta`, Lambda, Theta, Eta, Delta, Proj, X, beta))
-}
-
 updatePrecPBeta <- function(Proj, Y, B, beta) {
     .Call(`_BayesianConditionalFPCA_updatePrecPBeta`, Proj, Y, B, beta)
-}
-
-updateThetaLambdaBeta <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaBeta`, Lambda, Theta, Eta, Delta, Proj, Tau, X, beta))
 }
 
 updateTauBeta <- function(Theta, Lambda, Tau, beta) {
@@ -231,6 +223,10 @@ updateTau <- function(Theta, Lambda, Tau) {
 
 updateSigma <- function(Eta, Sigma) {
     invisible(.Call(`_BayesianConditionalFPCA_updateSigma`, Eta, Sigma))
+}
+
+updateSigBeta <- function(sigma, SigBeta, Phi, X) {
+    invisible(.Call(`_BayesianConditionalFPCA_updateSigBeta`, sigma, SigBeta, Phi, X))
 }
 
 updateLambdaS <- function(Y, Lambda, Tau, c, Gamma, X, B, prec, Theta) {
