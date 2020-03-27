@@ -52,7 +52,7 @@ L2 <- matrix(reg3$coefficients, nrow = p, ncol = 2)
 #####################################################################
 ####################### DATA GENERATION #############################
 #####################################################################
-set.seed(1)
+set.seed(2)
 n <- 100
 tmax <- 50
 p <- 12
@@ -62,8 +62,8 @@ T <- seq(from = 0, to = 1, length.out = tmax)
 Btru <- ps(T, df = p, intercept = TRUE)
 Best <- ps(T, df = ceiling(1.5 * p), intercept = TRUE)
 #X <- cbind(rep(1,n))
-X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
-#X <- cbind(rep(1,n),runif(n,min=0,max=1))
+#X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
+X <- cbind(rep(1,n),runif(n,min=0,max=1))
 #X <- cbind(rep(1,n), rnorm(n, sd = 1))
 Intercept_only <- cbind(rep(1, n))
 #X <- Intercept_only
@@ -82,6 +82,6 @@ noise_sd <- .05
 # E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
 E <- matrix(0, nrow = n, ncol = tmax)
 for(i in 1:n){
-  E[i, ] <- rnorm(tmax, mean = 0, sd = noise_sd + runif(1)) 
+  E[i, ] <- rnorm(tmax, mean = 0, sd = noise_sd + (i %% 5) * noise_sd / 5) 
 }
 Y <- X%*%t(Theta1)%*%t(Btru) + diag(Eta1)%*%X%*%t(Lambda1)%*%t(Btru) + diag(Eta2)%*%X%*%t(Lambda2)%*%t(Btru) + E

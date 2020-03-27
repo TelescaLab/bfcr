@@ -182,13 +182,38 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// MCMC
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin);
-RcppExport SEXP _BayesianConditionalFPCA_MCMC(SEXP YSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP burninSEXP, SEXP nchainsSEXP, SEXP thinSEXP) {
+// armadillo_modulus
+arma::uvec armadillo_modulus(arma::uvec indicies, arma::uword n);
+RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus(SEXP indiciesSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::uvec >::type indicies(indiciesSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(armadillo_modulus(indicies, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// completeY
+void completeY(arma::mat& Y, arma::uvec missing_sub, arma::uvec missing_time);
+RcppExport SEXP _BayesianConditionalFPCA_completeY(SEXP YSEXP, SEXP missing_subSEXP, SEXP missing_timeSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type missing_sub(missing_subSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type missing_time(missing_timeSEXP);
+    completeY(Y, missing_sub, missing_time);
+    return R_NilValue;
+END_RCPP
+}
+// run_mcmc
+List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik);
+RcppExport SEXP _BayesianConditionalFPCA_run_mcmc(SEXP YSEXP, SEXP TimeSEXP, SEXP XSEXP, SEXP BSEXP, SEXP KSEXP, SEXP iterSEXP, SEXP burninSEXP, SEXP nchainsSEXP, SEXP thinSEXP, SEXP loglikSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type Time(TimeSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
     Rcpp::traits::input_parameter< int >::type K(KSEXP);
@@ -196,7 +221,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::uword >::type burnin(burninSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type nchains(nchainsSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type thin(thinSEXP);
-    rcpp_result_gen = Rcpp::wrap(MCMC(Y, X, B, K, iter, burnin, nchains, thin));
+    Rcpp::traits::input_parameter< arma::uword >::type loglik(loglikSEXP);
+    rcpp_result_gen = Rcpp::wrap(run_mcmc(Y, Time, X, B, K, iter, burnin, nchains, thin, loglik));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -299,14 +325,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// omnibus_fit
-List omnibus_fit(List mod);
-RcppExport SEXP _BayesianConditionalFPCA_omnibus_fit(SEXP modSEXP) {
+// armadillo_modulus2
+arma::uvec armadillo_modulus2(arma::uvec indicies, arma::uword n);
+RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus2(SEXP indiciesSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::uvec >::type indicies(indiciesSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(armadillo_modulus2(indicies, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_omnibus_fit
+List get_omnibus_fit(List mod);
+RcppExport SEXP _BayesianConditionalFPCA_get_omnibus_fit(SEXP modSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type mod(modSEXP);
-    rcpp_result_gen = Rcpp::wrap(omnibus_fit(mod));
+    rcpp_result_gen = Rcpp::wrap(get_omnibus_fit(mod));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -450,15 +488,60 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
-// posterior_predictive_bands
-arma::mat posterior_predictive_bands(List mod, arma::vec quantiles);
-RcppExport SEXP _BayesianConditionalFPCA_posterior_predictive_bands(SEXP modSEXP, SEXP quantilesSEXP) {
+// get_posterior_predictive_bands
+arma::mat get_posterior_predictive_bands(List mod, arma::vec quantiles);
+RcppExport SEXP _BayesianConditionalFPCA_get_posterior_predictive_bands(SEXP modSEXP, SEXP quantilesSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< List >::type mod(modSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type quantiles(quantilesSEXP);
-    rcpp_result_gen = Rcpp::wrap(posterior_predictive_bands(mod, quantiles));
+    rcpp_result_gen = Rcpp::wrap(get_posterior_predictive_bands(mod, quantiles));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_posterior_means
+arma::mat get_posterior_means(List mod, arma::vec xi, double alpha);
+RcppExport SEXP _BayesianConditionalFPCA_get_posterior_means(SEXP modSEXP, SEXP xiSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type xi(xiSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_posterior_means(mod, xi, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// extract_eigenfn
+List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta, arma::mat& Psi, arma::mat& Psi_sqrt, arma::mat& Psi_sqrt_inv, arma::mat& B, arma::uword eigenvals, arma::vec x);
+RcppExport SEXP _BayesianConditionalFPCA_extract_eigenfn(SEXP LambdaSEXP, SEXP DeltaSEXP, SEXP PsiSEXP, SEXP Psi_sqrtSEXP, SEXP Psi_sqrt_invSEXP, SEXP BSEXP, SEXP eigenvalsSEXP, SEXP xSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::cube& >::type Lambda(LambdaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Delta(DeltaSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Psi(PsiSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Psi_sqrt(Psi_sqrtSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Psi_sqrt_inv(Psi_sqrt_invSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type eigenvals(eigenvalsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type x(xSEXP);
+    rcpp_result_gen = Rcpp::wrap(extract_eigenfn(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, x));
+    return rcpp_result_gen;
+END_RCPP
+}
+// get_posterior_eigen
+List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec xi, double alpha);
+RcppExport SEXP _BayesianConditionalFPCA_get_posterior_eigen(SEXP modSEXP, SEXP eigenvalsSEXP, SEXP xiSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type eigenvals(eigenvalsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type xi(xiSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_posterior_eigen(mod, eigenvals, xi, alpha));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -969,13 +1052,16 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_cpp_EM", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM, 6},
     {"_BayesianConditionalFPCA_cpp_EM_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_Proj, 5},
     {"_BayesianConditionalFPCA_cpp_EM_new", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_new, 7},
-    {"_BayesianConditionalFPCA_MCMC", (DL_FUNC) &_BayesianConditionalFPCA_MCMC, 8},
+    {"_BayesianConditionalFPCA_armadillo_modulus", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus, 2},
+    {"_BayesianConditionalFPCA_completeY", (DL_FUNC) &_BayesianConditionalFPCA_completeY, 3},
+    {"_BayesianConditionalFPCA_run_mcmc", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc, 10},
     {"_BayesianConditionalFPCA_MCMC_Impute", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Impute, 9},
     {"_BayesianConditionalFPCA_MCMC_Sparse", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Sparse, 7},
     {"_BayesianConditionalFPCA_MCMC_Tempered", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Tempered, 12},
     {"_BayesianConditionalFPCA_MCMC_Wrapper", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Wrapper, 10},
     {"_BayesianConditionalFPCA_TemperedMCMC", (DL_FUNC) &_BayesianConditionalFPCA_TemperedMCMC, 11},
-    {"_BayesianConditionalFPCA_omnibus_fit", (DL_FUNC) &_BayesianConditionalFPCA_omnibus_fit, 1},
+    {"_BayesianConditionalFPCA_armadillo_modulus2", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus2, 2},
+    {"_BayesianConditionalFPCA_get_omnibus_fit", (DL_FUNC) &_BayesianConditionalFPCA_get_omnibus_fit, 1},
     {"_BayesianConditionalFPCA_DiffOp", (DL_FUNC) &_BayesianConditionalFPCA_DiffOp, 1},
     {"_BayesianConditionalFPCA_getPenalty2", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty2, 2},
     {"_BayesianConditionalFPCA_getPenalty", (DL_FUNC) &_BayesianConditionalFPCA_getPenalty, 1},
@@ -986,7 +1072,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_Proposal", (DL_FUNC) &_BayesianConditionalFPCA_Proposal, 4},
     {"_BayesianConditionalFPCA_cpploglik_bayes", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_bayes, 8},
     {"_BayesianConditionalFPCA_find_stepsize", (DL_FUNC) &_BayesianConditionalFPCA_find_stepsize, 7},
-    {"_BayesianConditionalFPCA_posterior_predictive_bands", (DL_FUNC) &_BayesianConditionalFPCA_posterior_predictive_bands, 2},
+    {"_BayesianConditionalFPCA_get_posterior_predictive_bands", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands, 2},
+    {"_BayesianConditionalFPCA_get_posterior_means", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_means, 3},
+    {"_BayesianConditionalFPCA_extract_eigenfn", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn, 8},
+    {"_BayesianConditionalFPCA_get_posterior_eigen", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen, 4},
     {"_BayesianConditionalFPCA_rcpparma_hello_world", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_hello_world, 0},
     {"_BayesianConditionalFPCA_rcpparma_outerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_outerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},

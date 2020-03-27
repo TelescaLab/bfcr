@@ -19,8 +19,10 @@ arma::vec Phi;
 arma::mat Tau;
 double Tausq;
 double alpha;
+double Nu;
 double b;
 arma::mat P;
+arma::cube log_lik;
 
 void updateProjBeta2(arma::mat Y, arma::mat X, arma::mat B){
   arma::uword p = B.n_cols;
@@ -50,10 +52,9 @@ void updateAlphaBeta(arma::mat& Y){
 void updatePhiBeta(arma::mat& Y){
   // alpha is on precision scale
   // output on precision scale
-  double nu = 1;
   for(arma::uword i = 0; i < Phi.n_elem; i++){
-    Phi(i) = R::rgamma(b * (nu + Y.n_cols) / 2 + 1 - b,
-        1.0 / (b * (nu * Tausq + arma::dot(Y.row(i) -
+    Phi(i) = R::rgamma(b * (Nu + Y.n_cols) / 2 + 1 - b,
+        1.0 / (b * (Nu * Tausq + arma::dot(Y.row(i) -
           fit.row(i), Y.row(i) - fit.row(i)) * alpha) / 2));
   }
 }
@@ -151,17 +152,81 @@ void updateDeltaBeta(arma::mat& X){
   }
 }
 double updateTausq(){
-  double nu = 1;
-  return(R::rgamma(b * Phi.n_elem * nu / 2 + 1 - b, 1.0 / (b * (nu / 2.0 * arma::sum(Phi)))));
+  return(R::rgamma(b * Phi.n_elem * Nu / 2 + 1 - b, 1.0 / (b * (Nu / 2.0 * arma::sum(Phi)))));
+}
+
+void updateNu(){
+  arma::uword n = Phi.n_elem;
+  double nu_alpha = 10;
+  double nu_beta = 1;
+  double Nu_prop = std::exp(log(Nu) + R::rnorm(0, 1));
+  //Rcout << "Nu current: " << Nu << std::endl << "Nu proposal: " << Nu_prop << std::endl;
+  
+  double log_curr = 0;
+  double log_prop = 0;
+  for(arma::uword i = 0; i < n; i++){
+    log_curr = log_curr + b * R::dgamma(Phi(i), Nu / 2, 1.0 / (Nu * (Tausq) / 2), true);
+    log_prop = log_prop + b * R::dgamma(Phi(i), Nu_prop / 2, 1.0 / (Nu_prop * (Tausq) / 2), true);
+  }
+  log_curr = log_curr + b * R::dgamma(Nu, nu_alpha, 1.0 / nu_beta, true) + std::log(Nu);
+  log_prop = log_curr + b * R::dgamma(Nu_prop, nu_alpha, 1.0 / nu_beta, true) + std::log(Nu_prop);
+  //Rcout << log_curr << std::endl << log_prop << std::endl;
+  if(std::log(R::runif(0, 1)) < log_prop - log_curr){
+    Nu = Nu_prop;
+  }
+}
+
+// [[Rcpp::export]]
+arma::uvec armadillo_modulus(arma::uvec indicies, arma::uword n){
+  return(indicies - n * arma::floor(indicies / n));
+}
+
+// [[Rcpp::export]]
+void completeY(arma::mat& Y, arma::uvec missing_sub, arma::uvec missing_time){
+  for(arma::uword i = 0; i < missing_sub.n_elem; i++){
+    Y(missing_sub(i), missing_time(i)) = fit(missing_sub(i), missing_time(i)) + R::rnorm(0, std::pow(Prec(missing_sub(i)), -.5));
+  }
+}
+
+arma::rowvec update_log_lik(arma::mat& Y, arma::uword loglik){
+  arma::vec SDHolder(Y.n_cols);
+  arma::vec current_log_lik;
+
+  if(loglik == 1){
+    current_log_lik = arma::vec(Y.n_rows * Y.n_cols);
+    for(arma::uword i = 0; i < Y.n_rows; i++){
+      SDHolder.fill(std::pow(Prec(i), -.5));
+      current_log_lik.subvec(Y.n_cols * i, Y.n_cols * (i + 1) - 1) = arma::log_normpdf(Y.row(i).t(), fit.row(i).t(), SDHolder);
+    }
+  }
+  if(loglik == 2){
+    current_log_lik = arma::vec(Y.n_rows);
+    for(arma::uword i = 0; i < Y.n_rows; i++){
+      SDHolder.fill(std::pow(Prec(i), -.5));
+      current_log_lik(i) = arma::as_scalar(arma::sum(arma::log_normpdf(Y.row(i).t(), fit.row(i).t(), SDHolder)));
+      
+    }
+  }
+  return(current_log_lik.t());
 }
 // [[Rcpp::export]]
-List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
+List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
   int p = B.n_cols;
   int N = Y.n_rows;
   int D = X.n_cols;
   P = getPenalty2(B.n_cols, 2);
+  arma::uvec missing = arma::find_nonfinite(Y);
+  arma::uvec missing_sub = armadillo_modulus(missing, Y.n_rows);
+  arma::uvec missing_time = arma::floor(missing / Y.n_rows);
+  arma::mat Ypred = Y;
+  Ypred.elem(missing).fill(0);
   BtB = B.t() * B;
-  BtY = Y * B;
+  if(loglik == 1){
+    log_lik = arma::cube(iter, nchains, Y.n_rows * Y.n_cols);
+  }
+  if(loglik == 2){
+    log_lik = arma::cube(iter, nchains, Y.n_rows);
+  }
   arma::field<arma::cube> LambdaF(nchains, iter);
   arma::field<arma::cube> EtaF(nchains);
   arma::field<arma::cube> TauF(nchains);
@@ -173,6 +238,8 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
   arma::field<arma::mat> DeltaF(nchains);
   arma::field<arma::mat> PhiF(nchains);
   arma::field<arma::vec> TausqF(nchains);
+  arma::field<arma::vec> NuF(nchains);
+  arma::field<arma::vec> AlphaF(nchains);
   for(arma::uword u = 0; u < nchains; u++){
     for(arma::uword i = 0; i < iter; i++){
       LambdaF(u, i) = arma::cube(p, D, K);
@@ -187,6 +254,8 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     DeltaF(u) = arma::mat(p, iter);
     PhiF(u) = arma::mat(N, iter);
     TausqF(u) = arma::vec(iter);
+    NuF(u) = arma::vec(iter);
+    AlphaF(u) = arma::vec(iter);
   }
   arma::vec Sigma(K);
   //omp_set_num_threads(12);
@@ -204,8 +273,10 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
     Theta = arma::mat(N, p);
     Prec = arma::vec(N);
     Phi = arma::vec(N);
+    
     alpha = 1;
     Tausq = 1;
+    Nu = 5;
     Theta.randn();
     Lambda.randn();
     Eta.randn();
@@ -230,11 +301,15 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       if(double(i) > double(burnin) * 2.0 / 3.0){
         b = 1.0;
       }
-      updateProjBeta2(Y, X, B);
+      BtY = Ypred * B;
+      updateProjBeta2(Ypred, X, B);
       fit = Theta * B.t();
       
-      updateAlphaBeta(Y);
-      updatePhiBeta(Y);
+      completeY(Ypred, missing_sub, missing_time);
+      
+      updateAlphaBeta(Ypred);
+      updatePhiBeta(Ypred);
+      updateNu();
       Prec = Phi * alpha;
       
       Tausq = updateTausq();
@@ -258,18 +333,24 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
         //updateDelta(Theta, Beta, Lambda, Eta, Delta, X);
         
         //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
-        updateProjBeta2(Y, X, B);
+        BtY = Ypred * B;
+        updateProjBeta2(Ypred, X, B);
         fit = Theta * B.t();
         
-        updateAlphaBeta(Y);
-        updatePhiBeta(Y);
-        Prec = Phi * alpha;
+        completeY(Ypred, missing_sub, missing_time);
         
+        updateAlphaBeta(Ypred);
+        updatePhiBeta(Ypred);
+        Prec = Phi * alpha;
+        updateNu();
         Tausq = updateTausq();
         updateEtaPBeta(X);
         updateTauBeta();
         updateThetaLambdaBeta(X);
         updateDeltaBeta(X);
+        if((loglik == 1) || (loglik == 2)){
+          log_lik.tube(i, u) = update_log_lik(Ypred, loglik);
+        }
       }
       
       LambdaF(u, i) = Lambda;
@@ -281,15 +362,19 @@ List MCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uword iter, arma::
       BetaF(u).slice(i) = Beta;
       PhiF(u).col(i) = Phi;
       TausqF(u)(i) = Tausq;
+      NuF(u)(i) = Nu;
+      AlphaF(u)(i) = alpha;
     }
   }
-
   Rcpp::Rcout << "All done!";
   List mod = List::create(Named("Lambda", LambdaF), Named("Beta", BetaF),
                           Named("Eta", EtaF), Named("Theta", ThetaF),
                           Named("Delta", DeltaF),
                           Named("Prec", PrecF), Named("Tau", TauF),
                           Named("Tausq", TausqF), Named("Y", Y),
-                          Named("B", B));
+                          Named("B", B), Named("Phi", PhiF),
+                          Named("Nu", NuF), Named("Alpha", AlphaF),
+                          Named("log_lik", log_lik),
+                          Named("Time", Time));
   return(mod);
 }

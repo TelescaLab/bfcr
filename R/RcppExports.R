@@ -45,8 +45,16 @@ cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM_new`, X, B, Y, K, Theta_init, Lambda_init, cores)
 }
 
-MCMC <- function(Y, X, B, K, iter, burnin, nchains, thin) {
-    .Call(`_BayesianConditionalFPCA_MCMC`, Y, X, B, K, iter, burnin, nchains, thin)
+armadillo_modulus <- function(indicies, n) {
+    .Call(`_BayesianConditionalFPCA_armadillo_modulus`, indicies, n)
+}
+
+completeY <- function(Y, missing_sub, missing_time) {
+    invisible(.Call(`_BayesianConditionalFPCA_completeY`, Y, missing_sub, missing_time))
+}
+
+run_mcmc <- function(Y, Time, X, B, K, iter, burnin, nchains, thin, loglik) {
+    .Call(`_BayesianConditionalFPCA_run_mcmc`, Y, Time, X, B, K, iter, burnin, nchains, thin, loglik)
 }
 
 MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
@@ -69,8 +77,12 @@ TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_in
     .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
 }
 
-omnibus_fit <- function(mod) {
-    .Call(`_BayesianConditionalFPCA_omnibus_fit`, mod)
+armadillo_modulus2 <- function(indicies, n) {
+    .Call(`_BayesianConditionalFPCA_armadillo_modulus2`, indicies, n)
+}
+
+get_omnibus_fit <- function(mod) {
+    .Call(`_BayesianConditionalFPCA_get_omnibus_fit`, mod)
 }
 
 DiffOp <- function(n) {
@@ -113,8 +125,20 @@ find_stepsize <- function(Y, Theta, Lambda, prec, X, B, noise) {
     invisible(.Call(`_BayesianConditionalFPCA_find_stepsize`, Y, Theta, Lambda, prec, X, B, noise))
 }
 
-posterior_predictive_bands <- function(mod, quantiles) {
-    .Call(`_BayesianConditionalFPCA_posterior_predictive_bands`, mod, quantiles)
+get_posterior_predictive_bands <- function(mod, quantiles) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands`, mod, quantiles)
+}
+
+get_posterior_means <- function(mod, xi, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
+}
+
+extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, x) {
+    .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, x)
+}
+
+get_posterior_eigen <- function(mod, eigenvals, xi, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_eigen`, mod, eigenvals, xi, alpha)
 }
 
 rcpparma_hello_world <- function() {
