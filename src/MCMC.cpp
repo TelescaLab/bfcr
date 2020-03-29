@@ -24,12 +24,12 @@ double b;
 arma::mat P;
 arma::cube log_lik;
 
-void updateProjBeta2(arma::mat Y, arma::mat X, arma::mat B){
+void updateProjBeta2(arma::mat& Y, arma::mat& X, arma::mat& Z, arma::mat& B){
   arma::uword p = B.n_cols;
   for(arma::uword i = 0; i < Y.n_rows; i++){
     arma::vec g = Prec(i) * BtY.row(i).t() + arma::diagmat(Delta) * Beta * X.row(i).t();
     for(arma::uword k = 0; k < Lambda.n_slices; k++){
-      g = g + arma::diagmat(Delta) * Lambda.slice(k) * X.row(i).t() * Eta(i, k);
+      g = g + arma::diagmat(Delta) * Lambda.slice(k) * Z.row(i).t() * Eta(i, k);
     }
     arma::mat C = (Prec(i) * BtB + arma::diagmat(Delta));
     arma::mat mychol = arma::chol(C, "lower");
@@ -58,12 +58,12 @@ void updatePhiBeta(arma::mat& Y){
           fit.row(i), Y.row(i) - fit.row(i)) * alpha) / 2));
   }
 }
-void updateEtaPBeta(arma::mat& X){
+void updateEtaPBeta(arma::mat& X, arma::mat& Z){
   arma::uword n = Theta.n_rows;
   arma::mat Xtilde(Theta.n_cols, Lambda.n_slices);
   for(arma::uword i = 0; i < n; i++){
     for(arma::uword k = 0; k < Lambda.n_slices; k++){
-      Xtilde.col(k) = Lambda.slice(k) * X.row(i).t();
+      Xtilde.col(k) = Lambda.slice(k) * Z.row(i).t();
     }
     arma::vec g = Xtilde.t() * arma::diagmat(Delta) * (Theta.row(i).t() - Beta * X.row(i).t());
     arma::mat C = (Xtilde.t() * arma::diagmat(Delta) * Xtilde + arma::eye(Lambda.n_slices, Lambda.n_slices));
@@ -79,11 +79,10 @@ void updateTauBeta(){
   double t_alpha = 1;
   double t_beta =  .0005;
   //double t_beta = 1;
-  arma::uword R = Lambda.n_slices;
-  arma::uword D = Lambda.n_cols;
-  for(arma::uword d = 0; d < D; d++){
-    Tau(0, d) = R::rgamma(b * (t_alpha + (Lambda.n_rows - 1.0) / 2.0) + 1 - b, 1.0 / (b * (t_beta + 1.0 / 2.0 * arma::as_scalar(Beta.col(d).t() * P * Beta.col(d)))));
-  }
+  arma::uword K = Lambda.n_slices;
+  arma::uword D1 = Beta.n_cols;
+  arma::uword D2 = Lambda.n_cols;
+  
   /*
   for(arma::uword r = 0; r < R; r++){
   for(arma::uword d = 0; d < D; d++){
@@ -91,6 +90,10 @@ void updateTauBeta(){
   }
   }
   */
+  /*
+  for(arma::uword d = 0; d < D; d++){
+    Tau(0, d) = R::rgamma(b * (t_alpha + (Lambda.n_rows - 1.0) / 2.0) + 1 - b, 1.0 / (b * (t_beta + 1.0 / 2.0 * arma::as_scalar(Beta.col(d).t() * P * Beta.col(d)))));
+  }
   double temp_beta;
   for(arma::uword d = 0; d < D; d++){
     temp_beta = 0;
@@ -101,38 +104,56 @@ void updateTauBeta(){
     for(arma::uword r = 0; r < R; r++){
       Tau(r + 1, d) = Tau(1, d);
     }
+  }*/
+  for(arma::uword d = 0; d < D1; d++){
+    Tau(d) = R::rgamma(b * (t_alpha + (Lambda.n_rows - 1.0) / 2.0) + 1 - b, 1.0 / (b * (t_beta + 1.0 / 2.0 * arma::as_scalar(Beta.col(d).t() * P * Beta.col(d)))));
+  }
+  double temp_beta;
+  for(arma::uword d = 0; d < D2; d++){
+    temp_beta = 0;
+    for(arma::uword k = 0; k < K; k++){
+      temp_beta = temp_beta + 1.0 / 2.0 * arma::as_scalar(Lambda.slice(k).col(d).t() * P * Lambda.slice(k).col(d));
+    }
+    
+    Tau(D1 + d) = R::rgamma(b * (t_alpha + K * (Lambda.n_rows - 1.0) / 2.0) + 1 - b, 1.0 / (b * (t_beta + temp_beta)));
+    for(arma::uword k = 0; k < K; k++){
+      Tau(D1 + k * D2 + d) = Tau(D1 + d);
+    }
   }
 }
-void updateThetaLambdaBeta(arma::mat& X){
-  arma::uword d = X.n_cols;
+void updateThetaLambdaBeta(arma::mat& X, arma::mat& Z){
+  arma::uword D1 = X.n_cols;
+  arma::uword D2 = Z.n_cols;
   arma::uword p = Beta.n_rows;
   arma::uword K = Lambda.n_slices;
   arma::uword n = Theta.n_rows;
-  arma::mat X_eta(n, (1 + K) * d);
+  arma::mat X_eta(n, D1 + K * D2);
   arma::mat C, mychol;
   arma::vec g, w, mu, z, v, result;
-  X_eta.cols(0, d - 1) = X;
+  X_eta.cols(0, D1 - 1) = X;
   for(arma::uword k = 0; k < K; k++){
-    X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * X;
+    //X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * Z;
+    X_eta.cols(D1 + k * D2, D1 + (k + 1) * D2 - 1) = arma::diagmat(Eta.col(k)) * Z;
   }
   g = arma::vectorise(arma::diagmat(Delta) * Theta.t() * X_eta);
-  C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P));
+  //C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P));
+  C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(Tau), P));
   mychol = arma::chol(C, "lower");
   w = solve(arma::trimatl(mychol), g);
   mu = solve(arma::trimatu(mychol.t()), w);
-  z = 1 / sqrt(b) * arma::randn<arma::vec>(p*d*(K+1));
+  z = 1 / sqrt(b) * arma::randn<arma::vec>(p * (D1 + K * D2));
   v = arma::solve(arma::trimatu(mychol.t()), z);
   result = mu + v;
   
   
-  Beta = arma::reshape(result.rows(0, p*d-1), p, d);
+  Beta = arma::reshape(result.rows(0, p*D1-1), p, D1);
   for(arma::uword k = 0; k < K; k++){
-    Lambda.slice(k) = arma::reshape(result.rows(p*d*(k+1), p*d*(k+2) - 1), p, d);
+    Lambda.slice(k) = arma::reshape(result.rows(p*D2*(k+1), p*D2*(k+2) - 1), p, D2);
   }
   
   //return(C);
 }
-void updateDeltaBeta(arma::mat& X){
+void updateDeltaBeta(arma::mat& X, arma::mat& Z){
   arma::uword p = Theta.n_cols;
   arma::uword n = Theta.n_rows;
   arma::uword K = Lambda.n_slices;
@@ -143,7 +164,7 @@ void updateDeltaBeta(arma::mat& X){
   for(arma::uword i = 0; i < n; i++){
     ptm = Beta * X.row(i).t();
     for(arma::uword k = 0; k < K; k++){
-      ptm = ptm + Lambda.slice(k) * X.row(i).t() * Eta(i, k); 
+      ptm = ptm + Lambda.slice(k) * Z.row(i).t() * Eta(i, k); 
     }
     my_sum = my_sum + arma::square(Theta.row(i).t() - ptm);
   }
@@ -210,10 +231,11 @@ arma::rowvec update_log_lik(arma::mat& Y, arma::uword loglik){
   return(current_log_lik.t());
 }
 // [[Rcpp::export]]
-List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
+List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
   int p = B.n_cols;
   int N = Y.n_rows;
-  int D = X.n_cols;
+  int D1 = X.n_cols;
+  int D2 = Z.n_cols;
   P = getPenalty2(B.n_cols, 2);
   arma::uvec missing = arma::find_nonfinite(Y);
   arma::uvec missing_sub = armadillo_modulus(missing, Y.n_rows);
@@ -229,8 +251,7 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
   }
   arma::field<arma::cube> LambdaF(nchains, iter);
   arma::field<arma::cube> EtaF(nchains);
-  arma::field<arma::cube> TauF(nchains);
-  arma::field<arma::cube> cF(nchains);
+  arma::field<arma::mat> TauF(nchains);
   arma::field<arma::cube> BetaF(nchains);
   arma::field<arma::mat> SigmaF(nchains);
   arma::field<arma::mat> PrecF(nchains);
@@ -242,12 +263,12 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
   arma::field<arma::vec> AlphaF(nchains);
   for(arma::uword u = 0; u < nchains; u++){
     for(arma::uword i = 0; i < iter; i++){
-      LambdaF(u, i) = arma::cube(p, D, K);
+      LambdaF(u, i) = arma::cube(p, D2, K);
     }
     EtaF(u) = arma::cube(N, K, iter);
-    TauF(u) = arma::cube(K + 1, D, iter);
-    cF(u) = arma::cube(K, D, iter);
-    BetaF(u) = arma::cube(p, D, iter);
+    //TauF(u) = arma::cube(K + 1, D, iter);
+    TauF(u) = arma::mat(D1 + K * D2, iter);
+    BetaF(u) = arma::cube(p, D1, iter);
     SigmaF(u) = arma::mat(K, iter);
     PrecF(u) = arma::mat(N, iter);
     ThetaF(u) = arma::cube(N, p, iter);
@@ -265,10 +286,10 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
     
     
     //arma::cube Lambda(p, D, K);
-    Lambda = arma::cube(p, D, K);
+    Lambda = arma::cube(p, D2, K);
     Eta = arma::mat(N, K);
-    Tau = arma::mat(K + 1, D);
-    Beta = arma::mat(p, D);
+    Tau = arma::vec(D1 + K * D2);
+    Beta = arma::mat(p, D1);
     Delta = arma::vec(p);
     Theta = arma::mat(N, p);
     Prec = arma::vec(N);
@@ -302,22 +323,19 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
         b = 1.0;
       }
       BtY = Ypred * B;
-      updateProjBeta2(Ypred, X, B);
+      updateProjBeta2(Ypred, X, Z, B);
       fit = Theta * B.t();
-      
       completeY(Ypred, missing_sub, missing_time);
-      
       updateAlphaBeta(Ypred);
       updatePhiBeta(Ypred);
       updateNu();
       Prec = Phi * alpha;
-      
       Tausq = updateTausq();
-      updateEtaPBeta(X);
+      updateEtaPBeta(X, Z);
       updateTauBeta();
-      updateThetaLambdaBeta(X);
-      updateDeltaBeta(X);
-      
+      updateThetaLambdaBeta(X, Z);
+      updateDeltaBeta(X, Z);
+
     }
     Rcpp::Rcout << "Starting MCMC..." << std::endl;
     for(arma::uword i = 0; i < iter; i++){
@@ -334,7 +352,7 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
         
         //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
         BtY = Ypred * B;
-        updateProjBeta2(Ypred, X, B);
+        updateProjBeta2(Ypred, X, Z, B);
         fit = Theta * B.t();
         
         completeY(Ypred, missing_sub, missing_time);
@@ -344,10 +362,10 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
         Prec = Phi * alpha;
         updateNu();
         Tausq = updateTausq();
-        updateEtaPBeta(X);
+        updateEtaPBeta(X, Z);
         updateTauBeta();
-        updateThetaLambdaBeta(X);
-        updateDeltaBeta(X);
+        updateThetaLambdaBeta(X, Z);
+        updateDeltaBeta(X, Z);
         if((loglik == 1) || (loglik == 2)){
           log_lik.tube(i, u) = update_log_lik(Ypred, loglik);
         }
@@ -357,7 +375,7 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat B, int K, arma
       ThetaF(u).slice(i) = Theta;
       EtaF(u).slice(i) = Eta;
       PrecF(u).col(i) = Prec;
-      TauF(u).slice(i) = Tau;
+      TauF(u).col(i) = Tau;
       DeltaF(u).col(i) = Delta;
       BetaF(u).slice(i) = Beta;
       PhiF(u).col(i) = Phi;

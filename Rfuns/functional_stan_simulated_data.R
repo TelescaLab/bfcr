@@ -11,7 +11,6 @@ library(rstan)
 library(loo)
 library(tidyverse)
 library(pracma)
-library(expm)
 setwd("E:/Rcpp stuff/BayesianConditionalFPCA/Rfuns")
 source('simulated_data.r')
 
@@ -23,14 +22,14 @@ Y[4,1:20] <- NA
 
 ### MCMC sanity check ###
 K <- 2
-mcmc_results <- run_mcmc(Y, t, X, Btru, K, iter = 5000, burnin = 2500, nchains = 1, thin = 1, loglik = 0)
+mcmc_results <- run_mcmc(Y, t, X, X, Btru, K, iter = 10000, burnin = 2500, nchains = 1, thin = 1, loglik = 0)
 
 ### Visualization ###
 posterior_intervals <- get_posterior_predictive_bands(mcmc_results, c(.05, .5, .95))
 colnames(posterior_intervals) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
 posterior_intervals <- as_tibble(posterior_intervals)
 posterior_intervals %>%
-  filter(ID == 3) %>%
+  filter(ID == 0) %>%
   ggplot(aes(x = Time, y = Y)) +
   geom_point(na.rm = TRUE) +
   geom_ribbon(aes(ymin = Lower_P, ymax = Upper_P), alpha = 0.3) +
@@ -53,7 +52,7 @@ posterior_intervals %>%
 mcmc_omnibus_fit <- get_omnibus_fit(mcmc_results)
 plot(mcmc_omnibus_fit$statistic_obs, mcmc_omnibus_fit$statistic_rep, xlab = "Chi2 observed", ylab = "Chi2 repitition")
 abline(a = 0, b = 1)
-sum(mcmc_omnibus_fit$statistic_rep > mcmc_omnibus_fit$statistic_obs) / 5000
+sum(mcmc_omnibus_fit$statistic_rep > mcmc_omnibus_fit$statistic_obs) / 10000
 
 ### LOO ###
 r_eff <- relative_eff(exp(mcmc_results$log_lik), cores = 4)
@@ -78,10 +77,10 @@ coef_bands %>%
 
 
 ### Some covariance visualization ###
-evals <- 6
-xi <- c(1, .2)
+evals <- 2
+zi <- c(1, 1)
 alpha <- .05
-eigen_bands <- get_posterior_eigen(mcmc_results, evals, xi, alpha)
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, zi, alpha)
 eig_names <- c()
 eig_labs <- c()
 for(k in 1:evals){
@@ -104,14 +103,24 @@ eigen_bands_tibble %>%
   facet_wrap(number ~., labeller = labeller(number = eig_labs)) +
   theme_bw() + 
   theme(legend.position="none")
+eigen_bands$magnitude
 aX <- list(title = "Time")
 aY <- list(title = "Time")
 aZ <- list(title = "Response")
 plotly::plot_ly(x = t, y = t, z = eigen_bands$surface, type = "surface") %>%
   plotly::layout(scene = list(xaxis = aX, yaxis = aY, zaxis = aZ, dragmode = "turntable"))
 persp3D(1:50, 1:50, eigen_bands$surface)
+
+truecov <- matrix(0, nrow = tmax, ncol = tmax)
+truecov <- Btru %*% Lambda1 %*% outer(X[1,], X[1,]) %*% t(Lambda1) %*% t(Btru) +
+  Btru %*% Lambda2 %*% outer(X[1,], X[1,]) %*% t(Lambda2) %*% t(Btru)
 trapz1true <- trapz(t, eigen(truecov)$vectors[,1]^2)
 trapz2true <- trapz(t, eigen(truecov)$vectors[,2]^2)
+v1 <- 1/sqrt(trapz1true) * eigen(truecov)$vectors[,1]
+v2 <- 1/sqrt(trapz2true) * eigen(truecov)$vectors[,2]
+
+trapz(t, (eigen_bands$mean[,1] - v1)^2)
+trapz(t, (eigen_bands$mean[,2] + v2)^2)
 boobie <- get_posterior_eigen(mcmc_results, 3, c(1,1), .05)
 plot(boobie$lower[,1], type = "l")
 lines(boobie$upper[,1])
@@ -143,8 +152,8 @@ lines(-eigen(mycov)$vectors[,1], col = "blue")
 plot(eigenfns[,12], type = "l")
 hist(mcmc_results$Nu[[1]])
 truecov <- matrix(0, nrow = tmax, ncol = tmax)
-truecov <- Btru %*% Lambda1 %*% outer(X[100,], X[100,]) %*% t(Lambda1) %*% t(Btru) +
-  Btru %*% Lambda2 %*% outer(X[100,], X[100,]) %*% t(Lambda2) %*% t(Btru)
+truecov <- Btru %*% Lambda1 %*% outer(X[58,], X[58,]) %*% t(Lambda1) %*% t(Btru) +
+  Btru %*% Lambda2 %*% outer(X[58,], X[58,]) %*% t(Lambda2) %*% t(Btru)
 persp3D(1:50,1:50, truecov)
 mycov <- matrix(0, nrow = 12, ncol = 12)
 for(i in 1:5000){

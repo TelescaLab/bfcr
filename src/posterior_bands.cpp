@@ -81,7 +81,7 @@ arma::mat get_posterior_means(List mod, arma::vec xi, double alpha){
 List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta,
                      arma::mat& Psi, arma::mat& Psi_sqrt,
                      arma::mat& Psi_sqrt_inv, arma::mat& B,
-                     arma::uword eigenvals, arma::vec x){
+                     arma::uword eigenvals, arma::vec z){
   arma::uword dim_latent = Lambda.n_rows;
   arma::uword dim_spline = B.n_rows;
   arma::mat eigenfn_latent(dim_latent, dim_latent);
@@ -92,7 +92,7 @@ List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta,
   arma::vec eigenval_pve(eigenvals);
   arma::mat cov_latent = arma::zeros<arma::mat>(dim_latent, dim_latent);
   for(arma::uword k = 0; k < Lambda.n_slices; k++){
-    cov_latent = cov_latent + Lambda.slice(k) * x * x.t() * Lambda.slice(k).t();
+    cov_latent = cov_latent + Lambda.slice(k) * z * z.t() * Lambda.slice(k).t();
   }
   cov_latent = cov_latent + arma::diagmat(1.0 / Delta);
   arma::mat cov_latent_transformed = Psi_sqrt * cov_latent * Psi_sqrt;
@@ -117,7 +117,7 @@ List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta,
 
 // [[Rcpp::export]]
 
-List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec xi, double alpha){
+List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec zi, double alpha){
   arma::mat B = mod["B"];
   arma::field<arma::cube> LambdaF = mod["Lambda"];
   arma::field<arma::mat> DeltaF = mod["Delta"];
@@ -158,7 +158,7 @@ List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec xi, double a
                       Psi_sqrt_inv,
                       B,
                       eigenvals,
-                      xi);
+                      zi);
       temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_latent"]);
       eval_mat.row(u * iter + i) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);
       eval_pve_mat.row(u * iter + i) = Rcpp::as<arma::rowvec>(eigen_list["eigenval_pve"]);
@@ -191,7 +191,7 @@ List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec xi, double a
                                    Psi_sqrt_inv,
                                    B,
                                    eigenvals,
-                                   xi);
+                                   zi);
       temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_latent"]);
 
       for (arma::uword k = 0; k < eigenvals; k++) {

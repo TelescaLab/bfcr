@@ -53,8 +53,8 @@ completeY <- function(Y, missing_sub, missing_time) {
     invisible(.Call(`_BayesianConditionalFPCA_completeY`, Y, missing_sub, missing_time))
 }
 
-run_mcmc <- function(Y, Time, X, B, K, iter, burnin, nchains, thin, loglik) {
-    .Call(`_BayesianConditionalFPCA_run_mcmc`, Y, Time, X, B, K, iter, burnin, nchains, thin, loglik)
+run_mcmc <- function(Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik) {
+    .Call(`_BayesianConditionalFPCA_run_mcmc`, Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik)
 }
 
 MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
@@ -133,12 +133,12 @@ get_posterior_means <- function(mod, xi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
 }
 
-extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, x) {
-    .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, x)
+extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
+    .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
 }
 
-get_posterior_eigen <- function(mod, eigenvals, xi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen`, mod, eigenvals, xi, alpha)
+get_posterior_eigen <- function(mod, eigenvals, zi, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_eigen`, mod, eigenvals, zi, alpha)
 }
 
 rcpparma_hello_world <- function() {
