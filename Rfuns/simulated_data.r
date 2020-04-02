@@ -2,7 +2,7 @@
 ################### MEAN AND VARIANCE FUNCTIONS #####################
 #####################################################################
 mu <- function(t, z){
-  t + z*sin(t) + (1-z)*cos(t)
+  t + z*sin(t*pi) + (1-z)*cos(t*pi)
 }
 
 tmax <- 50
@@ -22,9 +22,6 @@ X <- kronecker(X, B)
 reg1 <- lm(meanfunc ~ X - 1)
 num <- 29
 idx <- (1 + tmax*num):(tmax*(num+1))
-plot(meanfunc[idx],type="l")
-lines(X[idx,]%*%reg1$coefficients,col="blue")
-
 eig1 <- function(t,z){
   -cos(pi*(t+z/2))/sqrt(2) * sqrt(z / 9)
 }
@@ -42,8 +39,6 @@ for(i in 1:zmax){
   eigfunc2 <- c(eigfunc2, eig2(t, z[i]))
 }
 reg3 <- lm(eigfunc2 ~ X - 1)
-plot(eigfunc1[idx], type="l")
-lines(X[idx,]%*%reg2$coefficients, col = "blue")
 
 Theta <- matrix(reg1$coefficients, nrow = p, ncol = 2)
 L1 <- matrix(reg2$coefficients, nrow = p, ncol = 2)
@@ -71,8 +66,8 @@ d <- dim(X)[2]
 Eta1 <- rnorm(n, sd = sqrt(1))
 Eta2 <- rnorm(n, sd = sqrt(1))
 Y <- matrix(0, nrow = n, ncol = tmax)
-Lambda1 <-  L1
-Lambda2 <-  L2
+Lambda1 <-  L1*3
+Lambda2 <-  L2*3
 Theta1 <- Theta
 #Theta1 <- matrix(0, nrow = p, ncol = 2)
 #Theta1[,2] <- 0

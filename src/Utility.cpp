@@ -45,6 +45,53 @@ List get_omnibus_fit(List mod){
   return(List::create(Named("statistic_obs", statistic_obs),
                       Named("statistic_rep", statistic_rep)));
 }
+
+// [[Rcpp::export]]
+List get_omnibus_fit2(List mod){
+  arma::field<arma::cube> LambdaF = mod["Lambda"];
+  arma::field<arma::cube> BetaF = mod["Beta"];
+  arma::field<arma::mat> PrecF = mod["Prec"];
+  arma::field<arma::cube> EtaF = mod["Eta"];
+  
+  arma::mat Ymat = mod["Y"];
+  arma::mat B = mod["B"];
+  arma::mat X = mod["X"];
+  arma::mat Z = mod["Z"];
+  arma::uvec missing = arma::find_nonfinite(Ymat);
+  arma::uvec missing_sub = armadillo_modulus2(missing, Ymat.n_rows);
+  arma::uvec missing_time = arma::floor(missing / Ymat.n_rows);
+  arma::uword nchains = arma::size(BetaF)(0);
+  arma::uword iter = BetaF(0).n_slices;
+  arma::uword subjects = Ymat.n_rows;
+  arma::uword time_points = Ymat.n_cols;
+  arma::vec statistic_rep(nchains * iter);
+  arma::vec statistic_obs(nchains * iter);
+  statistic_rep.zeros();
+  statistic_obs.zeros();
+  arma::mat fit;
+  for(arma::uword u = 0; u < nchains; u++){
+    for(arma::uword i = 0; i < iter; i++){
+      fit = X * BetaF(u, 0, 0).slice(i).t() * B.t();
+      for(arma::uword k = 0; k < LambdaF(0, 0, 0).n_slices; k++){
+        fit = fit + arma::diagmat(EtaF(u, 0, 0).slice(i).col(k)) * Z * LambdaF(i + u * iter, 0, 0).slice(k).t() * B.t();
+      }
+      for(arma::uword s = 0; s < subjects; s++){
+        for(arma::uword m = 0; m < missing_sub.n_elem; m++){
+          Ymat(missing_sub(m), missing_time(m)) = fit(missing_sub(m), missing_time(m)) + R::rnorm(0, std::pow(PrecF(u)(missing_sub(m), i), -.5));
+        }
+        arma::vec rep_temp = arma::square(arma::randn<arma::vec>(time_points));
+        arma::rowvec obs_temp = arma::square(Ymat.row(s) -
+          fit.row(s));
+        statistic_rep(u * iter + i) = statistic_rep(u * iter + i) + std::pow(PrecF(u)(s, i), -1.0 / 2.0) * arma::sum(rep_temp);
+        statistic_obs(u * iter + i) = statistic_obs(u * iter + i) +
+          std::pow(PrecF(u)(s, i), 1.0 / 2.0) * arma::sum(obs_temp);
+        
+      }
+    }
+  }
+  return(List::create(Named("statistic_obs", statistic_obs),
+                      Named("statistic_rep", statistic_rep)));
+}
 // [[Rcpp::export]]
 arma::mat DiffOp(arma::uword n){
   arma::mat D = arma::eye(n, n);

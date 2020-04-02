@@ -16,7 +16,7 @@ arma::mat BtB;
 arma::mat BtY;
 arma::mat fit;
 arma::vec Phi;
-arma::mat Tau;
+arma::vec Tau;
 double Tausq;
 double alpha;
 double Nu;
@@ -152,6 +152,63 @@ void updateThetaLambdaBeta(arma::mat& X, arma::mat& Z){
   }
   
   //return(C);
+}
+
+void updateBeta(arma::mat& X, arma::mat& Z){
+  arma::uword D1 = X.n_cols;
+  arma::uword D2 = Z.n_cols;
+  arma::uword p = Beta.n_rows;
+  arma::uword K = Lambda.n_slices;
+  arma::uword n = Theta.n_rows;
+  arma::mat X_eta(n, D1);
+  arma::mat C, mychol;
+  arma::vec g, w, mu, z, v, result;
+  X_eta = X;
+  arma::mat Cond = arma::zeros<arma::mat>(p, n);
+  for(arma::uword k = 0; k < K; k++){
+    Cond = Cond + Lambda.slice(k) * Z.t() * arma::diagmat(Eta.col(k));
+  }
+  g = arma::vectorise(arma::diagmat(Delta) * (Theta.t() - Cond) * X_eta);
+  //C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P));
+  C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(Tau.head(D1)), P));
+  mychol = arma::chol(C, "lower");
+  w = solve(arma::trimatl(mychol), g);
+  mu = solve(arma::trimatu(mychol.t()), w);
+  z = 1 / sqrt(b) * arma::randn<arma::vec>(p * (D1));
+  v = arma::solve(arma::trimatu(mychol.t()), z);
+  result = mu + v;
+  
+  Beta = arma::reshape(result.rows(0, p*D1-1), p, D1);
+  
+}
+
+void updateLambda(arma::mat& X, arma::mat& Z){
+  arma::uword D1 = X.n_cols;
+  arma::uword D2 = Z.n_cols;
+  arma::uword p = Beta.n_rows;
+  arma::uword K = Lambda.n_slices;
+  arma::uword n = Theta.n_rows;
+  arma::mat X_eta(n, K * D2);
+  arma::mat C, mychol;
+  arma::vec g, w, mu, z, v, result;
+  for(arma::uword k = 0; k < K; k++){
+    //X_eta.cols(d*(k+1), d*(k+2)-1) = arma::diagmat(Eta.col(k)) * Z;
+    X_eta.cols(k * D2, (k + 1) * D2 - 1) = arma::diagmat(Eta.col(k)) * Z;
+  }
+  g = arma::vectorise(arma::diagmat(Delta) * (Theta.t() - Beta * X.t()) * X_eta);
+  //C = (arma::kron( X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(arma::vectorise(Tau.t())), P));
+  C = (arma::kron(X_eta.t() * X_eta, arma::diagmat(Delta)) + arma::kron(arma::diagmat(Tau.tail(D2 * K)), P));
+  mychol = arma::chol(C, "lower");
+  w = solve(arma::trimatl(mychol), g);
+  mu = solve(arma::trimatu(mychol.t()), w);
+  z = 1 / sqrt(b) * arma::randn<arma::vec>(p * (K * D2));
+  v = arma::solve(arma::trimatu(mychol.t()), z);
+  result = mu + v;
+  
+  
+  for(arma::uword k = 0; k < K; k++){
+    Lambda.slice(k) = arma::reshape(result.rows(p*D2*(k), p*D2*(k+1) - 1), p, D2);
+  }
 }
 void updateDeltaBeta(arma::mat& X, arma::mat& Z){
   arma::uword p = Theta.n_cols;
@@ -314,10 +371,10 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B
     Prec = Prec_init;
     */
     Rcpp::Rcout << "Starting burn in..." << std::endl;
-    b = 0.2;
     for(arma::uword i = 0; i < burnin; i++){
+      b = .5;
       if(double(i) > double(burnin) / 3.0){
-        b = 0.5;
+        b = .75;
       }
       if(double(i) > double(burnin) * 2.0 / 3.0){
         b = 1.0;
@@ -333,12 +390,15 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B
       Tausq = updateTausq();
       updateEtaPBeta(X, Z);
       updateTauBeta();
-      updateThetaLambdaBeta(X, Z);
+      //updateThetaLambdaBeta(X, Z);
+      updateBeta(X, Z);
+      updateLambda(X, Z);
       updateDeltaBeta(X, Z);
 
     }
     Rcpp::Rcout << "Starting MCMC..." << std::endl;
     for(arma::uword i = 0; i < iter; i++){
+      b = 1.0;
       if(i % 100 == 0){
         Rcpp::Rcout << i << std::endl;
       }
@@ -364,7 +424,9 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B
         Tausq = updateTausq();
         updateEtaPBeta(X, Z);
         updateTauBeta();
-        updateThetaLambdaBeta(X, Z);
+        updateBeta(X, Z);
+        updateLambda(X, Z);
+        //updateThetaLambdaBeta(X, Z);
         updateDeltaBeta(X, Z);
         if((loglik == 1) || (loglik == 2)){
           log_lik.tube(i, u) = update_log_lik(Ypred, loglik);
