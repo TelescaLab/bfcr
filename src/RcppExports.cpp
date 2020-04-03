@@ -645,6 +645,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_variance_effects
+List get_variance_effects(List mod, double alpha);
+RcppExport SEXP _BayesianConditionalFPCA_get_variance_effects(SEXP modSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_variance_effects(mod, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpparma_hello_world
 arma::mat rcpparma_hello_world();
 RcppExport SEXP _BayesianConditionalFPCA_rcpparma_hello_world() {
@@ -1183,6 +1195,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_get_posterior_eigen", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen, 4},
     {"_BayesianConditionalFPCA_extract_eigenfn2", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn2, 7},
     {"_BayesianConditionalFPCA_get_posterior_eigen2", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen2, 4},
+    {"_BayesianConditionalFPCA_get_variance_effects", (DL_FUNC) &_BayesianConditionalFPCA_get_variance_effects, 2},
     {"_BayesianConditionalFPCA_rcpparma_hello_world", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_hello_world, 0},
     {"_BayesianConditionalFPCA_rcpparma_outerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_outerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},

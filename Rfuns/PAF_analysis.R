@@ -22,12 +22,12 @@ Basis <- ps(t_paf, df = 16, intercept = TRUE)
 # Column 3: Age
 # Column 4: Interaction of group and age
 
-### MCMC sanity check ###
+### MCMC ###
 K <- 3
 mcmc_results <- run_mcmc_Morris(Y_paf, t_paf, X_paf, X_paf, Basis, K, iter = 5000, burnin = 10000, nchains = 1, thin = 5, loglik = 1)
 
 ### Visualization ###
-sub <- 10
+sub <- 1
 posterior_intervals <- get_posterior_predictive_bands2(mcmc_results, c(.025, .5, .975))
 colnames(posterior_intervals) <- c("ID", "Frequency", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
 posterior_intervals <- as_tibble(posterior_intervals)
@@ -146,8 +146,8 @@ p4 <- coef_bands %>%
 gridExtra::grid.arrange(p3, p4, nrow = 1)
 
 ### Some covariance visualization ###
-Group <- 0
-Month <- 60
+Group <- 1
+Month <- 90
 poly_coef <- predict(poly_age, Month)
 zi <- c(1, Group, poly_coef, Group * poly_coef)
 evals <- 3
@@ -183,5 +183,6 @@ aZ <- list(title = "Response")
 plotly::plot_ly(x = t_paf, y = t_paf, z = eigen_bands$surface, type = "surface") %>%
   plotly::layout(scene = list(xaxis = aX, yaxis = aY, zaxis = aZ, dragmode = "turntable"))
 # plot(eigen_bands$raw_magnitude, type = "l")
+par(mfrow = c(1,1))
 persp3D(t_paf, t_paf, eigen_bands$surface)
 

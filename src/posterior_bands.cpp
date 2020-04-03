@@ -447,3 +447,71 @@ List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double 
                       Named("magnitude", magnitude_interval),
                       Named("raw_magnitude", magnitude)));
 }
+
+// [[Rcpp::export]]
+List get_variance_effects(List mod, double alpha){
+  arma::mat B = mod["B"];
+  arma::field<arma::cube> LambdaF = mod["Lambda"];
+  arma::vec Time = mod["Time"];
+  arma::mat Z = mod["Z"];
+  arma::vec alpha_vec = {1 - alpha};
+  arma::mat ph = arma::zeros<arma::mat>(B.n_cols, B.n_cols);
+  arma::uword iter = arma::size(LambdaF)(0);
+  arma::uword K = LambdaF(0, 0, 0).n_slices;
+  arma::mat mean(Time.n_elem, Z.n_cols);
+  arma::mat upper(Time.n_elem, Z.n_cols);
+  arma::mat lower(Time.n_elem, Z.n_cols);
+  arma::mat temp_lambda;
+  arma::mat temp_shed;
+  arma::uvec keep_cols = arma::linspace<arma::uvec>(1, Z.n_cols - 1);
+  arma::vec Malpha(iter);
+  for(arma::uword d = 0; d < Z.n_cols; d++){
+    arma::running_stat_vec<arma::vec> stats;
+    for (arma::uword i = 0; i < iter; i++) {
+      for (arma::uword k = 0; k < K; k++) {
+        temp_lambda = LambdaF(i, 0, 0).slice(k);
+        for (arma::uword dp = 0; dp < Z.n_cols; dp++){
+          if (dp == d) {
+            ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
+          }
+          /*else {
+            ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
+              temp_lambda.col(dp) * temp_lambda.col(d).t();          
+          }*/
+        }
+      }
+      stats(arma::vectorise(ph));
+      ph.zeros();
+    }
+    //Rcout << "mean: " << std::endl << stats.mean() << std::endl << "sd: " << std::endl << stats.stddev();
+    for (arma::uword i = 0; i < iter; i++) {
+      for (arma::uword k = 0; k < K; k++) {
+        temp_lambda = LambdaF(i, 0, 0).slice(k);
+        for (arma::uword dp = 0; dp < Z.n_cols; dp++){
+          if (dp == d) {
+            ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
+          }
+          /*else {
+            ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
+              temp_lambda.col(dp) * temp_lambda.col(d).t();          
+          }*/
+        }
+      }
+      Malpha(i) = arma::max(arma::abs((arma::vectorise(ph) - stats.mean()) / stats.stddev()));
+      ph.zeros();
+    }
+    double q_alpha = arma::as_scalar(arma::quantile(Malpha, alpha_vec));
+    Rcout << q_alpha << std::endl;
+    lower.col(d) = arma::diagvec(B * arma::reshape((stats.mean() - q_alpha * stats.stddev()), B.n_cols, B.n_cols) * B.t());
+    mean.col(d) = arma::diagvec(B * arma::reshape(stats.mean(), B.n_cols, B.n_cols) * B.t());
+    upper.col(d) = arma::diagvec(B * arma::reshape((stats.mean() + q_alpha * stats.stddev()), B.n_cols, B.n_cols) * B.t());
+    
+    if (d != Z.n_cols - 1) {
+      keep_cols(d) = keep_cols(d) - 1;
+    }
+    
+  }
+  return(List::create(Named("mean", mean),
+                      Named("lower", lower),
+                      Named("upper", upper)));
+}

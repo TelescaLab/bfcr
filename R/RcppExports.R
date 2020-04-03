@@ -169,6 +169,10 @@ get_posterior_eigen2 <- function(mod, eigenvals, zi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_eigen2`, mod, eigenvals, zi, alpha)
 }
 
+get_variance_effects <- function(mod, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_variance_effects`, mod, alpha)
+}
+
 rcpparma_hello_world <- function() {
     .Call(`_BayesianConditionalFPCA_rcpparma_hello_world`)
 }

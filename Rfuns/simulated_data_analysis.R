@@ -7,12 +7,16 @@ library(loo)
 library(tidyverse)
 setwd("E:/Rcpp stuff/BayesianConditionalFPCA/Rfuns")
 source('simulated_data.r')
-matplot(t, t(Y), type = "l", col = "black", xlab = "Time", ylab = "Response")
-
-### MCMC sanity check ###
+#matplot(t, t(Y), type = "l", col = "black", xlab = "Time", ylab = "Response")
+par(mfrow = c(1,2))
+matplot(t, t(Y[1:(n/2),]), type = "l", xlab = "Time", ylab = "Response", col = "black", main = "Group 1")
+matplot(t, t(Y[(n/2 + 1):n,]), type = "l", xlab = "Time", ylab = "Response", col = "black", main = "Group 2")
+par(mfrow = c(1,1))
+### MCMC ###
 K <- 4
 Basis <- ps(t, df = 16, intercept = TRUE)
-mcmc_results <- run_mcmc_Morris(Y, t, X, X, Basis, K, iter = 5000, burnin = 10000, nchains = 1, thin = 5, loglik = 1)
+X_red <- cbind(X, rnorm(n))
+mcmc_results <- run_mcmc_Morris(Y, t, X_red, X_red, Basis, K, iter = 5000, burnin = 5000, nchains = 1, thin = 3, loglik = 1)
 
 ### Visualization ###
 sub <- 10
@@ -73,12 +77,12 @@ coef_bands %>%
   ggtitle("Conditional mean bands") + 
   theme_bw() 
 
-plot(t, coef_bands$Upper, type = "l", ylim = c(-.2, 1.2))
+plot(t, coef_bands$Upper, type = "l", ylim = c(-.2, 1.2), xlab = "Time", ylab = "Response")
 lines(t, coef_bands$Lower)
 lines(t, Btru%*%Theta1 %*% X[sub,],col="green")
 
 ### Some covariance visualization ###
-sub <- 51
+sub <- 100
 evals <- 2
 zi <- X[sub, ]
 alpha <- .05
@@ -119,4 +123,7 @@ truecov <- Btru %*% Lambda1 %*% outer(X[sub,], X[sub,]) %*% t(Lambda1) %*% t(Btr
 par(mfrow = c(1,2))
 persp3D(t, t, eigen_bands$surface)
 persp3D(t, t, truecov)
+par(mfrow = c(1,1))
 
+
+surface2 <- eigen_bands$surface
