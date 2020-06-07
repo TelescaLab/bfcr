@@ -127,6 +127,42 @@ arma::mat get_posterior_means(List mod, arma::vec xi, double alpha){
 }
 
 // [[Rcpp::export]]
+List get_posterior_coefs(List mod, double alpha) {
+  arma::field<arma::cube> BetaF = mod["Beta"];
+  arma::mat B = mod["B"];
+  arma::uword D1 = arma::size(BetaF(0,0,0))(1);
+  arma::uword nchains = arma::size(BetaF)(0);
+  arma::uword iter = BetaF(0).n_slices;
+  arma::vec alpha_vec = {1 - alpha};
+  arma::vec Malpha(iter * nchains);
+  arma::mat lower(B.n_rows, D1);
+  arma::mat mean(B.n_rows, D1);
+  arma::mat upper(B.n_rows, D1);
+  for (arma::uword d = 0; d < D1; d++) {
+    arma::running_stat_vec<arma::vec> stats;
+    for (arma::uword u = 0; u < nchains; u++) {
+      for(arma::uword i = 0; i < iter; i++) {
+        stats(BetaF(u, 0, 0).slice(i).col(d));
+      }
+    }
+    
+    for (arma::uword u = 0; u < nchains; u++) {
+      for (arma::uword i = 0; i < iter; i++) {
+        Malpha(u * iter + i) = arma::max(arma::abs(BetaF(u, 0, 0).slice(i).col(d) - stats.mean()) / stats.stddev());
+      }
+    }
+    
+    double q_alpha = arma::as_scalar(arma::quantile(Malpha, alpha_vec));
+    lower.col(d) = B * stats.mean() - q_alpha * B * stats.stddev();
+    mean.col(d) = B * stats.mean();
+    upper.col(d) = B * stats.mean() + q_alpha * B * stats.stddev();
+    
+  }
+  return(List::create(Named("lower", lower),
+                      Named("mean", mean),
+                      Named("upper", upper)));
+}
+// [[Rcpp::export]]
 List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta,
                      arma::mat& Psi, arma::mat& Psi_sqrt,
                      arma::mat& Psi_sqrt_inv, arma::mat& B,

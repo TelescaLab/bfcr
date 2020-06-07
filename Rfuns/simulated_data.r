@@ -49,7 +49,7 @@ L2 <- matrix(reg3$coefficients, nrow = p, ncol = 2)
 ####################### DATA GENERATION #############################
 #####################################################################
 set.seed(2)
-n <- 100
+n <- 40
 tmax <- 50
 p <- 12
 Q <- 2
@@ -58,9 +58,9 @@ T <- seq(from = 0, to = 1, length.out = tmax)
 Btru <- ps(T, df = p, intercept = TRUE)
 Best <- ps(T, df = ceiling(1.5 * p), intercept = TRUE)
 #X <- cbind(rep(1,n))
-X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
+#X <- cbind(rep(1,n), c(rep(0, n/2), rep(1,n/2)))
 #X <- cbind(rep(1,n),runif(n,min=0,max=1))
-#X <- cbind(rep(1,n), rnorm(n, sd = 1))
+X <- cbind(rep(1,n), rnorm(n, sd = 1))
 Intercept_only <- cbind(rep(1, n))
 #X <- Intercept_only
 d <- dim(X)[2]

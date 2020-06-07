@@ -15,8 +15,8 @@ par(mfrow = c(1,1))
 ### MCMC ###
 K <- 4
 Basis <- ps(t, df = 16, intercept = TRUE)
-X_red <- cbind(X, rnorm(n))
-mcmc_results <- run_mcmc_Morris(Y, t, X_red, X_red, Basis, K, iter = 5000, burnin = 5000, nchains = 1, thin = 3, loglik = 1)
+X_red <- cbind(X, X[,2]^2, X[,2]^3)
+mcmc_results <- run_mcmc_Morris(Y, t, X, X, Basis, K, iter = 5000, burnin = 5000, nchains = 1, thin = 3, loglik = 1)
 
 ### Visualization ###
 sub <- 10
@@ -61,7 +61,7 @@ loo_1 <- loo(mcmc_results$log_lik, r_eff = r_eff, cores = 4)
 print(loo_1)
 
 ### Posterior mean bands ###
-sub <- 1
+sub <- 13
 xi <- X[sub,]
 alpha <- .05
 coef_bands <- get_posterior_means(mcmc_results, xi, alpha)
@@ -81,9 +81,26 @@ plot(t, coef_bands$Upper, type = "l", ylim = c(-.2, 1.2), xlab = "Time", ylab = 
 lines(t, coef_bands$Lower)
 lines(t, Btru%*%Theta1 %*% X[sub,],col="green")
 
+
+coef_bands <- get_posterior_coefs(mcmc_results, .05)
+
+coef_bands <- tibble(Frequency = rep(t, times = dim(X)[2]),
+                     Covariate = rep(c("Intercept", "Age"), each = dim(Basis)[1]),
+                     Lower = c(coef_bands$lower),
+                     Mean = c(coef_bands$mean),
+                     Upper = c(coef_bands$upper))
+coef_bands %>%
+  ggplot(aes(x = Frequency)) +
+  geom_ribbon(aes(ymin = Lower, ymax = Upper, fill = Covariate), alpha = 0.5) +
+  geom_line(aes(y = Mean)) +
+  geom_hline(yintercept = 0) +
+  facet_wrap(Covariate ~., scales = "free") +
+  ylab("Power") +
+  theme_minimal()
+
 ### Some covariance visualization ###
-sub <- 100
-evals <- 2
+sub <- 4
+evals <- 4
 zi <- X[sub, ]
 alpha <- .05
 eigen_bands <- get_posterior_eigen2(mcmc_results, evals, zi, alpha)
@@ -126,4 +143,22 @@ persp3D(t, t, truecov)
 par(mfrow = c(1,1))
 
 
-surface2 <- eigen_bands$surface
+X_seq <- seq(from = -2, to = 2, by = .1)
+Cov_mat <- matrix(0, nrow = length(X_seq), ncol = 3)
+counter <- 1
+for(x in X_seq){
+  zi <- c(1, x)
+#  Cov_mat[counter,] <- get_posterior_eigen2(mcmc_results, 4, zi, .05)$magnitude
+  truecov <- matrix(0, nrow = tmax, ncol = tmax)
+  truecov <- Btru %*% Lambda1 %*% outer(zi, zi) %*% t(Lambda1) %*% t(Btru) +
+    Btru %*% Lambda2 %*% outer(zi, zi) %*% t(Lambda2) %*% t(Btru)
+  Cov_mat[counter] <- sum(eigen(truecov)$values)
+  counter <- counter + 1
+}
+plot(Cov_mat,type="l")
+plot(Cov_mat[,1], type = "l")
+lines(Cov_mat[,3])
+
+
+
+

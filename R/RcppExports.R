@@ -153,6 +153,10 @@ get_posterior_means <- function(mod, xi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
 }
 
+get_posterior_coefs <- function(mod, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_coefs`, mod, alpha)
+}
+
 extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
     .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
 }

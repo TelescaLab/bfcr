@@ -582,6 +582,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_posterior_coefs
+List get_posterior_coefs(List mod, double alpha);
+RcppExport SEXP _BayesianConditionalFPCA_get_posterior_coefs(SEXP modSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_posterior_coefs(mod, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 // extract_eigenfn
 List extract_eigenfn(arma::cube& Lambda, const arma::vec& Delta, arma::mat& Psi, arma::mat& Psi_sqrt, arma::mat& Psi_sqrt_inv, arma::mat& B, arma::uword eigenvals, arma::vec z);
 RcppExport SEXP _BayesianConditionalFPCA_extract_eigenfn(SEXP LambdaSEXP, SEXP DeltaSEXP, SEXP PsiSEXP, SEXP Psi_sqrtSEXP, SEXP Psi_sqrt_invSEXP, SEXP BSEXP, SEXP eigenvalsSEXP, SEXP zSEXP) {
@@ -1191,6 +1203,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands, 2},
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands2", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands2, 2},
     {"_BayesianConditionalFPCA_get_posterior_means", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_means, 3},
+    {"_BayesianConditionalFPCA_get_posterior_coefs", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_coefs, 2},
     {"_BayesianConditionalFPCA_extract_eigenfn", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn, 8},
     {"_BayesianConditionalFPCA_get_posterior_eigen", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen, 4},
     {"_BayesianConditionalFPCA_extract_eigenfn2", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn2, 7},
