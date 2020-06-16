@@ -4,7 +4,8 @@ library(dlnm)
 library(BayesianConditionalFPCA)
 library(loo)
 library(tidyverse)
-setwd("E:\\PAF_visualization")
+# setwd("E:\\PAF_visualization")
+setwd("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/Peak Alpha Data")
 source('Peak Alpha Data Transfer.r')
 pa.dat.tibble.reg %>%
   ggplot(aes(x = func, y = meanx, group = ID)) +

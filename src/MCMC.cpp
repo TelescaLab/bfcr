@@ -1,5 +1,7 @@
 #include <RcppArmadillo.h>
-#include <omp.h>
+#ifdef _OPENMP
+ #include <omp.h>
+#endif
 #include "updateParam.h"
 #include "Utility.h"
 // [[Rcpp::plugins(openmp)]]
@@ -336,8 +338,10 @@ List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B
     AlphaF(u) = arma::vec(iter);
   }
   arma::vec Sigma(K);
-  //omp_set_num_threads(12);
-  //#pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
+#ifdef _OPENMP
+  omp_set_num_threads(12);
+  #pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
+#endif
   for(arma::uword u = 0; u < nchains; u++){
     // Set initial values
     

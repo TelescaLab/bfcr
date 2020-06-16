@@ -1,5 +1,7 @@
 #include <RcppArmadillo.h>
-#include <omp.h>
+#ifdef _OPENMP
+ #include <omp.h>
+#endif
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
 
@@ -214,8 +216,10 @@ double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision, a
   
   double loglik = 0;
   double constants = -double(tmax) / 2 * log(2 * PI);
+#ifdef _OPENMP
   omp_set_num_threads(cores);
   #pragma omp parallel for reduction(+:loglik)
+#endif
   for(arma::uword i = 0; i < n; i++){
     arma::vec mean(tmax);
     arma::mat cov(tmax, tmax);

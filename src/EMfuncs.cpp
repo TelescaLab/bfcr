@@ -1,5 +1,7 @@
 #include <RcppArmadillo.h>
-#include <omp.h>
+#ifdef _OPENMP
+ #include <omp.h>
+#endif
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
@@ -104,8 +106,10 @@ double cpploglik(arma::mat &Theta, arma::mat &Lambda, arma::vec &precision,
   
   double loglik = 0;
   double constants = -double(tmax) / 2 * log(2 * PI);
+#ifdef _OPENMP
   omp_set_num_threads(cores);
 #pragma omp parallel for reduction(+:loglik)
+#endif
   for(arma::uword i = 0; i < n; i++){
     arma::vec mean(tmax);
     arma::mat cov(tmax, tmax);
@@ -141,9 +145,10 @@ double cpploglik_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi,
   
   double loglik = 0;
   double constants = -double(p) / 2 * log(2 * PI);
-
+#ifdef _OPENMP
   omp_set_num_threads(cores);
 #pragma omp parallel for reduction(+:loglik)
+#endif
   for(arma::uword i = 0; i < n; i++){
     
     arma::vec mean(p);

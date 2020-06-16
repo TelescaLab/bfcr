@@ -1,12 +1,14 @@
 #include <RcppArmadillo.h>
-#include <omp.h>
+#ifdef _OPENMP
+ #include <omp.h>
+#endif
 #include "updateParam.h"
 #include "Utility.h"
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
-
+arma::vec Psi2;
 arma::cube Lambda2;
 arma::mat Beta2;
 arma::mat Eta2;
@@ -22,6 +24,24 @@ double Nu2;
 double b2;
 arma::mat P2;
 arma::cube log_lik2;
+
+void updatePsi2(){
+  double deg_freedom = 1;
+  double n = Eta2.n_rows;
+  arma::uword K = Eta2.n_cols;
+  for(arma::uword k = 0; k < K; k++){
+    Psi2(k) = R::rgamma(deg_freedom / 2 + n, 1.0 / (deg_freedom + 1.0 / 2.0 *
+      arma::accu(arma::square(Eta2.col(k)))));
+  }
+}
+void updatePrec2(arma::mat& Y){
+  double a = 0.001;
+  double b = 0.001;
+  //double my_sum = arma::sum(arma::square(Y.t() - B * Proj.t()));
+  double my_sum = arma::accu(arma::square(Y - fit2));
+  double p = R::rgamma(a + Y.n_elem/2, 1.0 / (b + 1.0/2.0 * my_sum));
+  Prec2.fill(p);
+}
 
 void updateAlphaBeta2(arma::mat& Y){
   // Phi2 has precision parameterization
@@ -51,7 +71,8 @@ void updateEtaBeta2(arma::mat Y, arma::mat& X, arma::mat& Z, arma::mat B){
     }
     arma::vec g = Prec2(i) * Xtilde.t() * (B.t() * Y.row(i).t() - BtB2 * Beta2 * X.row(i).t());
     
-    arma::mat C = (Prec2(i) * Xtilde.t() * BtB2 * Xtilde + arma::eye(Lambda2.n_slices, Lambda2.n_slices));
+    //arma::mat C = (Prec2(i) * Xtilde.t() * BtB2 * Xtilde + arma::eye(Lambda2.n_slices, Lambda2.n_slices));
+    arma::mat C = (Prec2(i) * Xtilde.t() * BtB2 * Xtilde + arma::diagmat(Psi2));
     arma::mat mychol = arma::chol(C, "lower");
     arma::vec w = solve(arma::trimatl(mychol), g);
     arma::vec mu = solve(arma::trimatu(mychol.t()), w);
@@ -313,20 +334,24 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
     AlphaF(u) = arma::vec(iter);
   }
   arma::vec Sigma(K);
-  //omp_set_num_threads(12);
-  //#pragma omp parallel for shared(LambdaF, BetaF, AlphaF, NuF, TausqF, PhiF, EtaF, PrecF, TauF) schedule(auto)
+#ifdef _OPENMP
+  omp_set_num_threads(12);
+  #pragma omp parallel for shared(LambdaF, BetaF, AlphaF, NuF, TausqF, PhiF, EtaF, PrecF, TauF) schedule(auto)
+#endif  
   for(arma::uword u = 0; u < nchains; u++){
     // Set initial values
     
     
     //arma::cube Lambda2(p, D, K);
+    Psi2 = arma::ones<arma::vec>(K);
     Lambda2 = arma::cube(p, D2, K);
     Eta2 = arma::mat(N, K);
     Tau2 = arma::vec(D1 + K * D2);
     Beta2 = arma::mat(p, D1);
     Prec2 = arma::vec(N);
     Phi2 = arma::vec(N);
-    
+    arma::cube Lambda_infer(p, D2, K);
+    arma::mat Eta_infer(N, K);
     alpha2 = 1;
     Tausq2 = 1;
     Nu2 = 5;
@@ -363,16 +388,19 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
         fit2 = fit2 + arma::diagmat(Eta2.col(k)) * Z * Lambda2.slice(k).t() * B.t();
       }
       completeY2(Ypred, missing_sub, missing_time);
-      updateAlphaBeta2(Ypred);
+      //updateAlphaBeta2(Ypred);
       //alpha2 = 1.0;
-      updatePhiBeta2(Ypred);
-      Prec2 = Phi2 * alpha2;
-      updateNu2();
+      //updatePhiBeta2(Ypred);
+      //Prec2 = Phi2 * alpha2;
+      updatePsi2();
+      updatePrec2(Ypred);
+      //updateNu2();
       Tausq2 = updateTausq2();
       updateTauBeta2();
       updateLambda2(Ypred, X, Z, B);
       updateBeta2(Ypred, X, Z, B);
       updateEtaBeta2(Ypred, X, Z, B);
+      updatePsi2();
     }
     Rcpp::Rcout << "Starting MCMC..." << std::endl;
     double percent = 10;
@@ -389,11 +417,12 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
           fit2 = fit2 + arma::diagmat(Eta2.col(k)) * Z * Lambda2.slice(k).t() * B.t();
         }
         completeY2(Ypred, missing_sub, missing_time);
-        updateEtaBeta2(Ypred, X, Z, B);
-        updateAlphaBeta2(Ypred);
-        updatePhiBeta2(Ypred);
-        Prec2 = Phi2 * alpha2;
-        updateNu2();
+        //updateAlphaBeta2(Ypred);
+        //updatePhiBeta2(Ypred);
+        //Prec2 = Phi2 * alpha2;
+        updatePsi2();
+        updatePrec2(Ypred);
+        //updateNu2();
         Tausq2 = updateTausq2();
         updateTauBeta2();
         updateBeta2(Ypred, X, Z, B);
@@ -404,8 +433,13 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
         }
       }
       
-      LambdaF(u, i) = Lambda2;
-      EtaF(u).slice(i) = Eta2;
+      for(arma::uword k = 0; k < K; k++){
+        Lambda_infer.slice(k) = std::pow(Psi2(k), -.5) * Lambda2.slice(k);
+        Eta_infer.col(k) = std::pow(Psi2(k), .5) * Eta2.col(k);
+      }
+      
+      LambdaF(u, i) = Lambda_infer;
+      EtaF(u).slice(i) = Eta_infer;
       PrecF(u).col(i) = Prec2;
       TauF(u).col(i) = Tau2;
       BetaF(u).slice(i) = Beta2;
