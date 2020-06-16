@@ -53,10 +53,12 @@ Rcpp::List TemperedMCMC(arma::mat Y, arma::mat X, arma::mat B, int K, arma::uwor
   //Eta = Eta_init;
   //Y_noise = Y + .05*arma::randn<arma::mat>(N, Y.n_cols);
   Rcpp::Rcout << "Starting MCMC..." << std::endl;
+/*
 #ifdef _OPENMP
   omp_set_num_threads(12);
   #pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
 #endif
+*/
   arma::vec DeltaTemp1, DeltaTemp2;
   arma::mat ThetaTemp1, ThetaTemp2, EtaTemp1, EtaTemp2, TauTemp1, TauTemp2, ProjTemp1, ProjTemp2;
   arma::cube LambdaTemp1, LambdaTemp2;
