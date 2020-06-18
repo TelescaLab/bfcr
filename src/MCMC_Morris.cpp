@@ -26,11 +26,12 @@ arma::mat P2;
 arma::cube log_lik2;
 
 void updatePsi2(){
-  double deg_freedom = 1;
+  double deg_freedom_a = 1;
+  double deg_freedom_b = .0005;
   double n = Eta2.n_rows;
   arma::uword K = Eta2.n_cols;
   for(arma::uword k = 0; k < K; k++){
-    Psi2(k) = R::rgamma(deg_freedom / 2 + n, 1.0 / (deg_freedom + 1.0 / 2.0 *
+    Psi2(k) = R::rgamma(deg_freedom_a / 2 + n, 1.0 / (deg_freedom_b + 1.0 / 2.0 *
       arma::accu(arma::square(Eta2.col(k)))));
   }
 }
@@ -99,9 +100,9 @@ void updateTauBeta2(){
       temp_beta = temp_beta + 1.0 / 2.0 * arma::as_scalar(Lambda2.slice(k).col(d).t() * P2 * Lambda2.slice(k).col(d));
     }
     
-    Tau2(D1 + d) = R::rgamma(b2 * (t_alpha + K * (Lambda2.n_rows - 1.0) / 2.0) + 1 - b2, 1.0 / (b2 * (t_beta + temp_beta)));
+    //Tau2(D1 + d) = R::rgamma(b2 * (t_alpha + K * (Lambda2.n_rows - 1.0) / 2.0) + 1 - b2, 1.0 / (b2 * (t_beta + temp_beta)));
     for(arma::uword k = 0; k < K; k++){
-      Tau2(D1 + k * D2 + d) = Tau2(D1 + d);
+      //Tau2(D1 + k * D2 + d) = Tau2(D1 + d);
     }
   }
 }

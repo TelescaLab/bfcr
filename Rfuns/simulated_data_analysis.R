@@ -1,4 +1,6 @@
-set.seed(1)
+for(seed in c(85,138)){
+set.seed(seed)
+
 library(MASS)
 library(plot3D)
 library(dlnm)
@@ -16,41 +18,41 @@ matplot(t, t(Y[(n/2 + 1):n,]), type = "l", xlab = "Time", ylab = "Response", col
 par(mfrow = c(1,1))
 ### MCMC ###
 K <- 4
-Basis <- ps(t, df = 16, intercept = TRUE)
+Basis <- ps(t, df = 30, intercept = TRUE)
 X_red <- cbind(X, X[,2]^2, X[,2]^3)
-mcmc_results <- run_mcmc_Morris(Y, t, X, X, Basis, K, iter = 10000, burnin = 30000, nchains = 1, thin = 4, loglik = 0)
+mcmc_results <- run_mcmc_Morris(Y, t, X, cbind(X[,1]), Basis, K, iter = 10000, burnin = 30000, nchains = 1, thin = 4, loglik = 0)
 results <- numeric(20)
 ### Visualization ###
-# sub <- 4
+sub <- 4
 posterior_intervals <- get_posterior_predictive_bands2(mcmc_results, c(.025, .5, .975))
 colnames(posterior_intervals) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
 posterior_intervals <- as_tibble(posterior_intervals)
 posterior_intervals$Y_no_error <- c(t(Y_no_error))
-# posterior_intervals %>%
-#   filter(ID == sub) %>%
-#   ggplot(aes(x = Time, y = Y_no_error)) +
-#   geom_point(na.rm = TRUE) +
-#   geom_ribbon(aes(ymin = Lower_P, ymax = Upper_P), alpha = 0.3) +
-#   theme_bw()
-# posterior_intervals %>%
-#   filter(ID == sub) %>%
-#   ggplot(aes(x = Time, y = Y)) +
-#   geom_point(na.rm = TRUE) +
-#   geom_line(aes(y = Median_M)) +
-#   theme_bw()
-# posterior_intervals %>%
-#   filter(ID == sub) %>%
-#   ggplot(aes(x = Time, y = Y_no_error)) +
-#   geom_point(na.rm = TRUE) +
-#   geom_ribbon(aes(ymin = Lower_M, ymax = Upper_M), alpha = 0.3) +
-#   theme_bw()
-# posterior_intervals %>%
-#   group_by(ID) %>%
-#   filter(Y_no_error > Lower_M & Y_no_error < Upper_M) %>%
-#   summarize(coverage = n() / tmax)
-# posterior_intervals %>%
-#   filter(Y > Lower_P & Y < Upper_P) %>%
-#   summarize(coverage = n() / (tmax * n))
+posterior_intervals %>%
+  filter(ID == sub) %>%
+  ggplot(aes(x = Time, y = Y_no_error)) +
+  geom_point(na.rm = TRUE) +
+  geom_ribbon(aes(ymin = Lower_M, ymax = Upper_M), alpha = 0.3) +
+  theme_bw()
+posterior_intervals %>%
+  filter(ID == sub) %>%
+  ggplot(aes(x = Time, y = Y)) +
+  geom_point(na.rm = TRUE) +
+  geom_line(aes(y = Median_M)) +
+  theme_bw()
+posterior_intervals %>%
+  filter(ID == sub) %>%
+  ggplot(aes(x = Time, y = Y_no_error)) +
+  geom_point(na.rm = TRUE) +
+  geom_ribbon(aes(ymin = Lower_M, ymax = Upper_M), alpha = 0.3) +
+  theme_bw()
+posterior_intervals %>%
+  group_by(ID) %>%
+  filter(Y_no_error > Lower_M & Y_no_error < Upper_M) %>%
+  summarize(coverage = n() / tmax)
+posterior_intervals %>%
+  filter(Y > Lower_P & Y < Upper_P) %>%
+  summarize(coverage = n() / (tmax * n))
 
 results[1] <- unlist(posterior_intervals %>%
   group_by(ID) %>%
@@ -133,64 +135,65 @@ results[11] <- mean(coef_bands$Upper[-Intercept_idx] - coef_bands$Lower[-Interce
 #   theme_minimal()
 
 ### Some covariance visualization ###
-z_seq <- seq(from = -2, to = 2, length.out = 10)
-evals <- 2
-for(i in 1:length(z_seq)){
-  
-  zi <- c(1, z_seq[i])
-  alpha <- .05
-  eigen_bands <- get_posterior_eigen2(mcmc_results, evals, zi, alpha)
-  eig_names <- c()
-  eig_labs <- c()
-  for(k in 1:evals){
-    eig_names <- c(eig_names, paste("Eigenfunction", k))
-    eig_labs <- c(eig_labs, paste("Eigenfunction", k, " ", round(eigen_bands$eigenval_pve_intervals[1,k], 2), "-", round(eigen_bands$eigenval_pve_intervals[3,k], 2)))
-  }
-  names(eig_labs) <- eig_names
-  eigen_bands_tibble <- tibble(Time = rep(t, evals),
-                               number = factor(rep(eig_names, each = length(t))),
-                               lower = c(eigen_bands$lower),
-                               mean = c(eigen_bands$mean),
-                               upper = c(eigen_bands$upper),
-                               val_lower = rep(eigen_bands$eigenval_intervals[1,], each = length(t)),
-                               val_median = rep(eigen_bands$eigenval_intervals[2,], each = length(t)),
-                               val_upper = rep(eigen_bands$eigenval_intervals[3,], each = length(t)))
-  
-  truecov <- matrix(0, nrow = tmax, ncol = tmax)
-  truecov <- Btru %*% Lambda1 %*% outer(zi, zi) %*% t(Lambda1) %*% t(Btru) +
-    Btru %*% Lambda2 %*% outer(zi, zi) %*% t(Lambda2) %*% t(Btru)
-  eigvec <- eigen(truecov)$vectors
-  for(i in 1:2){
-    eigvec[,i] <- eigvec[,i] / sqrt(trapz(t, eigvec[,i]^2))
-  }
-  eigen_bands_tibble <- eigen_bands_tibble %>%
-    mutate(eigvec = c(eigvec[,1], eigvec[,2]))
-  
-  eigen_bands_tibble <- eigen_bands_tibble %>%
-    group_by(number) %>%
-    mutate(eigvec = case_when(as.numeric(trapz(t, (mean + eigvec)^2) < trapz(t, 
-    (mean - eigvec)^2)) == 1 ~ -eigvec, TRUE ~ eigvec))
-  
-  
-  results[11:12] <- 100 * unlist((eigen_bands_tibble %>%
-    group_by(number) %>%
-    summarize(RISE = trapz(t, (mean - eigvec)^2) / trapz(t, eigvec^2)))[,2]) +
-    results[11:12]
-  
-  results[13:14] <- unlist((eigen_bands_tibble %>%
-    group_by(number) %>%
-    filter(eigvec >= lower & eigvec <= upper) %>%
-    summarize(coverage = 100 * n() / tmax))[,2]) + results[13:14]
-  
-  results[15:16] <- unlist((eigen_bands_tibble %>%
-    group_by(number) %>%
-    summarize(mean_l = mean(upper - lower)))[,2]) + results[15:16]
-  results[17] <- trapz(t,sapply(1:tmax, function(i) trapz(t, (eigen_bands$surface[,i] -
-        truecov[,i])^2))) / trapz(t, sapply(1:tmax, function(i) trapz(t, 
-        truecov[,i]^2))) * 100 + results[17]
+# z_seq <- seq(from = -2, to = 2, length.out = 10)
+# evals <- 2
+# for(i in 1:length(z_seq)){
+#   
+#   zi <- c(1, z_seq[i])
+#   alpha <- .05
+#   eigen_bands <- get_posterior_eigen2(mcmc_results, evals, zi, alpha)
+#   eig_names <- c()
+#   eig_labs <- c()
+#   for(k in 1:evals){
+#     eig_names <- c(eig_names, paste("Eigenfunction", k))
+#     eig_labs <- c(eig_labs, paste("Eigenfunction", k, " ", round(eigen_bands$eigenval_pve_intervals[1,k], 2), "-", round(eigen_bands$eigenval_pve_intervals[3,k], 2)))
+#   }
+#   names(eig_labs) <- eig_names
+#   eigen_bands_tibble <- tibble(Time = rep(t, evals),
+#                                number = factor(rep(eig_names, each = length(t))),
+#                                lower = c(eigen_bands$lower),
+#                                mean = c(eigen_bands$mean),
+#                                upper = c(eigen_bands$upper),
+#                                val_lower = rep(eigen_bands$eigenval_intervals[1,], each = length(t)),
+#                                val_median = rep(eigen_bands$eigenval_intervals[2,], each = length(t)),
+#                                val_upper = rep(eigen_bands$eigenval_intervals[3,], each = length(t)))
+#   
+#   truecov <- matrix(0, nrow = tmax, ncol = tmax)
+#   truecov <- Btru %*% Lambda1 %*% outer(zi, zi) %*% t(Lambda1) %*% t(Btru) +
+#     Btru %*% Lambda2 %*% outer(zi, zi) %*% t(Lambda2) %*% t(Btru)
+#   eigvec <- eigen(truecov)$vectors
+#   for(i in 1:2){
+#     eigvec[,i] <- eigvec[,i] / sqrt(trapz(t, eigvec[,i]^2))
+#   }
+#   eigen_bands_tibble <- eigen_bands_tibble %>%
+#     mutate(eigvec = c(eigvec[,1], eigvec[,2]))
+#   
+#   eigen_bands_tibble <- eigen_bands_tibble %>%
+#     group_by(number) %>%
+#     mutate(eigvec = case_when(as.numeric(trapz(t, (mean + eigvec)^2) < trapz(t, 
+#     (mean - eigvec)^2)) == 1 ~ -eigvec, TRUE ~ eigvec))
+#   
+#   
+#   results[12:13] <- 100 * unlist((eigen_bands_tibble %>%
+#     group_by(number) %>%
+#     summarize(RISE = trapz(t, (mean - eigvec)^2) / trapz(t, eigvec^2)))[,2]) +
+#     results[12:13]
+#   
+#   results[14:15] <- unlist((eigen_bands_tibble %>%
+#     group_by(number) %>%
+#     filter(eigvec >= lower & eigvec <= upper) %>%
+#     summarize(coverage = 100 * n() / tmax))[,2]) + results[14:15]
+#   
+#   results[16:17] <- unlist((eigen_bands_tibble %>%
+#     group_by(number) %>%
+#     summarize(mean_l = mean(upper - lower)))[,2]) + results[16:17]
+#   results[18] <- trapz(t,sapply(1:tmax, function(i) trapz(t, (eigen_bands$surface[,i] -
+#         truecov[,i])^2))) / trapz(t, sapply(1:tmax, function(i) trapz(t, 
+#         truecov[,i]^2))) * 100 + results[18]
+# }
+# results[12:18] <- results[12:18] / length(z_seq)
+save(results, file = paste0("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/simulation/N40Reduced", seed,".RData"))
 }
-results[11:17] <- results[11:17] / length(z_seq)
-
 plot(eigen_bands_tibble$eigvec[1:50], type = "l")
 lines(eigen_bands_tibble$mean[1:50], col = "green")
 plot(eigen_bands_tibble$eigvec[51:100], type = "l")
