@@ -1,7 +1,7 @@
 #include <RcppArmadillo.h>
-#ifdef _OPENMP
- #include <omp.h>
-#endif
+// #ifdef _OPENMP
+// #include <omp.h>
+// #endif
 #include "updateParam.h"
 #include "Utility.h"
 // [[Rcpp::plugins(openmp)]]
@@ -335,10 +335,10 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
     AlphaF(u) = arma::vec(iter);
   }
   arma::vec Sigma(K);
-#ifdef _OPENMP
-  omp_set_num_threads(12);
-  #pragma omp parallel for shared(LambdaF, BetaF, AlphaF, NuF, TausqF, PhiF, EtaF, PrecF, TauF) schedule(auto)
-#endif  
+// #ifdef _OPENMP
+//   omp_set_num_threads(12);
+//   #pragma omp parallel for shared(LambdaF, BetaF, AlphaF, NuF, TausqF, PhiF, EtaF, PrecF, TauF) schedule(auto)
+// #endif  
   for(arma::uword u = 0; u < nchains; u++){
     // Set initial values
     
@@ -372,7 +372,7 @@ List run_mcmc_Morris(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma
     Theta = Theta_init;
     Prec2 = Prec_init;
     */
-    
+    Rcpp::Rcout << "Using newest version" << std::endl;
     Rcpp::Rcout << "Starting burn in..." << std::endl;
     
     for(arma::uword i = 0; i < burnin; i++){
