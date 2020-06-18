@@ -1,4 +1,4 @@
-set.seed(seed)
+set.seed(1)
 library(splines)
 library(MASS)
 # library(plot3D)
@@ -14,6 +14,7 @@ setwd("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/Rfuns")
 #####################################################################
 ################### MEAN AND VARIANCE FUNCTIONS #####################
 #####################################################################
+n <- 100
 tmax <- 50
 t <- seq(from = 0, to = 1, length.out = tmax)
 p <- 12
@@ -45,7 +46,7 @@ basis2_grid <- cbind(lbasis2_int, lbasis2_z) %*% t(X)
 
 Eta1 <- rnorm(n, sd = sqrt(1))
 Eta2 <- rnorm(n, sd = sqrt(1))
-Y_no_error <- t(mean_grid) + diag(Eta1)%*%t(basis1) + diag(Eta2)%*%t(basis2)
+Y_no_error <- t(mean_grid) + diag(Eta1)%*%t(basis1_grid) + diag(Eta2)%*%t(basis2_grid)
 Y <- Y_no_error + E
 
 
@@ -60,10 +61,10 @@ results <- numeric(21)
 ####################### VISUALIZATION ###############################
 #####################################################################
 # sub <- 4
-# posterior_intervals <- get_posterior_predictive_bands2(mcmc_results, c(.025, .5, .975))
-# colnames(posterior_intervals) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
-# posterior_intervals <- as_tibble(posterior_intervals)
-# posterior_intervals$Y_no_error <- c(t(Y_no_error))
+posterior_intervals <- get_posterior_predictive_bands2(mcmc_results, c(.025, .5, .975))
+colnames(posterior_intervals) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
+posterior_intervals <- as_tibble(posterior_intervals)
+posterior_intervals$Y_no_error <- c(t(Y_no_error))
 # posterior_intervals %>%
 #   filter(ID == sub) %>%
 #   ggplot(aes(x = Time, y = Y_no_error)) +
@@ -143,7 +144,7 @@ for(i in 1:length(x_seq)){
   # lines(t, coef_bands$Lower)
   # lines(t, mean_fn %*% xi,col="green")
   results[6] <- trapz(t, (coef_bands$Mean - mean_fn %*% xi)^2) /
-    trapz(t, (mean_fn %*% zi)^2) * 100 + results[6]
+    trapz(t, (mean_fn %*% xi)^2) * 100 + results[6]
   results[7] <- mean(as.numeric(mean_fn %*% xi >= coef_bands$Lower & 
                                   mean_fn %*% xi <= coef_bands$Upper)) * 100 +
     results[7]
@@ -240,7 +241,7 @@ for(i in 1:length(z_seq)){
                                                                                                                               truecov[,i]^2))) * 100 + results[21]
 }
 results[15:21] <- results[15:21] / length(z_seq)
-save(results, file = paste0("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/simulation/N50Full", seed,".RData"))
+# save(results, file = paste0("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/simulation/N50Full", seed,".RData"))
 
 # plot(eigen_bands_tibble$eigvec[1:50], type = "l")
 # lines(eigen_bands_tibble$mean[1:50], col = "green")
