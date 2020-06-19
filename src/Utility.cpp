@@ -11,6 +11,11 @@ arma::uvec armadillo_modulus2(arma::uvec indicies, arma::uword n){
 }
 
 // [[Rcpp::export]]
+arma::uvec armadillo_modulus3(arma::uvec indicies, arma::uword n){
+  return(indicies - n * arma::floor(indicies / n));
+}
+
+// [[Rcpp::export]]
 List get_omnibus_fit(List mod){
   arma::field<arma::cube> ThetaF = mod["Theta"];
   arma::field<arma::mat> PrecF = mod["Prec"];

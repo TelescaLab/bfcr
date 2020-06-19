@@ -1,11 +1,12 @@
 #include <RcppArmadillo.h>
+#include "Utility.h"
 #ifdef _OPENMP
  #include <omp.h>
 #endif
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
-
+arma::mat fitEM;
 // [[Rcpp::export]]
 void cppgetX(arma::mat &EtaM, arma::cube &EtaV, arma::mat &X, arma::mat &newX, int cores = 1){
   arma::uword K = EtaV.n_rows;
@@ -56,7 +57,6 @@ void cppupdateall_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi,
                   arma::mat &newX, arma::mat &newY, arma::uword K){
   arma::uword n = newX.n_rows / (K + 1);
   arma::uword D = newX.n_cols / (K + 1);
-  arma::uword p = Theta.n_rows;
   arma::mat C = arma::solve(arma::trans(newX) * newX, arma::trans(newX) * newY, arma::solve_opts::likely_sympd).t();
   arma::mat Temp = 1.0 / double(n)  * (arma::trans(newY - newX * C.t()) * ((newY - newX * C.t())));
   Phi =  Temp.diag();
@@ -177,16 +177,31 @@ double cpploglik_Proj(arma::mat &Theta, arma::mat &Lambda, arma::vec &Phi,
 }
 
 // [[Rcpp::export]]
-void cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K){
-  arma::uword D = X.n_cols;
+void completeY2Means(arma::mat& Y, arma::uvec missing_sub, arma::uvec missing_time){
+  for(arma::uword i = 0; i < missing_sub.n_elem; i++){
+    Y(missing_sub(i), missing_time(i)) = fitEM(missing_sub(i), missing_time(i));
+  }
+}
+
+// [[Rcpp::export]]
+Rcpp::List cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K,
+                   double tol, arma::uword max_iter){
+  double conv = tol + 1;
   arma::uword p = B.n_cols;
+  arma::uword D = X.n_cols;
   arma::uword n = Y.n_rows;
   arma::uword tmax = B.n_rows;
+  arma::uvec missing = arma::find_nonfinite(Y);
+  arma::uvec missing_sub = armadillo_modulus3(missing, Y.n_rows);
+  arma::uvec missing_time = arma::floor(missing / Y.n_rows);
+  arma::mat Ypred = Y;
+  Ypred.elem(missing).fill(0);
   arma::mat newy = arma::zeros<arma::mat>((K + 1) * n, tmax);
   arma::mat newx = arma::zeros<arma::mat>((K + 1) * n, (K + 1) * D);
-  
+  arma::mat fit2;
   arma::mat pTheta = arma::randn<arma::mat>(p, D);
   arma::mat pLambda = arma::randn<arma::mat>(p, D * K);
+  arma::mat pLambda_old = arma::randn<arma::mat>(p, D * K);
   arma::mat pEtaM = arma::randn<arma::mat>(K, n);
   arma::cube pEtaV = arma::cube(K, K, n);
   pEtaV.each_slice() = arma::eye<arma::mat>(K, K);
@@ -194,15 +209,42 @@ void cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K){
   precision(0) = 1;
   //cppgetX(pEtaM, pEtaV, X, newx);
   
-  newy.rows(0, n - 1) = Y;
-  for(arma::uword i = 0; i < 10000; i++){
-    cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Y, K);
+  newy.rows(0, n - 1) = Ypred;
+  for(arma::uword i = 0; i < max_iter; i++){
+    if(missing.n_elem > 0){
+      fitEM = X * pTheta.t() * B.t();
+      for(arma::uword k = 0; k < K; k++){
+        fitEM = fitEM + arma::diagmat(pEtaM.row(k)) * X * pLambda.cols(X.n_cols * k,
+                                      X.n_cols * k + X.n_cols - 1).t() * B.t();
+      }
+      completeY2Means(Ypred, missing_sub, missing_time);
+    }
+    if(i == max_iter - 1){
+      Rcout << "maximum number of iterations reached!" << std::endl;
+    }
+    cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Ypred, K);
     cppgetX(pEtaM, pEtaV, X, newx);
     cppupdateall(pTheta, pLambda, precision, newx, B, newy, K);
-    if((i+1) % 100 == 0){
-      Rcout << cpploglik(pTheta, pLambda, precision, X, B, Y, K) << std::endl;
+    // if((i+1) % 100 == 0){
+    //   Rcout << cpploglik(pTheta, pLambda, precision, X, B, Ypred, K) << std::endl;
+    // }
+    conv = arma::accu(arma::square(pLambda - pLambda_old)) /
+      arma::accu(arma::square((pLambda_old)));
+    Rcout << conv << std::endl;
+    if(conv < tol){
+      break;
+    } else{
+      pLambda_old = pLambda;
     }
   }
+  arma::cube Lambda(pLambda.n_rows, X.n_cols, K);
+  for(arma::uword k = 0; k < K; k++){
+    Lambda.slice(k) = pLambda.cols(X.n_cols * k, X.n_cols * k + X.n_cols - 1);
+  }
+  return(Rcpp::List::create(Rcpp::Named("Lambda", Lambda),
+                            Rcpp::Named("Theta", pTheta),
+                            Rcpp::Named("precision", precision),
+                            Rcpp::Named("Eta", pEtaM)));
 }
 // [[Rcpp::export]]
 List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Theta_init, int cores = 1){

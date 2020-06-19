@@ -316,6 +316,7 @@ List get_posterior_eigen(List mod, arma::uword eigenvals, arma::vec zi, double a
   }
   magnitude_interval = arma::quantile(magnitude, alpha_vec_eval);
   arma::mat mean_cov = B * arma::reshape(stats_cov.mean(), dim, dim) * B.t();
+  
   return(List::create(Named("lower", lower),
                       Named("mean", mean),
                       Named("upper", upper),
@@ -364,6 +365,19 @@ List extract_eigenfn2(arma::cube& Lambda,
                       Named("magnitude", magnitude)));
 }
 
+
+// [[Rcpp::export]]
+arma::mat arma_cov2cor(arma::mat V){
+  arma::mat cor(V.n_rows, V.n_rows);
+  cor.diag() = arma::ones<arma::vec>(V.n_rows);
+  for(arma::uword i = 0; i < V.n_rows - 1; i++){
+    for(arma::uword j = i + 1; j < V.n_rows; j++){
+      cor(j, i) = V(j, i) * std::pow(V(i, i) * V(j,j), -.5);
+    }
+  }
+  return(arma::symmatl(cor));
+}
+
 // [[Rcpp::export]]
 List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double alpha){
   arma::mat B = mod["B"];
@@ -392,10 +406,11 @@ List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double 
   arma::mat temp_evec;
   arma::mat eval_mat(nchains * iter, eigenvals);
   arma::mat eval_pve_mat(nchains * iter, eigenvals);
+  arma::mat surface_cor = arma::zeros<arma::mat>(B.n_rows, B.n_rows);
   List eigen_list;
   arma::vec magnitude(nchains * iter);
   // Create running mean and standard deviations of eigenvectors
-  
+  arma::mat tempcov;
   arma::uword idx1, idx2;
   for(arma::uword u = 0; u < nchains; u++){
     for(arma::uword i = 0; i < iter; i++){
@@ -410,6 +425,8 @@ List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double 
       eval_mat.row(u * iter + i) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);
       eval_pve_mat.row(u * iter + i) = Rcpp::as<arma::rowvec>(eigen_list["eigenval_pve"]);
       stats_cov(arma::vectorise(as<arma::vec>(eigen_list["cov_latent"])));
+      //tempcov = B * as<arma::mat>(eigen_list["cov_latent"]) * B.t();
+      //surface_cor = arma_cov2cor(tempcov) + surface_cor;
       magnitude(u * iter + i) = eigen_list["magnitude"];
       if ((i == 0) && (u == 0)) {
         stats_vec(arma::vectorise(temp_evec));
@@ -476,12 +493,14 @@ List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double 
   }
   magnitude_interval = arma::quantile(magnitude, alpha_vec_eval);
   arma::mat mean_cov = B * arma::reshape(stats_cov.mean(), dim, dim) * B.t();
+  surface_cor = surface_cor / (nchains * iter);
   return(List::create(Named("lower", lower),
                       Named("mean", mean),
                       Named("upper", upper),
                       Named("eigenval_intervals", eigenval_intervals),
                       Named("eigenval_pve_intervals", eigenval_pve_intervals),
                       Named("surface", mean_cov),
+                      Named("surface_cor", surface_cor),
                       Named("magnitude", magnitude_interval),
                       Named("raw_magnitude", magnitude)));
 }
@@ -553,3 +572,4 @@ List get_variance_effects(List mod, double alpha){
                       Named("lower", lower),
                       Named("upper", upper)));
 }
+

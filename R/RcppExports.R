@@ -29,8 +29,12 @@ cpploglik_Proj <- function(Theta, Lambda, Phi, X, Y, K, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpploglik_Proj`, Theta, Lambda, Phi, X, Y, K, cores)
 }
 
-cpp_EM2 <- function(X, B, Y, K) {
-    invisible(.Call(`_BayesianConditionalFPCA_cpp_EM2`, X, B, Y, K))
+completeY2Means <- function(Y, missing_sub, missing_time) {
+    invisible(.Call(`_BayesianConditionalFPCA_completeY2Means`, Y, missing_sub, missing_time))
+}
+
+cpp_EM2 <- function(X, B, Y, K, tol, max_iter) {
+    .Call(`_BayesianConditionalFPCA_cpp_EM2`, X, B, Y, K, tol, max_iter)
 }
 
 cpp_EM <- function(X, B, Y, K, Theta_init, cores = 1L) {
@@ -61,10 +65,6 @@ MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thi
     .Call(`_BayesianConditionalFPCA_MCMC_Impute`, y, observedTimes, fullTimes, X, B, K, iter, nchains, thin)
 }
 
-armadillo_modulus3 <- function(indicies, n) {
-    .Call(`_BayesianConditionalFPCA_armadillo_modulus3`, indicies, n)
-}
-
 completeY2 <- function(Y, missing_sub, missing_time) {
     invisible(.Call(`_BayesianConditionalFPCA_completeY2`, Y, missing_sub, missing_time))
 }
@@ -91,6 +91,10 @@ TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_in
 
 armadillo_modulus2 <- function(indicies, n) {
     .Call(`_BayesianConditionalFPCA_armadillo_modulus2`, indicies, n)
+}
+
+armadillo_modulus3 <- function(indicies, n) {
+    .Call(`_BayesianConditionalFPCA_armadillo_modulus3`, indicies, n)
 }
 
 get_omnibus_fit <- function(mod) {
@@ -167,6 +171,10 @@ get_posterior_eigen <- function(mod, eigenvals, zi, alpha) {
 
 extract_eigenfn2 <- function(Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
     .Call(`_BayesianConditionalFPCA_extract_eigenfn2`, Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
+}
+
+arma_cov2cor <- function(V) {
+    .Call(`_BayesianConditionalFPCA_arma_cov2cor`, V)
 }
 
 get_posterior_eigen2 <- function(mod, eigenvals, zi, alpha) {

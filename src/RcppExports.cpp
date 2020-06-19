@@ -121,17 +121,32 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// cpp_EM2
-void cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K);
-RcppExport SEXP _BayesianConditionalFPCA_cpp_EM2(SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP KSEXP) {
+// completeY2Means
+void completeY2Means(arma::mat& Y, arma::uvec missing_sub, arma::uvec missing_time);
+RcppExport SEXP _BayesianConditionalFPCA_completeY2Means(SEXP YSEXP, SEXP missing_subSEXP, SEXP missing_timeSEXP) {
 BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type missing_sub(missing_subSEXP);
+    Rcpp::traits::input_parameter< arma::uvec >::type missing_time(missing_timeSEXP);
+    completeY2Means(Y, missing_sub, missing_time);
+    return R_NilValue;
+END_RCPP
+}
+// cpp_EM2
+Rcpp::List cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, double tol, arma::uword max_iter);
+RcppExport SEXP _BayesianConditionalFPCA_cpp_EM2(SEXP XSEXP, SEXP BSEXP, SEXP YSEXP, SEXP KSEXP, SEXP tolSEXP, SEXP max_iterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type B(BSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type Y(YSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
-    cpp_EM2(X, B, Y, K);
-    return R_NilValue;
+    Rcpp::traits::input_parameter< double >::type tol(tolSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type max_iter(max_iterSEXP);
+    rcpp_result_gen = Rcpp::wrap(cpp_EM2(X, B, Y, K, tol, max_iter));
+    return rcpp_result_gen;
 END_RCPP
 }
 // cpp_EM
@@ -243,18 +258,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< int >::type nchains(nchainsSEXP);
     Rcpp::traits::input_parameter< int >::type thin(thinSEXP);
     rcpp_result_gen = Rcpp::wrap(MCMC_Impute(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin));
-    return rcpp_result_gen;
-END_RCPP
-}
-// armadillo_modulus3
-arma::uvec armadillo_modulus3(arma::uvec indicies, arma::uword n);
-RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus3(SEXP indiciesSEXP, SEXP nSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::uvec >::type indicies(indiciesSEXP);
-    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
-    rcpp_result_gen = Rcpp::wrap(armadillo_modulus3(indicies, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -380,6 +383,18 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::uvec >::type indicies(indiciesSEXP);
     Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
     rcpp_result_gen = Rcpp::wrap(armadillo_modulus2(indicies, n));
+    return rcpp_result_gen;
+END_RCPP
+}
+// armadillo_modulus3
+arma::uvec armadillo_modulus3(arma::uvec indicies, arma::uword n);
+RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus3(SEXP indiciesSEXP, SEXP nSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::uvec >::type indicies(indiciesSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type n(nSEXP);
+    rcpp_result_gen = Rcpp::wrap(armadillo_modulus3(indicies, n));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -640,6 +655,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< arma::uword >::type eigenvals(eigenvalsSEXP);
     Rcpp::traits::input_parameter< arma::vec >::type z(zSEXP);
     rcpp_result_gen = Rcpp::wrap(extract_eigenfn2(Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z));
+    return rcpp_result_gen;
+END_RCPP
+}
+// arma_cov2cor
+arma::mat arma_cov2cor(arma::mat V);
+RcppExport SEXP _BayesianConditionalFPCA_arma_cov2cor(SEXP VSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type V(VSEXP);
+    rcpp_result_gen = Rcpp::wrap(arma_cov2cor(V));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -1172,7 +1198,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_cppupdateeta_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cppupdateeta_Proj, 8},
     {"_BayesianConditionalFPCA_cpploglik", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik, 8},
     {"_BayesianConditionalFPCA_cpploglik_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_Proj, 7},
-    {"_BayesianConditionalFPCA_cpp_EM2", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM2, 4},
+    {"_BayesianConditionalFPCA_completeY2Means", (DL_FUNC) &_BayesianConditionalFPCA_completeY2Means, 3},
+    {"_BayesianConditionalFPCA_cpp_EM2", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM2, 6},
     {"_BayesianConditionalFPCA_cpp_EM", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM, 6},
     {"_BayesianConditionalFPCA_cpp_EM_Proj", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_Proj, 5},
     {"_BayesianConditionalFPCA_cpp_EM_new", (DL_FUNC) &_BayesianConditionalFPCA_cpp_EM_new, 7},
@@ -1180,7 +1207,6 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_completeY", (DL_FUNC) &_BayesianConditionalFPCA_completeY, 3},
     {"_BayesianConditionalFPCA_run_mcmc", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc, 11},
     {"_BayesianConditionalFPCA_MCMC_Impute", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Impute, 9},
-    {"_BayesianConditionalFPCA_armadillo_modulus3", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus3, 2},
     {"_BayesianConditionalFPCA_completeY2", (DL_FUNC) &_BayesianConditionalFPCA_completeY2, 3},
     {"_BayesianConditionalFPCA_run_mcmc_Morris", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc_Morris, 11},
     {"_BayesianConditionalFPCA_MCMC_Sparse", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Sparse, 7},
@@ -1188,6 +1214,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_MCMC_Wrapper", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Wrapper, 10},
     {"_BayesianConditionalFPCA_TemperedMCMC", (DL_FUNC) &_BayesianConditionalFPCA_TemperedMCMC, 11},
     {"_BayesianConditionalFPCA_armadillo_modulus2", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus2, 2},
+    {"_BayesianConditionalFPCA_armadillo_modulus3", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus3, 2},
     {"_BayesianConditionalFPCA_get_omnibus_fit", (DL_FUNC) &_BayesianConditionalFPCA_get_omnibus_fit, 1},
     {"_BayesianConditionalFPCA_get_omnibus_fit2", (DL_FUNC) &_BayesianConditionalFPCA_get_omnibus_fit2, 1},
     {"_BayesianConditionalFPCA_DiffOp", (DL_FUNC) &_BayesianConditionalFPCA_DiffOp, 1},
@@ -1207,6 +1234,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_extract_eigenfn", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn, 8},
     {"_BayesianConditionalFPCA_get_posterior_eigen", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen, 4},
     {"_BayesianConditionalFPCA_extract_eigenfn2", (DL_FUNC) &_BayesianConditionalFPCA_extract_eigenfn2, 7},
+    {"_BayesianConditionalFPCA_arma_cov2cor", (DL_FUNC) &_BayesianConditionalFPCA_arma_cov2cor, 1},
     {"_BayesianConditionalFPCA_get_posterior_eigen2", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen2, 4},
     {"_BayesianConditionalFPCA_get_variance_effects", (DL_FUNC) &_BayesianConditionalFPCA_get_variance_effects, 2},
     {"_BayesianConditionalFPCA_rcpparma_hello_world", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_hello_world, 0},

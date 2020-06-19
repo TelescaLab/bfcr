@@ -1,4 +1,4 @@
-set.seed(1)
+set.seed(95)
 library(splines)
 library(MASS)
 # library(plot3D)
@@ -19,7 +19,7 @@ tmax <- 50
 t <- seq(from = 0, to = 1, length.out = tmax)
 p <- 12
 B <- bs(t, df = p, intercept = TRUE)
-int_function <- 3*(t-.5*t^2)
+int_function <- 1*(t-.5*t^2)
 x_function <- t*sin(2*pi*t)
 lbasis1_int <- .5*cos(t*pi)
 lbasis2_int <- .5*sin(t*pi)
@@ -30,7 +30,7 @@ lbasis2_z <- .25*exp(sin(t))
 ####################### DATA GENERATION #############################
 #####################################################################
 X <- cbind(rep(1,n), rnorm(n, sd = 1))
-noise_sd <- .05
+noise_sd <- .2
 # E <- matrix(rnorm(tmax * n,sd=noise_sd), nrow = n, ncol = tmax)
 E <- matrix(0, nrow = n, ncol = tmax)
 for(i in 1:n){
@@ -55,7 +55,7 @@ Y <- Y_no_error + E
 #####################################################################
 K <- 4
 Basis <- ps(t, df = 16, intercept = TRUE)
-mcmc_results <- run_mcmc_Morris(Y, t, X, X, Basis, K, iter = 10000, burnin = 30000, nchains = 1, thin = 4, loglik = 0)
+mcmc_results <- run_mcmc_Morris(Y, t, X, X, Basis, K, iter = 20000, burnin = 20000, nchains = 1, thin = 1, loglik = 0)
 results <- numeric(21)
 #####################################################################
 ####################### VISUALIZATION ###############################
@@ -101,11 +101,11 @@ results[1] <- unlist(posterior_intervals %>%
                        ungroup() %>%
                        summarize(mmean = mean(mymean)))
 
-results[2] <- unlist(posterior_intervals %>%
+results[2] <- 100 * unlist(posterior_intervals %>%
                        filter(Y_no_error > Lower_M & Y_no_error < Upper_M) %>%
                        summarize(coverage = n() / (n * tmax)))
 
-results[3] <- unlist(posterior_intervals %>%
+results[3] <- 100 * unlist(posterior_intervals %>%
                        filter(Y > Lower_P & Y < Upper_P) %>%
                        summarize(coverage = n() / (n * tmax)))
 
@@ -239,8 +239,28 @@ for(i in 1:length(z_seq)){
   results[21] <- trapz(t,sapply(1:tmax, function(i) trapz(t, (eigen_bands$surface[,i] -
                                                                 truecov[,i])^2))) / trapz(t, sapply(1:tmax, function(i) trapz(t,
                                                                                                                               truecov[,i]^2))) * 100 + results[21]
+  print(trapz(t,sapply(1:tmax, function(i) trapz(t, (eigen_bands$surface[,i] -
+                                                       truecov[,i])^2))) / trapz(t, sapply(1:tmax, function(i) trapz(t,
+                                                                                                                     truecov[,i]^2))))
+  # results[22] <- trapz(t,sapply(1:tmax, function(i) trapz(t, (eigen_bands$surface_cor[,i] -
+  #                                                               cov2cor(truecov)[,i])^2))) / trapz(t, sapply(1:tmax, function(i) trapz(t,
+  #                                                                                                                             cov2cor(truecov)[,i]^2))) * 100 + results[22]
+  
 }
+
 results[15:21] <- results[15:21] / length(z_seq)
+results
+# 
+# estcov <- matrix(0, nrow = 50, ncol = 50)
+# for(i in 1:20000){
+#   for(k in 1:4){
+#     estcov <- estcov + mcmc_results$B %*% apple$Lambda[,,k] %*% outer(zi, zi) %*% t(apple$Lambda[,,k]) %*% t(mcmc_results$B)
+#   }
+# }
+# estcov <- estcov / 20000
+persp3D(1:50,1:50, eigen_bands$surface)
+persp3D(1:50,1:50, truecov)
+# persp3D(1:50, 1:50, estcov)
 # save(results, file = paste0("/Users/johnshamshoian/Rcpp/BayesianConditionalFPCA/simulation/N50Full", seed,".RData"))
 
 # plot(eigen_bands_tibble$eigvec[1:50], type = "l")
