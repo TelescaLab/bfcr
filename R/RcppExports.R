@@ -73,6 +73,18 @@ run_mcmc_Morris <- function(Y, Time, X, Z, B, K, iter, burnin, nchains, thin, lo
     .Call(`_BayesianConditionalFPCA_run_mcmc_Morris`, Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik)
 }
 
+run_mcmc_Morris_Tensor <- function(Y, Time, X, Z, B, MeanPenalties, VarPenalties, Meanindices, Varindices, K, iter, burnin, nchains, thin, loglik) {
+    .Call(`_BayesianConditionalFPCA_run_mcmc_Morris_Tensor`, Y, Time, X, Z, B, MeanPenalties, VarPenalties, Meanindices, Varindices, K, iter, burnin, nchains, thin, loglik)
+}
+
+BuildBlkDiag <- function(Penalties, indices, Tau, BlkDiag) {
+    invisible(.Call(`_BayesianConditionalFPCA_BuildBlkDiag`, Penalties, indices, Tau, BlkDiag))
+}
+
+testfunc <- function() {
+    invisible(.Call(`_BayesianConditionalFPCA_testfunc`))
+}
+
 MCMC_Sparse <- function(Y, X, B, K, iter, nchains, thin) {
     .Call(`_BayesianConditionalFPCA_MCMC_Sparse`, Y, X, B, K, iter, nchains, thin)
 }
@@ -177,6 +189,38 @@ arma_cov2cor <- function(V) {
     .Call(`_BayesianConditionalFPCA_arma_cov2cor`, V)
 }
 
+#' Posterior inference for covariate-adjusted covariance function
+#' 
+#' @param mod mcmc object
+#' @param eigenvals Number of eigenvalues to keep
+#' @param zi Covariate vector of interest
+#' @param alpha Type I error rate
+#' @details Generates posterior inference for covariate adjusted
+#'  eigenfunctions, surfaces, and magnitudes
+#' @return
+#' An R list containing the following elements 
+#' 
+#' \code{lower} A matrix containing the lower bound of the simultaneous 
+#' credible band of eigenfunctions  
+#' 
+#' \code{mean} A matrix containing the posterior mean of eigenfunctions  
+#' 
+#' \code{upper} A matrix containing the upper bound of the simultaneous 
+#' credible band of eigenfunctions  
+#' 
+#' \code{eigenval_intervals} A matrix containing a 1-alpha credible interval
+#' for eigenvalues  
+#' 
+#' \code{eigenval_pve_intervals} A matrix containing a 1-alpha credible 
+#' interval for relative eigenvalues  
+#' 
+#' \code{surface} Posterior covariance surface  
+#' 
+#' \code{magnitude} Total variance of the fitted covariance surface across, one
+#' for each sample
+#' 
+#' \code{raw_magnitude} 1-alpha credible interval for total variance
+#' @export
 get_posterior_eigen2 <- function(mod, eigenvals, zi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_eigen2`, mod, eigenvals, zi, alpha)
 }

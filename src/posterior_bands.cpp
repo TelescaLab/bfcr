@@ -378,6 +378,39 @@ arma::mat arma_cov2cor(arma::mat V){
   return(arma::symmatl(cor));
 }
 
+
+//' Posterior inference for covariate-adjusted covariance function
+//' 
+//' @param mod mcmc object
+//' @param eigenvals Number of eigenvalues to keep
+//' @param zi Covariate vector of interest
+//' @param alpha Type I error rate
+//' @details Generates posterior inference for covariate adjusted
+//'  eigenfunctions, surfaces, and magnitudes
+//' @return
+//' An R list containing the following elements 
+//' 
+//' \code{lower} A matrix containing the lower bound of the simultaneous 
+//' credible band of eigenfunctions  
+//' 
+//' \code{mean} A matrix containing the posterior mean of eigenfunctions  
+//' 
+//' \code{upper} A matrix containing the upper bound of the simultaneous 
+//' credible band of eigenfunctions  
+//' 
+//' \code{eigenval_intervals} A matrix containing a 1-alpha credible interval
+//' for eigenvalues  
+//' 
+//' \code{eigenval_pve_intervals} A matrix containing a 1-alpha credible 
+//' interval for relative eigenvalues  
+//' 
+//' \code{surface} Posterior covariance surface  
+//' 
+//' \code{magnitude} Total variance of the fitted covariance surface across, one
+//' for each sample
+//' 
+//' \code{raw_magnitude} 1-alpha credible interval for total variance
+//' @export
 // [[Rcpp::export]]
 List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double alpha){
   arma::mat B = mod["B"];
@@ -500,7 +533,6 @@ List get_posterior_eigen2(List mod, arma::uword eigenvals, arma::vec zi, double 
                       Named("eigenval_intervals", eigenval_intervals),
                       Named("eigenval_pve_intervals", eigenval_pve_intervals),
                       Named("surface", mean_cov),
-                      Named("surface_cor", surface_cor),
                       Named("magnitude", magnitude_interval),
                       Named("raw_magnitude", magnitude)));
 }
