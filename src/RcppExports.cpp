@@ -1236,6 +1236,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// my_main
+Rcpp::List my_main(arma::mat& Y, arma::mat& X, arma::mat& Z, arma::mat& B, arma::uword K, arma::field<arma::mat>& MeanPenalties, arma::field<arma::mat>& VarPenalties, arma::uvec& MeanIndices, arma::uvec& VarIndices);
+RcppExport SEXP _BayesianConditionalFPCA_my_main(SEXP YSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP BSEXP, SEXP KSEXP, SEXP MeanPenaltiesSEXP, SEXP VarPenaltiesSEXP, SEXP MeanIndicesSEXP, SEXP VarIndicesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Y(YSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type B(BSEXP);
+    Rcpp::traits::input_parameter< arma::uword >::type K(KSEXP);
+    Rcpp::traits::input_parameter< arma::field<arma::mat>& >::type MeanPenalties(MeanPenaltiesSEXP);
+    Rcpp::traits::input_parameter< arma::field<arma::mat>& >::type VarPenalties(VarPenaltiesSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type MeanIndices(MeanIndicesSEXP);
+    Rcpp::traits::input_parameter< arma::uvec& >::type VarIndices(VarIndicesSEXP);
+    rcpp_result_gen = Rcpp::wrap(my_main(Y, X, Z, B, K, MeanPenalties, VarPenalties, MeanIndices, VarIndices));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_cppgetX", (DL_FUNC) &_BayesianConditionalFPCA_cppgetX, 5},
@@ -1320,6 +1339,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_updateThetaS", (DL_FUNC) &_BayesianConditionalFPCA_updateThetaS, 8},
     {"_BayesianConditionalFPCA_updateEtaS", (DL_FUNC) &_BayesianConditionalFPCA_updateEtaS, 8},
     {"_BayesianConditionalFPCA_updatePrecS", (DL_FUNC) &_BayesianConditionalFPCA_updatePrecS, 6},
+    {"_BayesianConditionalFPCA_my_main", (DL_FUNC) &_BayesianConditionalFPCA_my_main, 9},
     {NULL, NULL, 0}
 };
 

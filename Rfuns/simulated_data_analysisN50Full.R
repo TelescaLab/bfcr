@@ -20,7 +20,7 @@ library(mgcv)
 ################### MEAN AND VARIANCE FUNCTIONS #####################
 #####################################################################
 n <- 50
-tmax <- 50
+tmax <- 100
 t <- seq(from = 0, to = 1, length.out = tmax)
 p <- 12
 B <- bs(t, df = p, intercept = TRUE)
@@ -66,7 +66,7 @@ Y <- Y_no_error + E
 #####################################################################
 K <- 4
 Basis <- ps(t, df = 16, intercept = TRUE)
-mcmc_results2 <- run_mcmc_Morris(Y, t, AgeBasis$X, cbind(rep(1,n)), Basis, K = 2, iter = 20000, burnin = 20000, nchains = 1, thin = 1, loglik = 0)
+mcmc_results <- run_mcmc_Morris(Y, t, AgeBasis$X, cbind(rep(1,n)), Basis, K = 2, iter = 20000, burnin = 20000, nchains = 1, thin = 1, loglik = 0)
 results <- numeric(21)
 #####################################################################
 ####################### VISUALIZATION ###############################
@@ -356,7 +356,7 @@ save(results, file = paste0("N100Full", seed, ".RData"))
 # plot(Cov_mat,type="l")
 # plot(Cov_mat[,1], type = "l")
 # lines(Cov_mat[,3])
-
+library(spam)
 Age <- X[,2]
 TBasis <- smooth.construct(s(t, bs = "ps", k = 12), data.frame(t), NULL)
 AgeBasis <- smooth.construct(s(Age, bs = "ps", k = 4), data.frame(Age), NULL)

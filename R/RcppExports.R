@@ -361,3 +361,7 @@ updatePrecS <- function(Y, Lambda, Gamma, X, B, Theta) {
     .Call(`_BayesianConditionalFPCA_updatePrecS`, Y, Lambda, Gamma, X, B, Theta)
 }
 
+my_main <- function(Y, X, Z, B, K, MeanPenalties, VarPenalties, MeanIndices, VarIndices) {
+    .Call(`_BayesianConditionalFPCA_my_main`, Y, X, Z, B, K, MeanPenalties, VarPenalties, MeanIndices, VarIndices)
+}
+
