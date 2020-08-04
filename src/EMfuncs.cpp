@@ -186,6 +186,7 @@ void completeY2Means(arma::mat& Y, arma::uvec missing_sub, arma::uvec missing_ti
 // [[Rcpp::export]]
 Rcpp::List cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K,
                    double tol, arma::uword max_iter){
+  arma::vec log_lik(max_iter, arma::fill::zeros);
   double conv = tol + 1;
   arma::uword p = B.n_cols;
   arma::uword D = X.n_cols;
@@ -225,12 +226,14 @@ Rcpp::List cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K,
     cppupdateeta(pTheta, pLambda, precision, pEtaM, pEtaV, X, B, Ypred, K);
     cppgetX(pEtaM, pEtaV, X, newx);
     cppupdateall(pTheta, pLambda, precision, newx, B, newy, K);
+    log_lik(i) = cpploglik(pTheta, pLambda, precision, X, B, Ypred, K);
+    //Rcout << i << std::endl << log_lik(i) << std::endl;
     // if((i+1) % 100 == 0){
     //   Rcout << cpploglik(pTheta, pLambda, precision, X, B, Ypred, K) << std::endl;
     // }
     conv = arma::accu(arma::square(pLambda - pLambda_old)) /
       arma::accu(arma::square((pLambda_old)));
-    Rcout << conv << std::endl;
+    Rcout << i << std::endl << conv << std::endl;
     if(conv < tol){
       break;
     } else{
@@ -244,7 +247,8 @@ Rcpp::List cpp_EM2(arma::mat X, arma::mat B, arma::mat Y, arma::uword K,
   return(Rcpp::List::create(Rcpp::Named("Lambda", Lambda),
                             Rcpp::Named("Theta", pTheta),
                             Rcpp::Named("precision", precision),
-                            Rcpp::Named("Eta", pEtaM)));
+                            Rcpp::Named("Eta", pEtaM),
+                            Rcpp::Named("loglik", log_lik)));
 }
 // [[Rcpp::export]]
 List cpp_EM(arma::mat X, arma::mat B, arma::mat Y, arma::uword K, arma::mat Theta_init, int cores = 1){
