@@ -73,7 +73,9 @@ void Parameters::update_beta(Data& dat, Transformations& transf) {
   transf.beta_g = 
     arma::vectorise((transf.bty - dat.basis.t() * transf.fit_beta_removed) *
     arma::diagmat(varphi) * dat.design_mean);
-                      
+  transf.beta_precision = arma::kron(dat.design_mean.t() *
+    arma::diagmat(varphi) * dat.design_mean, transf.btb) +
+    transf.blk_diag_mean_penalties;
   transf.fit_beta_removed.zeros();
 }
 Transformations::Transformations(Data& dat, Parameters& pars) {
