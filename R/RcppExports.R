@@ -245,6 +245,10 @@ rcpparma_bothproducts <- function(x) {
     .Call(`_BayesianConditionalFPCA_rcpparma_bothproducts`, x)
 }
 
+mymain <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L) {
+    invisible(.Call(`_BayesianConditionalFPCA_mymain`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin))
+}
+
 timesTwo <- function(x) {
     .Call(`_BayesianConditionalFPCA_timesTwo`, x)
 }
@@ -359,13 +363,5 @@ updateEtaS <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
 
 updatePrecS <- function(Y, Lambda, Gamma, X, B, Theta) {
     .Call(`_BayesianConditionalFPCA_updatePrecS`, Y, Lambda, Gamma, X, B, Theta)
-}
-
-dmvnrm_arma_fast <- function(x, mean, sigma, logd = FALSE) {
-    .Call(`_BayesianConditionalFPCA_dmvnrm_arma_fast`, x, mean, sigma, logd)
-}
-
-my_main <- function(Y, X, Z, B, K, iter, MeanPenalties, VarPenalties, MeanIndices, VarIndices) {
-    .Call(`_BayesianConditionalFPCA_my_main`, Y, X, Z, B, K, iter, MeanPenalties, VarPenalties, MeanIndices, VarIndices)
 }
 

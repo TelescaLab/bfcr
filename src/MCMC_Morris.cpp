@@ -864,7 +864,7 @@ void updateTau1Tensor(arma::field<arma::mat>& Penalties, arma::uvec& indices,
   arma::uword p = Beta2.n_rows;
   arma::uword K = 0;
   double a = 1;
-  double b = .000005;
+  double b = .005;
   double update_a = 0, update_b = 0;
   arma::uword start = 0;
   arma::uword end = Penalties(0).n_rows / p - 1;
@@ -892,7 +892,7 @@ void updateTau2Tensor(arma::field<arma::mat>& Penalties,
   arma::uword p = Lambda2.n_rows;
   arma::uword K = Lambda2.n_slices;
   double a = 1;
-  double b = .000005;
+  double b = .005;
   double update_a = 0, update_b = 0;
   arma::uword start = 0;
   arma::uword end = Penalties(0).n_rows / p - 1;

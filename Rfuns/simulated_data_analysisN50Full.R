@@ -360,6 +360,22 @@ library(spam)
 Age <- X[,2]
 TBasis <- smooth.construct(s(t, bs = "ps", k = 12), data.frame(t), NULL)
 AgeBasis <- smooth.construct(s(Age, bs = "ps", k = 4), data.frame(Age), NULL)
+Q <- as.matrix(precmat.IGMRFreglat(12, 4, order = 2))
+Q2 <- kronecker(diag(12), as.matrix(precmat.RW2(4)))
+Q3 <- kronecker(as.matrix(precmat.RW2(12)), diag(4))
+Q4 <- as.matrix(precmat.IGMRFreglat(4, 12, order = 2))
+Q5 <- kronecker(diag(4), as.matrix(precmat.RW2(12)))
+Q6 <- kronecker(as.matrix(precmat.RW2(4)), diag(12))
+
+matlist <- list()
+matlist[[1]] <- Q4
+matlist[[1]] <- Q5
+matlist[[2]] <- Q6
+mcmc_results <- run_mcmc_Morris_Tensor(Y, t, AgeBasis$X, AgeBasis$X, TBasis$X,
+                                       matlist, matlist, c(1,1), c(1,1), K = 4, iter = 5000,
+                                       burnin = 5000, nchains = 1,
+                                       thin = 1, loglik = 0)
+
 DT <- as.matrix(diff.spam(diag.spam(12), lag = 1, differences = 2))
 DAge <- as.matrix(diff.spam(diag.spam(4), lag = 1, differences = 2))
 P1 <- t(DT)%*%DT
@@ -389,8 +405,8 @@ for(i in 1:4){
   matlist[[i]] <- TBasis$S[[1]]
 }
 mcmc_results <- run_mcmc_Morris_Tensor(Y, t, AgeBasis$X, AgeBasis$X, TBasis$X,
-                                       matlist, matlist, c(1), c(1), K = 4, iter = 20000,
-                                       burnin = 20000, nchains = 1,
+                                       matlist, matlist, c(1), c(1), K = 4, iter = 5000,
+                                       burnin = 5000, nchains = 1,
                                        thin = 1, loglik = 0)
 
 matlistmean <- list()
@@ -400,7 +416,7 @@ matlistvar <- list()
 matlistvar[[1]] <- TBasis$S[[1]]
 mcmc_results <- run_mcmc_Morris_Tensor(Y, t, AgeBasis$X, cbind(rep(1,n)),
                                        TBasis$X, matlistmean, matlistvar, c(1,1),
-                                       c(1), K = 2, iter = 20000, burnin = 20000,
+                                       c(1,1), K = 2, iter = 20000, burnin = 20000,
                                        nchains = 1, thin = 1, loglik = 0)
 results <- numeric(21)
 matlist <- list()
@@ -449,7 +465,7 @@ for(i in 1:length(Age_seq)){
 }
 results[6:8] <- results[6:8] / length(Age_seq)
 
-idx <- 1
+idx <- 5
 xi <- new_points[idx,]
 #xi <- c(1, Age_seq[idx])
 coef_bands <- get_posterior_means(mcmc_results, xi, alpha)
@@ -469,6 +485,8 @@ for(i in 1:length(Age_seq)){
 par(mfrow = c(1,2))
 persp3D(1:length(Age_seq), 1:length(t), estmeanmat)
 persp3D(1:length(Age_seq), 1:length(t), truemeanmat)
+
+
 
 for(i in 1:length(Age_seq)){
   evals <- 2
