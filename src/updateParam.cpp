@@ -1,7 +1,7 @@
 #include <RcppArmadillo.h>
 #include <RcppArmadilloExtensions/sample.h>
 #include <cmath>
-#include "Utility.h"
+#include "Utils.h"
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 

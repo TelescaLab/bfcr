@@ -1,7 +1,7 @@
 #ifndef MODSTRING_H
 #define MODSTRING_H
 #include <RcppArmadillo.h>
-#include "Utility.h"
+#include "Utils.h"
 
 
 //void updateLambda2(arma::mat& Y, arma::cube& Lambda, arma::mat& Tau, arma::mat& c, arma::mat& Gamma, arma::mat& X, arma::mat& B, double prec, arma::mat& Theta);

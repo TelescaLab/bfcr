@@ -241,15 +241,8 @@ rcpparma_bothproducts <- function(x) {
     .Call(`_BayesianConditionalFPCA_rcpparma_bothproducts`, x)
 }
 
-mymain <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
-    .Call(`_BayesianConditionalFPCA_mymain`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
-<<<<<<< HEAD
-}
-
 run_mcmc <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
     .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
-=======
->>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 }
 
 timesTwo <- function(x) {

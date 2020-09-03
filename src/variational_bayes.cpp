@@ -1,5 +1,5 @@
 // #include <RcppArmadillo.h>
-// #include "Utility.h"
+// #include "Utils.h"
 // 
 // static double const log2pi = std::log(2.0 * M_PI);
 // 
