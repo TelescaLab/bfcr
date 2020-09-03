@@ -626,11 +626,11 @@ List run_mcmc_Morris_Tensor(arma::mat Y, arma::vec Time, arma::mat X,
       updatePrec2(Ypred);
       //updateNu2();
       //Tausq2 = updateTausq2();
-      updateTau1Tensor(MeanPenalties, Meanindices, Tau1Tensor);
-      updateTau2Tensor(VarPenalties, Varindices, Tau2Tensor);
+      //updateTau1Tensor(MeanPenalties, Meanindices, Tau1Tensor);
+      //updateTau2Tensor(VarPenalties, Varindices, Tau2Tensor);
       
-      BuildBlkDiag(MeanPenalties, Meanindices, Tau1Tensor, blkdiagMean);
-      BuildBlkDiag(VarPenalties, Varindices, Tau2Tensor, blkdiagVar);
+      //BuildBlkDiag(MeanPenalties, Meanindices, Tau1Tensor, blkdiagMean);
+      //BuildBlkDiag(VarPenalties, Varindices, Tau2Tensor, blkdiagVar);
       updateBetaTensor(Ypred, X, Z, B, blkdiagMean);
       updateLambdaTensor(Ypred, X, Z, B, blkdiagVar);
       updateEtaBeta2(Ypred, X, Z, B);
@@ -663,13 +663,13 @@ List run_mcmc_Morris_Tensor(arma::mat Y, arma::vec Time, arma::mat X,
         //updatePhiBeta2(Ypred);
         //Prec2 = Phi2 * alpha2;
         //updatePsi2();
-        updatePrec2(Ypred);
+        //updatePrec2(Ypred);
         //updateNu2();
         //Tausq2 = updateTausq2();
-        updateTau1Tensor(MeanPenalties, Meanindices, Tau1Tensor);
-        updateTau2Tensor(VarPenalties, Varindices, Tau2Tensor);
-        BuildBlkDiag(MeanPenalties, Meanindices, Tau1Tensor, blkdiagMean);
-        BuildBlkDiag(VarPenalties, Varindices, Tau2Tensor, blkdiagVar);
+        //updateTau1Tensor(MeanPenalties, Meanindices, Tau1Tensor);
+        //updateTau2Tensor(VarPenalties, Varindices, Tau2Tensor);
+        //BuildBlkDiag(MeanPenalties, Meanindices, Tau1Tensor, blkdiagMean);
+        //BuildBlkDiag(VarPenalties, Varindices, Tau2Tensor, blkdiagVar);
         updateBetaTensor(Ypred, X, Z, B, blkdiagMean);
         updateLambdaTensor(Ypred, X, Z, B, blkdiagVar);
         updateEtaBeta2(Ypred, X, Z, B);

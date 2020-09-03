@@ -1,11 +1,10 @@
-setwd("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep")
 library(luna)
 library(tidyverse)
 library(future.apply)
 library(nsrr)
 library(filesstrings)
 
-
+setwd("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep")
 rdata <- dir("spectrum")
 done <- as.numeric(substr(rdata, 9, 12))
 to_do <- setdiff(1:5900, done)

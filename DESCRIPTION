@@ -10,5 +10,5 @@ Description: More details about what the package does. See
            details on how to write this part.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.16)
-LinkingTo: Rcpp, RcppArmadillo
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 7.1.1
