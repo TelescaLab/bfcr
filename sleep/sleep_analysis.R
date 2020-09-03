@@ -65,6 +65,7 @@ results <- mymain(response, design_mean,
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
                   k, iter, thin = 1, var = "unequal")
+
 iter_2 <- 10000
 subj <- 70
 interval <- 300:480
