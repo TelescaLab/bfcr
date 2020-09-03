@@ -8,7 +8,8 @@ Rcpp::List Sampler::write_data() {
 Rcpp::List Sampler::write_control() {
   return(Rcpp::List::create(
       Rcpp::Named("iterations", dat.iter),
-      Rcpp::Named("thin", dat.thin)
+      Rcpp::Named("thin", dat.thin),
+      Rcpp::Named("burnin", dat.burnin)
   ));
 }
 

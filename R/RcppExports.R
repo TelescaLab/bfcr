@@ -161,6 +161,10 @@ get_posterior_predictive_bands2 <- function(mod, quantiles) {
     .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands2`, mod, quantiles)
 }
 
+get_posterior_predictive_bands69 <- function(mcmc_output, quantiles) {
+    invisible(.Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands69`, mcmc_output, quantiles))
+}
+
 get_posterior_means <- function(mod, xi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
 }
@@ -241,8 +245,8 @@ rcpparma_bothproducts <- function(x) {
     .Call(`_BayesianConditionalFPCA_rcpparma_bothproducts`, x)
 }
 
-run_mcmc <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
-    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
+run_mcmc <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin = 1L, var = "unequal") {
+    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin, var)
 }
 
 timesTwo <- function(x) {

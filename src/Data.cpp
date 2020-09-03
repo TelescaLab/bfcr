@@ -15,7 +15,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
            arma::field<arma::mat>& penalties_var,
            arma::uvec& indices_mean, arma::uvec& indices_var,
            arma::uword kdim, arma::uword iter,
-           arma::uword thin) {
+           arma::uword burnin, arma::uword thin) {
   d1 = design_mean.n_cols;
   d2 = design_var.n_cols;
   basis_dim = basis.n_cols;
@@ -30,6 +30,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   this->indices_var = indices_var;
   this->kdim = kdim;
   this->iter = iter;
+  this->burnin = burnin;
   this->thin = thin;
   missing = arma::find_nonfinite(response);
   missing_sub = armadillo_modulus3(missing, response.n_rows);

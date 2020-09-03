@@ -12,11 +12,11 @@ public:
   arma::field<arma::mat> penalties_mean;
   arma::field<arma::mat> penalties_var;
   arma::uvec indices_mean, indices_var;
-  arma::uword iter, thin;
+  arma::uword iter, thin, burnin;
   Data(arma::mat&, arma::mat&, arma::mat&, arma::mat&, 
        arma::field<arma::mat>&,arma::field<arma::mat>&,
        arma::uvec&, arma::uvec&, arma::uword, arma::uword, 
-       arma::uword);
+       arma::uword, arma::uword);
   Rcpp::List write_data();
 };
 

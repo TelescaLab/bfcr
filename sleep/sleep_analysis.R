@@ -63,7 +63,7 @@ response <- t(matrix(sleep_data_filtered$psd,
                    ncol = num_subjects))
 
 k <- 15
-iter <- 10000
+iter <- 100
 burnin <- 100
 nchains <- 1
 thin <- 1
