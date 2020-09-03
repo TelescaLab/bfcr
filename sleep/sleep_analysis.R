@@ -67,7 +67,7 @@ results <- test_this(response, design_mean,
                      mean_penalty, var_penalty,
                      mean_indices, var_indices,
                      k, iter, thin = 1, var = "pooled")
-results <- mymain(response, design_mean,
+results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis, 
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
