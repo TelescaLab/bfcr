@@ -784,6 +784,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type var(varSEXP);
     rcpp_result_gen = Rcpp::wrap(mymain(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var));
     return rcpp_result_gen;
+<<<<<<< HEAD
 END_RCPP
 }
 // run_mcmc
@@ -806,6 +807,8 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type var(varSEXP);
     rcpp_result_gen = Rcpp::wrap(run_mcmc(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var));
     return rcpp_result_gen;
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 END_RCPP
 }
 // timesTwo
@@ -1314,7 +1317,10 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_rcpparma_innerproduct", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_innerproduct, 1},
     {"_BayesianConditionalFPCA_rcpparma_bothproducts", (DL_FUNC) &_BayesianConditionalFPCA_rcpparma_bothproducts, 1},
     {"_BayesianConditionalFPCA_mymain", (DL_FUNC) &_BayesianConditionalFPCA_mymain, 12},
+<<<<<<< HEAD
     {"_BayesianConditionalFPCA_run_mcmc", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc, 12},
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
     {"_BayesianConditionalFPCA_timesTwo", (DL_FUNC) &_BayesianConditionalFPCA_timesTwo, 1},
     {"_BayesianConditionalFPCA_updateProjBeta", (DL_FUNC) &_BayesianConditionalFPCA_updateProjBeta, 10},
     {"_BayesianConditionalFPCA_updatePrecPBeta", (DL_FUNC) &_BayesianConditionalFPCA_updatePrecPBeta, 4},

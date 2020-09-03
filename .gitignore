@@ -5,6 +5,9 @@
 *.o
 *.Rproj.user
 *.DS_Store
+<<<<<<< HEAD
 *.Rproj.user
 *.csv
 .Rproj.user
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988

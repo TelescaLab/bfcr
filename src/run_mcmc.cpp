@@ -59,7 +59,10 @@ class Parameters {
     arma::cube tau2_container;
     arma::field<arma::cube> phi_container;
     arma::cube delta_container;
+<<<<<<< HEAD
     arma::vec tausq_container;
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 };
 
 class GaussTransformations {
@@ -136,7 +139,10 @@ Parameters::Parameters(Data& dat) {
   tau2_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
   phi_container = arma::field<arma::cube>(dat.iter);
   delta_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
+<<<<<<< HEAD
   tausq_container = arma::vec(dat.iter);
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 }
 
 void Parameters::update_beta(Data& dat, Transformations& transf) {
@@ -226,6 +232,7 @@ void Parameters::update_eta(Data& dat, Transformations& transf) {
       arma::diagmat(eta.col(k));
   }
   
+<<<<<<< HEAD
 }
 
 void Parameters::update_tau1(Data& dat, Transformations& transf) {
@@ -293,6 +300,75 @@ void Parameters::update_varphi(Data& dat, Transformations& transf) {
   varphi.fill(p);
 }
 
+=======
+}
+
+void Parameters::update_tau1(Data& dat, Transformations& transf) {
+  double update_a = 0, update_b = 0;
+  arma::uword start = 0;
+  arma::uword end = static_cast<double>(dat.penalties_mean(0).n_rows) /
+    static_cast<double>(dat.basis_dim) - 1;
+  arma::uword num_field_elements = dat.penalties_mean.n_elem;
+  arma::uword old_index = 1;
+  
+  for(arma::uword i = 0; i < num_field_elements; i++){
+    
+    if(dat.indices_mean(i) != old_index){
+      start = end + 1;
+      end = end + dat.penalties_mean(i).n_rows / dat.basis_dim;
+    }
+    
+    update_a = dat.penalties_mean(i).n_rows;
+    update_b = 1.0 / 2.0 *
+      arma::as_scalar(arma::vectorise(beta.cols(start, end)).t() *
+      dat.penalties_mean(i) *
+      arma::vectorise(beta.cols(start, end)));
+    tau1(i) = R::rgamma(tau_a + update_a / 2.0, 1.0 / (tau_b + update_b));
+  }
+  transf.build_blk_diag_mean(dat, *this);
+}
+
+void Parameters::update_tau2(Data& dat, Transformations& transf) {
+  double update_a = 0, update_b = 0;
+  arma::uword start = 0;
+  arma::uword end = static_cast<double>(dat.penalties_var(0).n_rows) /
+    static_cast<double>(dat.basis_dim) - 1;
+  arma::uword num_field_elements = dat.penalties_var.n_elem;
+  arma::uword old_index = 1;
+  
+  for(arma::uword i = 0; i < num_field_elements; i++){
+    
+    if (dat.indices_var(i) != old_index) {
+      start = end + 1;
+      end = end + dat.penalties_var(i).n_rows / dat.basis_dim;
+    }
+    
+    for (arma::uword k = 0; k < dat.kdim; k++) {
+      update_a = dat.penalties_var(i).n_rows;
+      
+      update_b = 
+        arma::as_scalar(arma::vectorise(lambda.slice(k).cols(start, end)).t() *
+        dat.penalties_var(i) * arma::vectorise(lambda.slice(k).cols(start, end)));
+      tau2(i, k) = R::rgamma(tau_a + update_a, 1.0 /
+        tau_b + update_b);
+    }
+    update_a = 0;
+    update_b = 0;
+    old_index = dat.indices_var(i);
+    
+  }
+  transf.build_blk_diag_var(dat, *this);
+}
+void Parameters::update_varphi(Data& dat, Transformations& transf) {
+  transf.fit = transf.fit_beta + transf.fit_lambda;
+  double my_sum = arma::accu(arma::square(dat.response - 
+                             arma::trans(dat.basis * (transf.fit))));
+  double p = R::rgamma(varphi_a + dat.response.n_elem/2, 1.0 / 
+                       (varphi_b + 1.0/2.0 * my_sum));
+  varphi.fill(p);
+}
+
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 
 void Parameters::update_phi(Data& dat, Transformations& transf) {
   for (arma::uword i = 0; i < dat.basis_dim; i++) {
@@ -477,6 +553,14 @@ void Transformations::build_blk_diag_mean(Data& dat, Parameters& pars) {
       blk_diag_mean_penalties.submat(
         start, start, end, end) =
           pars.tau1(d) * dat.penalties_mean(d);
+<<<<<<< HEAD
+
+    }
+
+    old_index = dat.indices_mean(d);
+  }
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 
     }
 
@@ -548,6 +632,72 @@ void Transformations::complete_response(Data& dat, Parameters& pars) {
   }
 }
 
+<<<<<<< HEAD
+void Transformations::build_blk_diag_var(Data& dat,
+                                          Parameters& pars) {
+  for (arma::uword k = 0; k < dat.kdim; k++) {
+    arma::uword old_index = 0;
+    arma::uword start;
+    arma::uword end = -1;
+    for (arma::uword d = 0; d < dat.indices_var.n_elem; d++) {
+      if (dat.indices_var(d) == old_index) {
+        blk_diag_var_penalties.slice(k).submat(
+            start, start, end, end) =
+              pars.tau2(d) * dat.penalties_var(d) + 
+              blk_diag_var_penalties.slice(k).submat(
+                  start, start, end, end);
+      } else {
+        start = end + 1;
+        end = start + dat.penalties_var(d).n_rows - 1;
+        blk_diag_var_penalties.slice(k).submat(
+            start, start, end, end) =
+              pars.tau2(d, k) * dat.penalties_var(d);
+        
+      }
+      
+      old_index = dat.indices_var(d);
+    }
+  }
+}
+void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
+  int old_index = 0;
+  int start = 0;
+  int end = -1;
+  int start_phi_delta = 0;
+  int end_phi_delta = -1;
+  for (arma::uword d = 0; d < dat.indices_var.n_elem; d++) {
+    if (dat.indices_var(d) != old_index) {
+      start = end + 1;
+      end = end_phi_delta + dat.penalties_var(d).n_rows / dat.basis_dim;
+      start_phi_delta = end_phi_delta + 1;
+      end_phi_delta = end_phi_delta + dat.penalties_var(d).n_rows;
+      blk_diag_delta_cumprod.row(d) = arma::cumprod(pars.delta.row(d));
+      for (arma::uword k = 0; k < dat.kdim; k++) {
+        blk_diag_phi_delta.slice(k).submat(
+            start_phi_delta, start_phi_delta,
+            end_phi_delta, end_phi_delta) =
+              blk_diag_delta_cumprod(d, k) * 
+              arma::diagmat(arma::vectorise(pars.phi.slice(k).cols(start, end)));
+      } 
+      old_index = dat.indices_mean(d);
+    }
+    
+  }
+}
+
+void Transformations::complete_response(Data& dat, Parameters& pars) {
+  for(arma::uword i = 0; i < dat.missing_sub.n_elem; i++){
+    dat.response(dat.missing_sub(i), dat.missing_time(i)) = 
+      arma::as_scalar(dat.basis.row(dat.missing_time(i)) * (fit_beta.col(i) +
+      fit_lambda.col(i))) + 
+      R::rnorm(0, std::pow(pars.varphi(dat.missing_sub(i)), -.5));
+    bty.col(dat.missing_sub(i)) = dat.basis.t() * 
+      dat.response.row(dat.missing_sub(i)).t();
+  }
+}
+
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 Data::Data(arma::mat& response, arma::mat& design_mean,
            arma::mat& design_var, arma::mat& basis,
            arma::field<arma::mat>& penalties_mean, 
@@ -604,13 +754,21 @@ void McmcObject::sample_parameters() {
         goto stop;
       }
       pars.update_beta(dat, transf);
+<<<<<<< HEAD
       pars.update_lambda(dat, transf); 
+=======
+      pars.update_lambda(dat, transf);
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
+<<<<<<< HEAD
       if (var == "pooled") pars.update_varphi(dat, transf); // uses updated beta and lambda
+=======
+      if (var == "pooled") pars.update_varphi(dat, transf);
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
       if (var == "unequal") {
         pars.update_psi(dat, transf);
         pars.update_tausq(dat, transf);
@@ -636,9 +794,53 @@ Rcpp::List McmcObject::get_samples() {
                             Rcpp::Named("delta", pars.delta_container),
                             Rcpp::Named("phi_delta", transf.blk_diag_phi_delta),
                             Rcpp::Named("var_penalty", transf.blk_diag_var_penalties)));
+<<<<<<< HEAD
 }
 
 
+=======
+}
+
+class Mcmc {
+  public:
+    Data dat;
+    Transformations transf;
+    Parameters pars;
+    //int hello;
+    static Mcmc *make_mcmc(std::string choice);
+    Mcmc() {};
+    Mcmc(Data& dat, Transformations& transf, Parameters& pars) :
+      dat(dat), transf(transf), pars(pars) {};
+    virtual ~Mcmc() {};
+    //virtual void sample_parameters() = 0;
+    //virtual Rcpp::List get_samples() = 0;
+};
+
+class mcmc_one: public Mcmc {
+  public:
+    mcmc_one(Data& dat, Parameters& pars, Transformations& transf) :
+    Mcmc(dat, transf, pars) {};
+    mcmc_one() {};
+    //void sample_parameters();
+};
+
+class mcmc_two: public Mcmc {
+public:
+  mcmc_two(Data& dat, Parameters& pars, Transformations& transf) :
+  Mcmc(dat, transf, pars) {}
+  mcmc_two() {};
+  //void sample_parameters();
+};
+
+Mcmc *Mcmc::make_mcmc(std::string choice) {
+  if (choice == "one") {
+    return new mcmc_one();
+  }
+  else {
+    return new mcmc_two();
+  }
+}
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
  
 // [[Rcpp::export]]
 Rcpp::List mymain(arma::mat response, arma::mat design_mean,
@@ -648,6 +850,7 @@ Rcpp::List mymain(arma::mat response, arma::mat design_mean,
                   arma::uvec indices_mean, arma::uvec indices_var,
                   arma::uword kdim, arma::uword iter,
                   arma::uword thin=1, std::string var="unequal"){
+<<<<<<< HEAD
   Data dat(response, design_mean,
            design_var, basis,
            penalties_mean, penalties_var,
@@ -833,14 +1036,28 @@ Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean,
                arma::uword kdim, arma::uword iter,
                arma::uword thin=1, std::string var="unequal") {
   
+=======
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
   Data dat(response, design_mean,
            design_var, basis,
            penalties_mean, penalties_var,
            indices_mean, indices_var, kdim,
            iter, thin);
+<<<<<<< HEAD
+=======
+  
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
   Parameters pars(dat);
+  
   Transformations transf(dat, pars);
+<<<<<<< HEAD
   Sampler* mysampler = SamplerFactory::new_mcmc(var, dat, pars, transf);
   mysampler->sample_parameters();
   return(mysampler->get_samples());
+=======
+  McmcObject mcmc(dat, transf, pars, var);
+  mcmc.sample_parameters();
+  Rcpp::List output = mcmc.get_samples();
+  return(output);
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 }

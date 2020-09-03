@@ -14,6 +14,14 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
 sleep_tabulated_filtered <- sleep_tabulated %>%
   select(nsrrid, age_s1)
 sleep_data <- inner_join(sleep_tabulated_filtered, relative_psd)
+<<<<<<< HEAD
+=======
+sleep_data_filtered <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(n() >= num_epochs, epoch <= num_epochs, 
+         nsrrid %in% 200001:200100) %>%
+  ungroup()
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
 
 num_epochs <- 480
 id_range <- 200001:200100
@@ -62,12 +70,16 @@ burnin <- 100
 nchains <- 1
 thin <- 1
 loglik <- 0
+<<<<<<< HEAD
 results <- test_this(response, design_mean,
                      design_var, epoch_basis, 
                      mean_penalty, var_penalty,
                      mean_indices, var_indices,
                      k, iter, thin = 1, var = "pooled")
 results <- run_mcmc(response, design_mean,
+=======
+results <- mymain(response, design_mean,
+>>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
                   design_var, epoch_basis, 
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
