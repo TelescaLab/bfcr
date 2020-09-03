@@ -289,176 +289,177 @@ arma::rowvec update_log_lik(arma::mat& Y, arma::uword loglik){
   }
   return(current_log_lik.t());
 }
-// [[Rcpp::export]]
-List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
-  int p = B.n_cols;
-  int N = Y.n_rows;
-  int D1 = X.n_cols;
-  int D2 = Z.n_cols;
-  P = getPenalty2(B.n_cols, 2);
-  arma::uvec missing = arma::find_nonfinite(Y);
-  arma::uvec missing_sub = armadillo_modulus(missing, Y.n_rows);
-  arma::uvec missing_time = arma::floor(missing / Y.n_rows);
-  arma::mat Ypred = Y;
-  Ypred.elem(missing).fill(0);
-  BtB = B.t() * B;
-  if(loglik == 1){
-    log_lik = arma::cube(iter, nchains, Y.n_rows * Y.n_cols);
-  }
-  if(loglik == 2){
-    log_lik = arma::cube(iter, nchains, Y.n_rows);
-  }
-  arma::field<arma::cube> LambdaF(nchains, iter);
-  arma::field<arma::cube> EtaF(nchains);
-  arma::field<arma::mat> TauF(nchains);
-  arma::field<arma::cube> BetaF(nchains);
-  arma::field<arma::mat> SigmaF(nchains);
-  arma::field<arma::mat> PrecF(nchains);
-  arma::field<arma::cube> ThetaF(nchains);
-  arma::field<arma::mat> DeltaF(nchains);
-  arma::field<arma::mat> PhiF(nchains);
-  arma::field<arma::vec> TausqF(nchains);
-  arma::field<arma::vec> NuF(nchains);
-  arma::field<arma::vec> AlphaF(nchains);
-  for(arma::uword u = 0; u < nchains; u++){
-    for(arma::uword i = 0; i < iter; i++){
-      LambdaF(u, i) = arma::cube(p, D2, K);
-    }
-    EtaF(u) = arma::cube(N, K, iter);
-    //TauF(u) = arma::cube(K + 1, D, iter);
-    TauF(u) = arma::mat(D1 + K * D2, iter);
-    BetaF(u) = arma::cube(p, D1, iter);
-    SigmaF(u) = arma::mat(K, iter);
-    PrecF(u) = arma::mat(N, iter);
-    ThetaF(u) = arma::cube(N, p, iter);
-    DeltaF(u) = arma::mat(p, iter);
-    PhiF(u) = arma::mat(N, iter);
-    TausqF(u) = arma::vec(iter);
-    NuF(u) = arma::vec(iter);
-    AlphaF(u) = arma::vec(iter);
-  }
-  arma::vec Sigma(K);
-#ifdef _OPENMP
-  omp_set_num_threads(12);
-  #pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
-#endif
-  for(arma::uword u = 0; u < nchains; u++){
-    // Set initial values
-    
-    
-    //arma::cube Lambda(p, D, K);
-    Lambda = arma::cube(p, D2, K);
-    Eta = arma::mat(N, K);
-    Tau = arma::vec(D1 + K * D2);
-    Beta = arma::mat(p, D1);
-    Delta = arma::vec(p);
-    Theta = arma::mat(N, p);
-    Prec = arma::vec(N);
-    Phi = arma::vec(N);
-    
-    alpha = 1;
-    Tausq = 1;
-    Nu = 5;
-    Theta.randn();
-    Lambda.randn();
-    Eta.randn();
-    Beta.randn();
-    Tau.ones();
-    Delta.ones();
-    Prec.ones();
-    Phi.ones();
-    /*
-    Lambda = Lambda_init;
-    Eta = Eta_init;
-    Beta = Beta_init;
-    Theta = Theta_init;
-    Prec = Prec_init;
-    */
-    Rcpp::Rcout << "Starting burn in..." << std::endl;
-    for(arma::uword i = 0; i < burnin; i++){
-      b = .5;
-      if(double(i) > double(burnin) / 3.0){
-        b = .75;
-      }
-      if(double(i) > double(burnin) * 2.0 / 3.0){
-        b = 1.0;
-      }
-      BtY = Ypred * B;
-      updateProjBeta2(Ypred, X, Z, B);
-      fit = Theta * B.t();
-      completeY(Ypred, missing_sub, missing_time);
-      updateAlphaBeta(Ypred);
-      updatePhiBeta(Ypred);
-      updateNu();
-      Prec = Phi * alpha;
-      Tausq = updateTausq();
-      updateEtaPBeta(X, Z);
-      updateTauBeta();
-      //updateThetaLambdaBeta(X, Z);
-      updateBeta(X, Z);
-      updateLambda(X, Z);
-      updateDeltaBeta(X, Z);
 
-    }
-    Rcpp::Rcout << "Starting MCMC..." << std::endl;
-    for(arma::uword i = 0; i < iter; i++){
-      b = 1.0;
-      if(i % 100 == 0){
-        Rcpp::Rcout << i << std::endl;
-      }
-      for(arma::uword j = 0; j < thin; j++){
-        //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
-        //updateEtaP(Lambda, Beta, Eta, Delta, Theta, X);
-        //updateTau(Beta, Lambda, Tau);
-        //updateThetaLambdaP(Lambda, Beta, Eta, Delta, Theta, Tau, X);
-        //Prec = updatePrecP(Theta, Y, B);
-        //updateDelta(Theta, Beta, Lambda, Eta, Delta, X);
-        
-        //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
-        BtY = Ypred * B;
-        updateProjBeta2(Ypred, X, Z, B);
-        fit = Theta * B.t();
-        
-        completeY(Ypred, missing_sub, missing_time);
-        
-        updateAlphaBeta(Ypred);
-        updatePhiBeta(Ypred);
-        Prec = Phi * alpha;
-        updateNu();
-        Tausq = updateTausq();
-        updateEtaPBeta(X, Z);
-        updateTauBeta();
-        updateBeta(X, Z);
-        updateLambda(X, Z);
-        //updateThetaLambdaBeta(X, Z);
-        updateDeltaBeta(X, Z);
-        if((loglik == 1) || (loglik == 2)){
-          log_lik.tube(i, u) = update_log_lik(Ypred, loglik);
-        }
-      }
-      
-      LambdaF(u, i) = Lambda;
-      ThetaF(u).slice(i) = Theta;
-      EtaF(u).slice(i) = Eta;
-      PrecF(u).col(i) = Prec;
-      TauF(u).col(i) = Tau;
-      DeltaF(u).col(i) = Delta;
-      BetaF(u).slice(i) = Beta;
-      PhiF(u).col(i) = Phi;
-      TausqF(u)(i) = Tausq;
-      NuF(u)(i) = Nu;
-      AlphaF(u)(i) = alpha;
-    }
-  }
-  Rcpp::Rcout << "All done!";
-  List mod = List::create(Named("Lambda", LambdaF), Named("Beta", BetaF),
-                          Named("Eta", EtaF), Named("Theta", ThetaF),
-                          Named("Delta", DeltaF),
-                          Named("Prec", PrecF), Named("Tau", TauF),
-                          Named("Tausq", TausqF), Named("Y", Y),
-                          Named("B", B), Named("Phi", PhiF),
-                          Named("Nu", NuF), Named("Alpha", AlphaF),
-                          Named("log_lik", log_lik),
-                          Named("Time", Time));
-  return(mod);
-}
+// // [[Rcpp::export]]
+// List run_mcmc(arma::mat Y, arma::vec Time, arma::mat X, arma::mat Z, arma::mat B, int K, arma::uword iter, arma::uword burnin, arma::uword nchains, arma::uword thin, arma::uword loglik){//, arma::mat Beta_init, arma::cube Lambda_init, arma::mat Theta_init, arma::mat Eta_init, double Prec_init){
+//   int p = B.n_cols;
+//   int N = Y.n_rows;
+//   int D1 = X.n_cols;
+//   int D2 = Z.n_cols;
+//   P = getPenalty2(B.n_cols, 2);
+//   arma::uvec missing = arma::find_nonfinite(Y);
+//   arma::uvec missing_sub = armadillo_modulus(missing, Y.n_rows);
+//   arma::uvec missing_time = arma::floor(missing / Y.n_rows);
+//   arma::mat Ypred = Y;
+//   Ypred.elem(missing).fill(0);
+//   BtB = B.t() * B;
+//   if(loglik == 1){
+//     log_lik = arma::cube(iter, nchains, Y.n_rows * Y.n_cols);
+//   }
+//   if(loglik == 2){
+//     log_lik = arma::cube(iter, nchains, Y.n_rows);
+//   }
+//   arma::field<arma::cube> LambdaF(nchains, iter);
+//   arma::field<arma::cube> EtaF(nchains);
+//   arma::field<arma::mat> TauF(nchains);
+//   arma::field<arma::cube> BetaF(nchains);
+//   arma::field<arma::mat> SigmaF(nchains);
+//   arma::field<arma::mat> PrecF(nchains);
+//   arma::field<arma::cube> ThetaF(nchains);
+//   arma::field<arma::mat> DeltaF(nchains);
+//   arma::field<arma::mat> PhiF(nchains);
+//   arma::field<arma::vec> TausqF(nchains);
+//   arma::field<arma::vec> NuF(nchains);
+//   arma::field<arma::vec> AlphaF(nchains);
+//   for(arma::uword u = 0; u < nchains; u++){
+//     for(arma::uword i = 0; i < iter; i++){
+//       LambdaF(u, i) = arma::cube(p, D2, K);
+//     }
+//     EtaF(u) = arma::cube(N, K, iter);
+//     //TauF(u) = arma::cube(K + 1, D, iter);
+//     TauF(u) = arma::mat(D1 + K * D2, iter);
+//     BetaF(u) = arma::cube(p, D1, iter);
+//     SigmaF(u) = arma::mat(K, iter);
+//     PrecF(u) = arma::mat(N, iter);
+//     ThetaF(u) = arma::cube(N, p, iter);
+//     DeltaF(u) = arma::mat(p, iter);
+//     PhiF(u) = arma::mat(N, iter);
+//     TausqF(u) = arma::vec(iter);
+//     NuF(u) = arma::vec(iter);
+//     AlphaF(u) = arma::vec(iter);
+//   }
+//   arma::vec Sigma(K);
+// #ifdef _OPENMP
+//   omp_set_num_threads(12);
+//   #pragma omp parallel for shared(LambdaF, ThetaF, EtaF, PrecF, TauF) schedule(auto)
+// #endif
+//   for(arma::uword u = 0; u < nchains; u++){
+//     // Set initial values
+//     
+//     
+//     //arma::cube Lambda(p, D, K);
+//     Lambda = arma::cube(p, D2, K);
+//     Eta = arma::mat(N, K);
+//     Tau = arma::vec(D1 + K * D2);
+//     Beta = arma::mat(p, D1);
+//     Delta = arma::vec(p);
+//     Theta = arma::mat(N, p);
+//     Prec = arma::vec(N);
+//     Phi = arma::vec(N);
+//     
+//     alpha = 1;
+//     Tausq = 1;
+//     Nu = 5;
+//     Theta.randn();
+//     Lambda.randn();
+//     Eta.randn();
+//     Beta.randn();
+//     Tau.ones();
+//     Delta.ones();
+//     Prec.ones();
+//     Phi.ones();
+//     /*
+//     Lambda = Lambda_init;
+//     Eta = Eta_init;
+//     Beta = Beta_init;
+//     Theta = Theta_init;
+//     Prec = Prec_init;
+//     */
+//     Rcpp::Rcout << "Starting burn in..." << std::endl;
+//     for(arma::uword i = 0; i < burnin; i++){
+//       b = .5;
+//       if(double(i) > double(burnin) / 3.0){
+//         b = .75;
+//       }
+//       if(double(i) > double(burnin) * 2.0 / 3.0){
+//         b = 1.0;
+//       }
+//       BtY = Ypred * B;
+//       updateProjBeta2(Ypred, X, Z, B);
+//       fit = Theta * B.t();
+//       completeY(Ypred, missing_sub, missing_time);
+//       updateAlphaBeta(Ypred);
+//       updatePhiBeta(Ypred);
+//       updateNu();
+//       Prec = Phi * alpha;
+//       Tausq = updateTausq();
+//       updateEtaPBeta(X, Z);
+//       updateTauBeta();
+//       //updateThetaLambdaBeta(X, Z);
+//       updateBeta(X, Z);
+//       updateLambda(X, Z);
+//       updateDeltaBeta(X, Z);
+// 
+//     }
+//     Rcpp::Rcout << "Starting MCMC..." << std::endl;
+//     for(arma::uword i = 0; i < iter; i++){
+//       b = 1.0;
+//       if(i % 100 == 0){
+//         Rcpp::Rcout << i << std::endl;
+//       }
+//       for(arma::uword j = 0; j < thin; j++){
+//         //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
+//         //updateEtaP(Lambda, Beta, Eta, Delta, Theta, X);
+//         //updateTau(Beta, Lambda, Tau);
+//         //updateThetaLambdaP(Lambda, Beta, Eta, Delta, Theta, Tau, X);
+//         //Prec = updatePrecP(Theta, Y, B);
+//         //updateDelta(Theta, Beta, Lambda, Eta, Delta, X);
+//         
+//         //updateProjBeta(Lambda, Beta, Eta, Delta, Prec, X, Y, B, Theta, b);
+//         BtY = Ypred * B;
+//         updateProjBeta2(Ypred, X, Z, B);
+//         fit = Theta * B.t();
+//         
+//         completeY(Ypred, missing_sub, missing_time);
+//         
+//         updateAlphaBeta(Ypred);
+//         updatePhiBeta(Ypred);
+//         Prec = Phi * alpha;
+//         updateNu();
+//         Tausq = updateTausq();
+//         updateEtaPBeta(X, Z);
+//         updateTauBeta();
+//         updateBeta(X, Z);
+//         updateLambda(X, Z);
+//         //updateThetaLambdaBeta(X, Z);
+//         updateDeltaBeta(X, Z);
+//         if((loglik == 1) || (loglik == 2)){
+//           log_lik.tube(i, u) = update_log_lik(Ypred, loglik);
+//         }
+//       }
+//       
+//       LambdaF(u, i) = Lambda;
+//       ThetaF(u).slice(i) = Theta;
+//       EtaF(u).slice(i) = Eta;
+//       PrecF(u).col(i) = Prec;
+//       TauF(u).col(i) = Tau;
+//       DeltaF(u).col(i) = Delta;
+//       BetaF(u).slice(i) = Beta;
+//       PhiF(u).col(i) = Phi;
+//       TausqF(u)(i) = Tausq;
+//       NuF(u)(i) = Nu;
+//       AlphaF(u)(i) = alpha;
+//     }
+//   }
+//   Rcpp::Rcout << "All done!";
+//   List mod = List::create(Named("Lambda", LambdaF), Named("Beta", BetaF),
+//                           Named("Eta", EtaF), Named("Theta", ThetaF),
+//                           Named("Delta", DeltaF),
+//                           Named("Prec", PrecF), Named("Tau", TauF),
+//                           Named("Tausq", TausqF), Named("Y", Y),
+//                           Named("B", B), Named("Phi", PhiF),
+//                           Named("Nu", NuF), Named("Alpha", AlphaF),
+//                           Named("log_lik", log_lik),
+//                           Named("Time", Time));
+//   return(mod);
+// }

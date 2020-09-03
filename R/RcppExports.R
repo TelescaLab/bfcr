@@ -57,10 +57,6 @@ completeY <- function(Y, missing_sub, missing_time) {
     invisible(.Call(`_BayesianConditionalFPCA_completeY`, Y, missing_sub, missing_time))
 }
 
-run_mcmc <- function(Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik) {
-    .Call(`_BayesianConditionalFPCA_run_mcmc`, Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik)
-}
-
 MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
     .Call(`_BayesianConditionalFPCA_MCMC_Impute`, y, observedTimes, fullTimes, X, B, K, iter, nchains, thin)
 }
@@ -247,6 +243,10 @@ rcpparma_bothproducts <- function(x) {
 
 mymain <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
     .Call(`_BayesianConditionalFPCA_mymain`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
+}
+
+run_mcmc <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
+    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
 }
 
 timesTwo <- function(x) {

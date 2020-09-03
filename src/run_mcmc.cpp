@@ -59,6 +59,7 @@ class Parameters {
     arma::cube tau2_container;
     arma::field<arma::cube> phi_container;
     arma::cube delta_container;
+    arma::vec tausq_container;
 };
 
 class GaussTransformations {
@@ -135,6 +136,7 @@ Parameters::Parameters(Data& dat) {
   tau2_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
   phi_container = arma::field<arma::cube>(dat.iter);
   delta_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
+  tausq_container = arma::vec(dat.iter);
 }
 
 void Parameters::update_beta(Data& dat, Transformations& transf) {
@@ -602,13 +604,13 @@ void McmcObject::sample_parameters() {
         goto stop;
       }
       pars.update_beta(dat, transf);
-      pars.update_lambda(dat, transf);
+      pars.update_lambda(dat, transf); 
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
-      if (var == "pooled") pars.update_varphi(dat, transf);
+      if (var == "pooled") pars.update_varphi(dat, transf); // uses updated beta and lambda
       if (var == "unequal") {
         pars.update_psi(dat, transf);
         pars.update_tausq(dat, transf);
@@ -636,45 +638,7 @@ Rcpp::List McmcObject::get_samples() {
                             Rcpp::Named("var_penalty", transf.blk_diag_var_penalties)));
 }
 
-class Mcmc {
-  public:
-    Data dat;
-    Transformations transf;
-    Parameters pars;
-    //int hello;
-    static Mcmc *make_mcmc(std::string choice);
-    Mcmc() {};
-    Mcmc(Data& dat, Transformations& transf, Parameters& pars) :
-      dat(dat), transf(transf), pars(pars) {};
-    virtual ~Mcmc() {};
-    //virtual void sample_parameters() = 0;
-    //virtual Rcpp::List get_samples() = 0;
-};
 
-class mcmc_one: public Mcmc {
-  public:
-    mcmc_one(Data& dat, Parameters& pars, Transformations& transf) :
-    Mcmc(dat, transf, pars) {};
-    mcmc_one() {};
-    //void sample_parameters();
-};
-
-class mcmc_two: public Mcmc {
-public:
-  mcmc_two(Data& dat, Parameters& pars, Transformations& transf) :
-  Mcmc(dat, transf, pars) {}
-  mcmc_two() {};
-  //void sample_parameters();
-};
-
-Mcmc *Mcmc::make_mcmc(std::string choice) {
-  if (choice == "one") {
-    return new mcmc_one();
-  }
-  else {
-    return new mcmc_two();
-  }
-}
  
 // [[Rcpp::export]]
 Rcpp::List mymain(arma::mat response, arma::mat design_mean,
@@ -697,4 +661,186 @@ Rcpp::List mymain(arma::mat response, arma::mat design_mean,
   mcmc.sample_parameters();
   Rcpp::List output = mcmc.get_samples();
   return(output);
+}
+
+
+class Sampler
+{ 
+public:
+  Data dat;
+  Parameters pars;
+  Transformations transf;
+  // parameterized constructor
+  Sampler(Data& dat, Parameters& pars, Transformations& transf) :
+    dat(dat), pars(pars), transf(transf)
+  { 
+    Rcpp::Rcout << "Base Parameterized Constructor\n";
+  }
+  virtual void print() = 0;
+  virtual void sample_parameters() = 0;
+  virtual void write_parameters() = 0;
+  virtual Rcpp::List get_samples() = 0;
+  ~Sampler(){}
+};
+
+class SamplerPooled : public Sampler
+{ 
+public:
+  // parameterized constructor
+  SamplerPooled(Data& dat, Parameters& pars, Transformations& transf) :
+  Sampler(dat, pars, transf)
+  { 
+    Rcpp::Rcout << "Derived pooled\n";
+  }
+  void print() {Rcpp::Rcout << "printing pooled\n";}
+  void sample_parameters();
+  void write_parameters();
+  Rcpp::List get_samples();
+  ~SamplerPooled(){};
+};
+
+class SamplerUnequal : public Sampler{
+  public:
+    SamplerUnequal(Data& dat, Parameters& pars, Transformations& transf) :
+    Sampler(dat, pars, transf) {
+      Rcpp::Rcout << "Derived unequal\n";
+    }
+    void print() {Rcpp::Rcout << "printing unequal\n";}
+    void sample_parameters();
+    void write_parameters();
+    Rcpp::List get_samples();
+    ~SamplerUnequal(){}
+};
+
+
+
+class SamplerFactory {
+public:
+  static Sampler *new_mcmc(std::string type, Data& dat, Parameters& pars, Transformations& transf) {
+    if(type == "pooled") return new SamplerPooled(dat, pars, transf);
+    if(type == "unequal") return new SamplerUnequal(dat, pars, transf);
+    return nullptr;
+  }
+};
+
+void SamplerUnequal::sample_parameters() {
+  Progress progress_bar(dat.iter, true);
+  for (arma::uword i = 0; i < dat.iter; i++) {
+    for (arma::uword j = 0; j < dat.thin; j++) {
+      if (Progress::check_abort() ){
+        Rcpp::Rcout << "MCMC aborted" << std::endl;
+        
+        goto stop;
+      }
+      pars.update_beta(dat, transf);
+      pars.update_lambda(dat, transf); 
+      pars.update_eta(dat, transf);
+      pars.update_tau1(dat, transf);
+      pars.update_tau2(dat, transf);
+      pars.update_phi(dat, transf);
+      pars.update_delta(dat, transf);
+      pars.update_psi(dat, transf);
+      pars.update_tausq(dat, transf);
+      pars.varphi = pars.psi;
+      transf.complete_response(dat, pars);
+    }
+    progress_bar.increment();
+    write_parameters();
+  }
+  stop:
+    NULL;
+}
+
+void SamplerPooled::sample_parameters() {
+  Progress progress_bar(dat.iter, true);
+  for (arma::uword i = 0; i < dat.iter; i++) {
+    for (arma::uword j = 0; j < dat.thin; j++) {
+      if (Progress::check_abort() ){
+        Rcpp::Rcout << "MCMC aborted" << std::endl;
+        
+        goto stop;
+      }
+      pars.update_beta(dat, transf);
+      pars.update_lambda(dat, transf); 
+      pars.update_eta(dat, transf);
+      pars.update_tau1(dat, transf);
+      pars.update_tau2(dat, transf);
+      pars.update_phi(dat, transf);
+      pars.update_delta(dat, transf);
+      pars.update_varphi(dat, transf); 
+      transf.complete_response(dat, pars);
+    }
+    progress_bar.increment();
+    pars.write_parameters();
+  }
+  stop:
+    NULL;
+}
+
+void SamplerUnequal::write_parameters() {
+  pars.beta_container.slice(pars.iteration) = pars.beta;
+  pars.lambda_container(pars.iteration) = pars.lambda;
+  pars.eta_container.slice(pars.iteration) = pars.eta;
+  pars.varphi_container.col(pars.iteration) = pars.varphi;
+  pars.tau1_container.col(pars.iteration) = pars.tau1;
+  pars.tau2_container.slice(pars.iteration) = pars.tau2;
+  pars.delta_container.slice(pars.iteration) = pars.delta;
+  pars.tausq_container(pars.iteration) = pars.tausq;
+  pars.iteration++;
+}
+
+void SamplerPooled::write_parameters() {
+  pars.beta_container.slice(pars.iteration) = pars.beta;
+  pars.lambda_container(pars.iteration) = pars.lambda;
+  pars.eta_container.slice(pars.iteration) = pars.eta;
+  pars.varphi_container.col(pars.iteration) = pars.varphi;
+  pars.tau1_container.col(pars.iteration) = pars.tau1;
+  pars.tau2_container.slice(pars.iteration) = pars.tau2;
+  pars.delta_container.slice(pars.iteration) = pars.delta;
+  pars.iteration++;
+}
+
+Rcpp::List SamplerUnequal::get_samples() {
+  return(Rcpp::List::create(Rcpp::Named("lambda", pars.lambda_container),
+                            Rcpp::Named("beta", pars.beta_container),
+                            Rcpp::Named("eta", pars.eta_container),
+                            Rcpp::Named("varphi", pars.varphi_container),
+                            Rcpp::Named("tau1", pars.tau1_container),
+                            Rcpp::Named("tau2", pars.tau2_container),
+                            Rcpp::Named("phi", pars.phi_container),
+                            Rcpp::Named("delta", pars.delta_container),
+                            Rcpp::Named("tausq", pars.tausq_container)));
+}
+
+Rcpp::List SamplerPooled::get_samples() {
+  return(Rcpp::List::create(Rcpp::Named("lambda", pars.lambda_container),
+                            Rcpp::Named("beta", pars.beta_container),
+                            Rcpp::Named("eta", pars.eta_container),
+                            Rcpp::Named("varphi", pars.varphi_container),
+                            Rcpp::Named("tau1", pars.tau1_container),
+                            Rcpp::Named("tau2", pars.tau2_container),
+                            Rcpp::Named("phi", pars.phi_container),
+                            Rcpp::Named("delta", pars.delta_container)));
+}
+
+
+// [[Rcpp::export]]
+Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean,
+               arma::mat design_var, arma::mat basis,
+               arma::field<arma::mat> penalties_mean,
+               arma::field<arma::mat> penalties_var,
+               arma::uvec indices_mean, arma::uvec indices_var,
+               arma::uword kdim, arma::uword iter,
+               arma::uword thin=1, std::string var="unequal") {
+  
+  Data dat(response, design_mean,
+           design_var, basis,
+           penalties_mean, penalties_var,
+           indices_mean, indices_var, kdim,
+           iter, thin);
+  Parameters pars(dat);
+  Transformations transf(dat, pars);
+  Sampler* mysampler = SamplerFactory::new_mcmc(var, dat, pars, transf);
+  mysampler->sample_parameters();
+  return(mysampler->get_samples());
 }

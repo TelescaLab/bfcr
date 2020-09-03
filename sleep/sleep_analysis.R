@@ -14,13 +14,15 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
 sleep_tabulated_filtered <- sleep_tabulated %>%
   select(nsrrid, age_s1)
 sleep_data <- inner_join(sleep_tabulated_filtered, relative_psd)
+
+num_epochs <- 480
+id_range <- 200001:200100
 sleep_data_filtered <- sleep_data %>%
   group_by(nsrrid) %>%
   filter(n() >= num_epochs, epoch <= num_epochs, 
-         nsrrid %in% 200001:200100) %>%
+         nsrrid %in% id_range) %>%
   ungroup()
 
-num_epochs <- 480
 epoch_grid <- 1:num_epochs
 epoch_df <- ceiling(10 / 100 * num_epochs)
 age_grid <- sleep_data_filtered %>%
@@ -60,6 +62,11 @@ burnin <- 100
 nchains <- 1
 thin <- 1
 loglik <- 0
+results <- test_this(response, design_mean,
+                     design_var, epoch_basis, 
+                     mean_penalty, var_penalty,
+                     mean_indices, var_indices,
+                     k, iter, thin = 1, var = "pooled")
 results <- mymain(response, design_mean,
                   design_var, epoch_basis, 
                   mean_penalty, var_penalty,

@@ -5,3 +5,5 @@
 *.o
 *.Rproj.user
 *.DS_Store
+*.Rproj.user
+*.csv
