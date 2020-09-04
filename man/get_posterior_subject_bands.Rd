@@ -29,5 +29,4 @@ p1 <- subject_bands \%>\%
  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
  theme_bw()
 p1
-
 }

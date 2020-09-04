@@ -93,7 +93,7 @@ arma::mat get_posterior_predictive_bands2(List mod, arma::vec quantiles){
 }
 
 // [[Rcpp::export]]
-Rcpp::List get_posterior_predictive_bands_cpp(List mcmc_output,
+Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
                                            double alpha){
   Rcpp::List samples = mcmc_output["samples"];
   Rcpp::List data = mcmc_output["data"];
@@ -114,6 +114,7 @@ Rcpp::List get_posterior_predictive_bands_cpp(List mcmc_output,
   arma::running_stat_vec<arma::vec> stats;
   arma::mat m_alpha(num_subjects, iterations - burnin);
   arma::mat current_lower_dim_fit;
+
   arma::vec response_vectorized = arma::vectorise(arma::trans(response));
   for (arma::uword iter = burnin; iter < iterations; iter++) {
     current_lower_dim_fit = beta.slice(iter) * design_mean.t();
@@ -152,6 +153,7 @@ Rcpp::List get_posterior_predictive_bands_cpp(List mcmc_output,
   return(posterior_bands);
 }
 
+// [[Rcpp::export]]
 arma::mat get_posterior_means_cpp(List mcmc_results, arma::vec xi, double alpha){
   Rcpp::List data = mcmc_results["data"];
   Rcpp::List samples = mcmc_results["samples"];
@@ -272,7 +274,7 @@ arma::mat arma_cov2cor(arma::mat V){
 }
 
 
-
+// [[Rcpp::export]]
 List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
                           arma::uword eigenvals,
                           arma::vec zi, double alpha = 0.05){

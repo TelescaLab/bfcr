@@ -63,8 +63,8 @@ response <- t(matrix(sleep_data_filtered$psd,
                    ncol = num_subjects))
 
 k <- 15
-iter <- 10000
-burnin <- 100
+iter <- 25000
+burnin <- 10000
 nchains <- 1
 thin <- 1
 loglik <- 0
@@ -90,8 +90,8 @@ ei
 
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, c(1))
-eigen_bands <- get_posterior_eigen2(mcmc_results, 3, c(1), c(1))
-subj <- 80
+eigen_bands <- get_posterior_eigen(mcmc_results, 3, c(1))
+subj <- 81
 p1 <- subject_bands %>% 
   filter(id == subj) %>%
   ggplot() +

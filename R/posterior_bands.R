@@ -17,7 +17,6 @@
 #'  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
 #'  theme_bw()
 #' p1
-#' 
 get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05) {
   subject_summaries <- 
     get_posterior_subject_bands_cpp(mcmc_output, alpha_level)
@@ -94,6 +93,5 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
 #' \code{raw_magnitude} 1-alpha credible interval for total variance
 #' @export get_posterior_eigen
 get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05) {
-  print("hello!")
   get_posterior_eigen_cpp(mcmc_results, eigenvals, zi, alpha_level)
 }
