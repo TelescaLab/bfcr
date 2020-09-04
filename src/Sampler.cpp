@@ -31,6 +31,8 @@ void SamplerUnequal::sample_parameters() {
       pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);
       pars.update_tausq(dat, transf);
+      pars.update_a1(dat);
+      pars.update_a2(dat);
       pars.varphi = pars.psi;
       transf.complete_response(dat, pars);
     }
@@ -58,6 +60,8 @@ void SamplerPooled::sample_parameters() {
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
       pars.update_varphi(dat, transf); 
+      pars.update_a1(dat);
+      pars.update_a2(dat);
       transf.complete_response(dat, pars);
     }
     progress_bar.increment();
@@ -76,6 +80,8 @@ void SamplerUnequal::write_parameters() {
   pars.tau2_container.slice(pars.iteration) = pars.tau2;
   pars.delta_container.slice(pars.iteration) = pars.delta;
   pars.tausq_container(pars.iteration) = pars.tausq;
+  pars.a1_container.col(pars.iteration) = pars.a1_;
+  pars.a2_container.col(pars.iteration) = pars.a2_;
   pars.iteration++;
 }
 
@@ -87,6 +93,8 @@ void SamplerPooled::write_parameters() {
   pars.tau1_container.col(pars.iteration) = pars.tau1;
   pars.tau2_container.slice(pars.iteration) = pars.tau2;
   pars.delta_container.slice(pars.iteration) = pars.delta;
+  pars.a1_container.col(pars.iteration) = pars.a1_;
+  pars.a2_container.col(pars.iteration) = pars.a2_;
   pars.iteration++;
 }
 
@@ -99,7 +107,9 @@ Rcpp::List SamplerUnequal::get_samples() {
                             Rcpp::Named("tau2", pars.tau2_container),
                             Rcpp::Named("phi", pars.phi_container),
                             Rcpp::Named("delta", pars.delta_container),
-                            Rcpp::Named("tausq", pars.tausq_container)));
+                            Rcpp::Named("tausq", pars.tausq_container),
+                            Rcpp::Named("a1", pars.a1_container),
+                            Rcpp::Named("a2", pars.a2_container)));
 }
 
 Rcpp::List SamplerPooled::get_samples() {
@@ -110,5 +120,7 @@ Rcpp::List SamplerPooled::get_samples() {
                             Rcpp::Named("tau1", pars.tau1_container),
                             Rcpp::Named("tau2", pars.tau2_container),
                             Rcpp::Named("phi", pars.phi_container),
-                            Rcpp::Named("delta", pars.delta_container)));
+                            Rcpp::Named("delta", pars.delta_container),
+                            Rcpp::Named("a1", pars.a1_container),
+                            Rcpp::Named("a2", pars.a2_container)));
 }

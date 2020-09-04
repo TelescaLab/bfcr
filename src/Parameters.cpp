@@ -12,6 +12,10 @@ Parameters::Parameters(Data& dat) {
   tau2 = arma::mat(dat.penalties_var.n_elem, dat.kdim, arma::fill::zeros);
   phi = arma::cube(dat.basis_dim, dat.d2, dat.kdim, arma::fill::ones);
   delta = arma::mat(dat.penalties_var.n_elem, dat.kdim, arma::fill::ones);
+  a1_ = arma::vec(dat.indices_var.n_elem, arma::fill::ones);
+  a2_ = arma::vec(dat.indices_var.n_elem, arma::fill::ones);
+  a1 = 2;
+  a2 = 2;
   beta_container = arma::cube(dat.basis_dim, dat.d1, dat.iter);
   lambda_container = arma::field<arma::cube>(dat.iter);
   eta_container = arma::cube(dat.n, dat.kdim, dat.iter);
@@ -21,6 +25,8 @@ Parameters::Parameters(Data& dat) {
   phi_container = arma::field<arma::cube>(dat.iter);
   delta_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
   tausq_container = arma::vec(dat.iter);
+  a1_container = arma::mat(dat.indices_var.n_elem, dat.iter);
+  a2_container = arma::mat(dat.indices_var.n_elem, dat.iter);
 }
 
 void Parameters::update_beta(Data& dat, Transformations& transf) {
@@ -216,11 +222,11 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
       update_b = delta_b + .5 * arma::as_scalar(arma::accu(
         transf.delta_cumprod % transf.phi_lambda_sum.row(i).t()));
       if (k == 0) {
-        update_a = delta_a1 + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
+        update_a = a1_(i) + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
         
         delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
       } else {
-        update_a = delta_a2 + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
+        update_a = a2_(i) + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
         
         delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
         
@@ -258,6 +264,37 @@ void Parameters::update_alpha(Data& dat, Transformations& transf) {
   alpha = R::rgamma(update_a, 1 / update_b);
 }
 
+void Parameters::update_a1(Data& dat) {
+  for (arma::uword i = 0; i < dat.indices_var.n_elem; i++) {
+    double proposal = get_proposal(a1_(i));
+    double log_ratio = 
+      R::dgamma(delta.row(i)(0), proposal, 1, 1) +
+      R::dgamma(proposal, a1_a, 1, 1) +
+      R::pnorm(a1_(i), 0, 1, 1, 1) -
+      R::dgamma(delta.row(i)(0), a1_(i), 1, 1) -
+      R::dgamma(a1_(i), a1_a, 1, 1) -
+      R::pnorm(proposal, 0, 1, 1, 1);
+    if (R::runif(0.0, 1.0) < exp(log_ratio)) a1_(i) = proposal;
+  }
+}
+
+
+void Parameters::update_a2(Data& dat) {
+  for (arma::uword i = 0; i < dat.indices_var.n_elem; i++) {
+    double proposal = get_proposal(a2_(i));
+    Rcpp::NumericVector delta_tail = 
+      Rcpp::wrap(delta.row(i).tail(dat.kdim - 1));
+    double log_ratio = 
+      Rcpp::sum(Rcpp::dgamma(delta_tail, proposal, 1, 1)) +
+      R::dgamma(proposal, a2_a, 1, 1) +
+      R::pnorm(a2_(i), 0.0, 1.0, 1, 1) - 
+      Rcpp::sum(Rcpp::dgamma(delta_tail, a2_(i), 1, 1)) - 
+      R::dgamma(a2_(i), a2_a, 1, 1) +
+      R::pnorm(proposal, 0.0, 1.0, 1, 1);
+    if (R::runif(0, 1) < exp(log_ratio)) a2_(i) = proposal;
+  }
+}
+
 void Parameters::write_parameters() {
   beta_container.slice(iteration) = beta;
   lambda_container(iteration) = lambda;
@@ -267,6 +304,8 @@ void Parameters::write_parameters() {
   tau2_container.slice(iteration) = tau2;
   phi_container(iteration) = phi;
   delta_container.slice(iteration) = delta;
+  a1_container.col(iteration) = a1_;
+  a2_container.col(iteration) = a2_;
   iteration = iteration + 1;
 }
 

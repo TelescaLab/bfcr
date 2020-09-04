@@ -395,9 +395,9 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
   arma::mat mean_cov = basis * 
     arma::reshape(stats_cov.mean(), basis_dim, basis_dim) * 
     basis.t();
-  return(List::create(Named("lower", lower),
-                      Named("mean", mean),
-                      Named("upper", upper),
+  return(List::create(Named("lower_eigen", lower),
+                      Named("mean_eigen", mean),
+                      Named("upper_eigen", upper),
                       Named("eigenval_intervals", eigenval_intervals),
                       Named("eigenval_pve_intervals", eigenval_pve_intervals),
                       Named("surface", mean_cov),

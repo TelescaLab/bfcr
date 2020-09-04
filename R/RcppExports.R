@@ -97,6 +97,10 @@ TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_in
     .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
 }
 
+get_proposal <- function(old) {
+    .Call(`_BayesianConditionalFPCA_get_proposal`, old)
+}
+
 armadillo_modulus2 <- function(indicies, n) {
     .Call(`_BayesianConditionalFPCA_armadillo_modulus2`, indicies, n)
 }
@@ -141,11 +145,11 @@ PredictY2 <- function(ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec) {
     invisible(.Call(`_BayesianConditionalFPCA_PredictY2`, ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec))
 }
 
-Proposal <- function(Theta, Lambda, noise = .1, samples = 200L) {
+Proposal <- function(Theta, Lambda, noise, samples) {
     .Call(`_BayesianConditionalFPCA_Proposal`, Theta, Lambda, noise, samples)
 }
 
-cpploglik_bayes <- function(Theta, Lambda, precision, Phi, X, B, Y, cores = 1L) {
+cpploglik_bayes <- function(Theta, Lambda, precision, Phi, X, B, Y, cores) {
     .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, Phi, X, B, Y, cores)
 }
 

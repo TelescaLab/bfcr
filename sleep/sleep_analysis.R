@@ -2,6 +2,7 @@ library(BayesianConditionalFPCA)
 library(tidyverse)
 library(mgcv)
 library(spam)
+library(plotly)
 library(microbenchmark)
 
 load(paste0("/Users/johnshamshoian/Documents/R_projects/", 
@@ -62,9 +63,9 @@ response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
 
-k <- 15
-iter <- 25000
-burnin <- 10000
+k <- 30
+iter <- 15000
+burnin <- 5000
 nchains <- 1
 thin <- 1
 loglik <- 0
@@ -76,120 +77,49 @@ mcmc_results <- run_mcmc(response, design_mean,
                   k, iter, burnin, thin = 1,
                   var = "unequal")
 
-cov <- matrix(0, 480, 480)
-for (i in 5001:10000) {
-  reduced_cov <- matrix(0, 48, 48)
-  for (kp in 1:k) {
-    reduced_cov <- reduced_cov + tcrossprod(mcmc_results$samples$lambda[[i]][,,kp])
-  } 
-  cov <- cov + epoch_basis %*% reduced_cov %*% t(epoch_basis)
-}
-cov <- cov / 5000
-
-ei
 
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, c(1))
-eigen_bands <- get_posterior_eigen(mcmc_results, 3, c(1))
-subj <- 81
-p1 <- subject_bands %>% 
-  filter(id == subj) %>%
+eigen_bands <- get_posterior_eigen(mcmc_results, 6, c(1))
+subj <- c(1, 10, 20, 30)
+subject_bands %>% 
+  filter(id %in% subj) %>%
   ggplot() +
-  geom_point(aes(x = time, y = response)) +
-  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
-  theme_bw()
-p1
-
-p2 <- subject_bands %>%
-  filter(id == 1, label == "subject_mean") %>%
-  ggplot(aes(time, value)) +
-  geom_line() +
-  theme_bw()
-p2 <- subject_bands %>%
-  filter(id == 1, label == "subject_mean") %>%
-  select(value)
-subject_bands %>%
-  filter(id == 1) %>%
-  ggplot() +
-  geom_point(aes(y = value[label == "actual"]))
-
-iter_2 <- 1000
-subj <- 1
-interval <- 1:480
-plot(response[subj,][interval])
-for(iter_s in 1000:iter_2) {
-  myfit <- epoch_basis %*% results$samples$beta[,,iter] %*% design_mean[subj,]
-  myfit_reduced <- results$samples$beta[,,iter] %*% t(design_mean[subj,])
-  
-  # fit_beta <- epoch_basis %*% results$fit_beta
-  for(kp in 1:k) {
-    myfit <- myfit + results$samples$eta[subj, kp, iter_s] * epoch_basis %*% results$samples$lambda[[iter_s]][,,kp] %*% design_var[subj,]
-    myfit_reduced <- myfit_reduced + results$samples$eta[subj, kp, iter_s] * results$samples$lambda[[iter_s]][,,kp] %*% t(design_var[subj,])
-    
-  }
-  
-  lines(myfit[interval], col = "red")
-}
-
-
-
-
-
-
-posterior_intervals <- get_posterior_predictive_bands2(mcmc_results, c(.025, .5, .975))
-colnames(posterior_intervals) <- c("ID", "Time", "Y", "Lower_P", "Median_P", "Upper_P", "Lower_M", "Median_M", "Upper_M")
-posterior_intervals <- as_tibble(posterior_intervals)
-# posterior_intervals %>%
-#   filter(ID == sub) %>%
-#   ggplot(aes(x = Time, y = Y_no_error)) +
-#   geom_point(na.rm = TRUE) +
-#   geom_ribbon(aes(ymin = Lower_M, ymax = Upper_M), alpha = 0.3) +
-#   theme_bw()
-posterior_intervals %>%
-  filter(ID == 10) %>%
-  ggplot(aes(x = Time, y = Y)) +
-  geom_point(na.rm = TRUE) +
-  geom_line(aes(y = Median_M)) +
-  geom_ribbon(aes(ymin = Lower_M, ymax = Upper_M), alpha = 0.3) +
+  geom_point(aes(x = time, y = response), alpha = .5) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
+  facet_wrap(. ~ id) +
   theme_bw()
 
-xi <- c(1)
-alpha <- .05
-means <- get_posterior_means(mcmc_results, xi, alpha)
-plot(means[,2], type = "l")
-lines(means[,1])
-lines(means[,3])
+number.labs <- paste0("Eigenfunction ", 1:6, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
+                      " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
+                      100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
+names(number.labs) <- c("1":6)
+eigen_bands$eigenfunctions %>%
+  ggplot(aes(x=time)) +
+  facet_wrap(. ~ number, labeller = labeller(number = number.labs)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Value") +
+  theme_bw()
 
-x <- MASS::mvrnorm(50, mu = rep(0, basis_df), Sigma = solve(10*penalty + .1*diag(basis_df)))
-matplot(epoch_basis %*% t(x), type = "l")
+plot_ly() %>%
+  add_surface(z =~ eigen_bands$surface)
 
-MASS::mvrnorm(1, mu = rep(0,48), Sigma = 
-                solve(results$tau2[1,10000] * var_penalty[[1]] +
-                        results$phi_delta[,,1]))
-
-curr_k <- 3
-prior_precision <- results$tau2[1,curr_k,5000] * var_penalty[[1]] +
-  results$phi_delta[,,curr_k]
-precision <- kronecker(t(design_var) %*% diag(results$eta[,curr_k,10000]) %*%
-                         diag(results$varphi[,10000]) %*% diag(results$eta[,curr_k,10000]) %*%
-                         design_var, t(epoch_basis) %*% epoch_basis)
-posterior_precision <- prior_precision + precision
-MASS::mvrnorm(1, mu = rep(0, 48), Sigma = solve(posterior_precision))
-
-tau_a <- 1
-tau_b <- .0005
-update_b <- 0
-update_a <- 0
-for (curr_k in 1:k) {
-  update_a <- update_a + dim(results$lambda[[10000]])[1]
-  update_b <- update_b + results$lambda[[10000]][,,curr_k] %*% 
-    var_penalty[[1]] %*% 
-    results$lambda[[10000]][,,curr_k]
-}
-post_a <- tau_a + update_a
-post_b <- 1 / (tau_b + update_b)
+mean_bands %>% 
+  ggplot(mapping = aes(time)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Relative delta power spectral density") +
+  theme_bw()
 
 
-### Check if lambda[,,,1] is still tiny compared to lambda[,,10] with no shrinkage
-### Shrinkage isn't doing anything when smoothing is in effect
-results$lambda[[10000]][,,10]
+
+
+
+z <- 1000
+tau <- 100000000
+prior_precision <- tau * penalty + z * diag(48)
+mycov <- solve(prior_precision)
+x <- MASS::mvrnorm(100, mu = rep(0, 48), Sigma = mycov)
+round(mycov[1:10,1:10],2)
+matplot(t(x), type = "l")

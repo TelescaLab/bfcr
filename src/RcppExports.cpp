@@ -400,6 +400,17 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_proposal
+double get_proposal(double old);
+RcppExport SEXP _BayesianConditionalFPCA_get_proposal(SEXP oldSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< double >::type old(oldSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_proposal(old));
+    return rcpp_result_gen;
+END_RCPP
+}
 // armadillo_modulus2
 arma::uvec armadillo_modulus2(arma::uvec indicies, arma::uword n);
 RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus2(SEXP indiciesSEXP, SEXP nSEXP) {
@@ -1228,6 +1239,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_MCMC_Tempered", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Tempered, 12},
     {"_BayesianConditionalFPCA_MCMC_Wrapper", (DL_FUNC) &_BayesianConditionalFPCA_MCMC_Wrapper, 10},
     {"_BayesianConditionalFPCA_TemperedMCMC", (DL_FUNC) &_BayesianConditionalFPCA_TemperedMCMC, 11},
+    {"_BayesianConditionalFPCA_get_proposal", (DL_FUNC) &_BayesianConditionalFPCA_get_proposal, 1},
     {"_BayesianConditionalFPCA_armadillo_modulus2", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus2, 2},
     {"_BayesianConditionalFPCA_armadillo_modulus3", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus3, 2},
     {"_BayesianConditionalFPCA_get_omnibus_fit", (DL_FUNC) &_BayesianConditionalFPCA_get_omnibus_fit, 1},

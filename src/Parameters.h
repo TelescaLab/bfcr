@@ -4,7 +4,7 @@
 #include <RcppArmadillo.h>
 #include "Data.h"
 #include "Transformations.h"
-
+#include "Utils.h"
 class Transformations;
 
 class Parameters {
@@ -34,6 +34,8 @@ public:
   void update_psi(Data&, Transformations&);
   void update_tausq(Data&, Transformations&);
   void update_alpha(Data&, Transformations&);
+  void update_a1(Data&);
+  void update_a2(Data&);
   void write_parameters();
   double varphi_a = .001;
   double varphi_b = .001;
@@ -45,6 +47,10 @@ public:
   double delta_a2 = 2;
   double delta_b = 1;
   double nu = 5;
+  double a1, a2;
+  arma::vec a1_, a2_;
+  double a1_a = 2, a2_a = 2;
+  arma::mat a1_container, a2_container;
   arma::cube beta_container;
   arma::field<arma::cube> lambda_container;
   arma::cube eta_container;

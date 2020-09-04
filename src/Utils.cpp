@@ -1,10 +1,19 @@
-#include <RcppArmadillo.h>
+#include "Utils.h"
 #ifdef _OPENMP
  #include <omp.h>
 #endif
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
 
+// [[Rcpp::export]]
+double get_proposal(double old) {
+  double proposal;
+  while(true) {
+    proposal = old + R::rnorm(0, 1);
+    if (proposal > 0) break;
+  }
+  return proposal;
+}
 // [[Rcpp::export]]
 arma::uvec armadillo_modulus2(arma::uvec indicies, arma::uword n){
   return(indicies - n * arma::floor(indicies / n));
@@ -201,7 +210,7 @@ arma::uvec test(arma::field<arma::vec> observedTimes, arma::vec fullTimes){
 
 // Propose a new column of Theta and new columns of Lambda 
 // [[Rcpp::export]]
-Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise = .1, arma::uword samples = 200){
+Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise, arma::uword samples){
   arma::mat Y = arma::mvnrnd(Theta, Lambda * Lambda.t() + noise * arma::eye(Lambda.n_rows, Lambda.n_rows), samples);
   arma::mat coeff;
   arma::mat score;
@@ -213,7 +222,7 @@ Rcpp::List Proposal(arma::vec Theta, arma::mat Lambda, double noise = .1, arma::
 
 // [[Rcpp::export]]
 double cpploglik_bayes(arma::mat &Theta, arma::cube &Lambda, double precision, arma::vec& Phi,
-                 arma::mat &X, arma::mat &B, arma::mat &Y, int cores = 1){
+                 arma::mat &X, arma::mat &B, arma::mat &Y, int cores){
   arma::uword K = Lambda.n_slices;
   arma::uword n = Y.n_rows;
   arma::uword tmax = Y.n_cols;

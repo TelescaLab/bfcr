@@ -93,5 +93,18 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
 #' \code{raw_magnitude} 1-alpha credible interval for total variance
 #' @export get_posterior_eigen
 get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05) {
-  get_posterior_eigen_cpp(mcmc_results, eigenvals, zi, alpha_level)
+  post_eigen <- get_posterior_eigen_cpp(mcmc_results, eigenvals, zi, alpha_level)
+  eigenfunctions <- tibble(mean = c(post_eigen$mean_eigen),
+                           lower = c(post_eigen$lower_eigen),
+                           upper = c(post_eigen$upper_eigen),
+                           number = rep(factor(1:eigenvals),
+                                        each = length(post_eigen$time)),
+                           time = rep(post_eigen$time, eigenvals))
+  return(list(eigenfunctions = eigenfunctions,
+         eigenvalues = post_eigen$eigenval_intervals,
+         prop_var_explained = post_eigen$eigenval_pve_intervals,
+         surface = post_eigen$surface,
+         magnitude = post_eigen$magnitude,
+         raw_magnitude = post_eigen$raw_magnitude,
+         time = post_eigen$time))
 }
