@@ -2,6 +2,7 @@
 Rcpp::List Data::write_data() {
   return(Rcpp::List::create(Rcpp::Named("response", response),
                             Rcpp::Named("basis", basis),
+                            Rcpp::Named("time", time),
                             Rcpp::Named("latent_dimension", kdim),
                             Rcpp::Named("missing_subjects", missing_sub),
                             Rcpp::Named("missing_time", missing_time),
@@ -11,6 +12,7 @@ Rcpp::List Data::write_data() {
 
 Data::Data(arma::mat& response, arma::mat& design_mean,
            arma::mat& design_var, arma::mat& basis,
+           arma::vec& time,
            arma::field<arma::mat>& penalties_mean, 
            arma::field<arma::mat>& penalties_var,
            arma::uvec& indices_mean, arma::uvec& indices_var,
@@ -24,6 +26,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   this->design_mean = design_mean;
   this->design_var = design_var;
   this->basis = basis;
+  this->time = time;
   this->penalties_mean = penalties_mean;
   this->penalties_var = penalties_var;
   this->indices_mean = indices_mean;

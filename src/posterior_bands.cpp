@@ -93,8 +93,8 @@ arma::mat get_posterior_predictive_bands2(List mod, arma::vec quantiles){
 }
 
 // [[Rcpp::export]]
-void get_posterior_predictive_bands69(List mcmc_output,
-                                           arma::vec quantiles){
+Rcpp::List get_posterior_predictive_bands69(List mcmc_output,
+                                           double alpha){
   Rcpp::List samples = mcmc_output["samples"];
   Rcpp::List data = mcmc_output["data"];
   Rcpp::List control = mcmc_output["control"];
@@ -102,55 +102,55 @@ void get_posterior_predictive_bands69(List mcmc_output,
   arma::mat varphi = samples["varphi"];
   arma::field<arma::cube> lambda = samples["lambda"];
   arma::cube eta = samples["eta"];
+  arma::uword kdim = data["latent_dimension"];
   arma::mat basis = data["basis"];
+  arma::uword basis_dim = basis.n_cols;
   arma::mat response = data["response"];
   arma::mat design_mean = data["design_mean"];
   arma::mat design_var = data["design_var"];
-  arma::uword iter = control["iterations"];
+  arma::uword iterations = control["iterations"];
+  arma::uword burnin = control["burnin"];
   arma::uword num_subjects = response.n_rows;
   arma::uword num_time_points = basis.n_rows;
+  arma::running_stat_vec<arma::vec> stats;
+  arma::mat m_alpha(num_subjects, iterations - burnin);
+  arma::mat current_lower_dim_fit;
   arma::vec response_vectorized = arma::vectorise(arma::trans(response));
-  
-  
-  /*
-  arma::vec Yvec = arma::vectorise(arma::trans(Ymat));
-  arma::uword nchains = arma::size(BetaF)(0);
-  arma::uword iter = BetaF(0).n_slices;
-  arma::uword subjects = Ymat.n_rows;
-  arma::uword time_points = B.n_rows;
-  arma::vec ID(subjects * time_points);
-  arma::vec time(subjects * time_points);
-  arma::mat predictions(subjects * time_points, iter * nchains);
-  arma::mat means(subjects * time_points, iter * nchains);
-  arma::mat predictions_quant(subjects * time_points, arma::size(quantiles)(0));
-  arma::mat means_quant(subjects * time_points, arma::size(quantiles)(0));
-  arma::mat fit;
-  
-  for(arma::uword u = 0; u < nchains; u++){
-    for(arma::uword i = 0; i < iter; i++){
-      fit = X * BetaF(u, 0, 0).slice(i).t() * B.t();
-      for(arma::uword k = 0; k < LambdaF(0, 0, 0).n_slices; k++){
-        fit = fit + arma::diagmat(EtaF(u, 0, 0).slice(i).col(k)) * Z * LambdaF(u * iter + i, 0, 0).slice(k).t() * B.t();
-      }
-      means.col(u * iter + i) = arma::vectorise(fit.t());
-      for(arma::uword s = 0; s < subjects; s++){
-        
-        predictions.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) = 
-          means.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) + arma::randn<arma::vec>(time_points) * std::pow(PrecF(u,0,0)(s, i), -1.0 / 2.0);
-      }
+  for (arma::uword iter = burnin; iter < iterations; iter++) {
+    current_lower_dim_fit = beta.slice(iter) * design_mean.t();
+    for (arma::uword k = 0; k < kdim; k++) {
+      current_lower_dim_fit = current_lower_dim_fit + 
+        lambda(iter).slice(k) * design_var.t() * 
+        arma::diagmat(eta.slice(iter).col(k));
     }
+    stats(arma::vectorise(current_lower_dim_fit));
   }
-  for(arma::uword s = 0; s < subjects; s++){
-    for(arma::uword t = 0; t < time_points; t++){
-      means_quant.row(s * time_points + t) = arma::quantile(means.row(s * time_points + t), quantiles);
-      predictions_quant.row(s * time_points + t) = arma::quantile(predictions.row(s * time_points + t), quantiles);
-      time(s * time_points + t) = t;
-      ID(s * time_points + t) = s;
+  arma::mat mean_lower_dim = arma::reshape(stats.mean(), basis_dim, num_subjects);
+  arma::mat sd_lower_dim = arma::reshape(stats.stddev(), basis_dim, num_subjects);
+  arma::uword counter = 0;
+  for (arma::uword iter = burnin; iter < iterations; iter++) {
+    current_lower_dim_fit = beta.slice(iter) * design_mean.t();
+    for (arma::uword k = 0; k < kdim; k++) {
+      current_lower_dim_fit = current_lower_dim_fit + 
+        lambda(iter).slice(k) * design_var.t() * 
+        arma::diagmat(eta.slice(iter).col(k));
     }
+    m_alpha.col(counter) =
+      arma::max(arma::abs(current_lower_dim_fit - mean_lower_dim) /
+      sd_lower_dim, 0).t();
+    counter++;
   }
-  
-  return(arma::join_rows(arma::join_rows(ID, time), Yvec, predictions_quant, means_quant));
-   */
+  arma::vec alpha_vec = {1-alpha};
+  arma::vec m_star = arma::quantile(m_alpha, alpha_vec, 1);
+  arma::mat mean_overall = basis * mean_lower_dim;
+  arma::mat lower = mean_overall - basis * sd_lower_dim * arma::diagmat(m_star);
+  arma::mat upper = mean_overall + basis * sd_lower_dim * arma::diagmat(m_star);
+  Rcpp::List posterior_bands = 
+    Rcpp::List::create(Rcpp::Named("subject_means", mean_overall),
+                       Rcpp::Named("subject_lower", lower),
+                       Rcpp::Named("subject_upper", upper),
+                       Rcpp::Named("current_lower_dim_fit", current_lower_dim_fit));
+  return(posterior_bands);
 }
 
 // [[Rcpp::export]]

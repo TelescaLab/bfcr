@@ -63,31 +63,44 @@ response <- t(matrix(sleep_data_filtered$psd,
                    ncol = num_subjects))
 
 k <- 15
-iter <- 100
+iter <- 1000
 burnin <- 100
 nchains <- 1
 thin <- 1
 loglik <- 0
-results <- test_this(response, design_mean,
-                     design_var, epoch_basis, 
-                     mean_penalty, var_penalty,
-                     mean_indices, var_indices,
-                     k, iter, thin = 1, var = "pooled")
-results <- run_mcmc(response, design_mean,
+mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis, 
+                  epoch_grid,
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
-                  k, iter, thin = 1, var = "unequal")
+                  k, iter, burnin, thin = 1,
+                  var = "unequal")
 
-iter_2 <- 10000
-subj <- 70
-interval <- 300:480
+subject_bands <- get_posterior_subject_bands(mcmc_results)
+p1 <- subject_bands %>% 
+  filter(id == 1, label == "actual") %>%
+  select(value)
+p2 <- subject_bands %>%
+  filter(id == 1, label == "subject_mean") %>%
+  select(value)
+subject_bands %>%
+  filter(id == 1) %>%
+  ggplot() +
+  geom_point(aes(y = value[label == "actual"]))
+
+iter_2 <- 1000
+subj <- 1
+interval <- 1:480
 plot(response[subj,][interval])
-for(iter_s in 7500:iter_2) {
-  myfit <- epoch_basis %*% results$beta[,,iter] %*% design_mean[subj,]
+for(iter_s in 1000:iter_2) {
+  myfit <- epoch_basis %*% results$samples$beta[,,iter] %*% design_mean[subj,]
+  myfit_reduced <- results$samples$beta[,,iter] %*% t(design_mean[subj,])
+  
   # fit_beta <- epoch_basis %*% results$fit_beta
   for(kp in 1:k) {
-    myfit <- myfit + results$eta[subj, kp, iter_s] * epoch_basis %*% results$lambda[[iter_s]][,,kp] %*% design_var[subj,]
+    myfit <- myfit + results$samples$eta[subj, kp, iter_s] * epoch_basis %*% results$samples$lambda[[iter_s]][,,kp] %*% design_var[subj,]
+    myfit_reduced <- myfit_reduced + results$samples$eta[subj, kp, iter_s] * results$samples$lambda[[iter_s]][,,kp] %*% t(design_var[subj,])
+    
   }
   
   lines(myfit[interval], col = "red")
