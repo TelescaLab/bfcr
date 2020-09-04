@@ -63,7 +63,7 @@ response <- t(matrix(sleep_data_filtered$psd,
                    ncol = num_subjects))
 
 k <- 15
-iter <- 1000
+iter <- 10000
 burnin <- 100
 nchains <- 1
 thin <- 1
@@ -76,8 +76,21 @@ mcmc_results <- run_mcmc(response, design_mean,
                   k, iter, burnin, thin = 1,
                   var = "unequal")
 
+cov <- matrix(0, 480, 480)
+for (i in 5001:10000) {
+  reduced_cov <- matrix(0, 48, 48)
+  for (kp in 1:k) {
+    reduced_cov <- reduced_cov + tcrossprod(mcmc_results$samples$lambda[[i]][,,kp])
+  } 
+  cov <- cov + epoch_basis %*% reduced_cov %*% t(epoch_basis)
+}
+cov <- cov / 5000
+
+ei
 
 subject_bands <- get_posterior_subject_bands(mcmc_results)
+mean_bands <- get_posterior_means(mcmc_results, c(1))
+eigen_bands <- get_posterior_eigen2(mcmc_results, 3, c(1), c(1))
 subj <- 80
 p1 <- subject_bands %>% 
   filter(id == subj) %>%

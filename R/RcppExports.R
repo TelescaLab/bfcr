@@ -161,68 +161,16 @@ get_posterior_predictive_bands2 <- function(mod, quantiles) {
     .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands2`, mod, quantiles)
 }
 
-get_posterior_predictive_bands69 <- function(mcmc_output, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands69`, mcmc_output, alpha)
-}
-
-get_posterior_means <- function(mod, xi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
+get_posterior_predictive_bands_cpp <- function(mcmc_output, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands_cpp`, mcmc_output, alpha)
 }
 
 get_posterior_coefs <- function(mod, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_coefs`, mod, alpha)
 }
 
-extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
-    .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
-}
-
-get_posterior_eigen <- function(mod, eigenvals, zi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen`, mod, eigenvals, zi, alpha)
-}
-
-extract_eigenfn2 <- function(Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
-    .Call(`_BayesianConditionalFPCA_extract_eigenfn2`, Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
-}
-
 arma_cov2cor <- function(V) {
     .Call(`_BayesianConditionalFPCA_arma_cov2cor`, V)
-}
-
-#' Posterior inference for covariate-adjusted covariance function
-#' 
-#' @param mod mcmc object
-#' @param eigenvals Number of eigenvalues to keep
-#' @param zi Covariate vector of interest
-#' @param alpha Type I error rate
-#' @details Generates posterior inference for covariate adjusted
-#'  eigenfunctions, surfaces, and magnitudes
-#' @return
-#' An R list containing the following elements 
-#' 
-#' \code{lower} A matrix containing the lower bound of the simultaneous 
-#' credible band of eigenfunctions  
-#' 
-#' \code{mean} A matrix containing the posterior mean of eigenfunctions  
-#' 
-#' \code{upper} A matrix containing the upper bound of the simultaneous 
-#' credible band of eigenfunctions  
-#' 
-#' \code{eigenval_intervals} A matrix containing a 1-alpha credible interval
-#' for eigenvalues  
-#' 
-#' \code{eigenval_pve_intervals} A matrix containing a 1-alpha credible 
-#' interval for relative eigenvalues  
-#' 
-#' \code{surface} Posterior covariance surface  
-#' 
-#' \code{magnitude} Total variance of the fitted covariance surface across, one
-#' for each sample
-#' 
-#' \code{raw_magnitude} 1-alpha credible interval for total variance
-#' @export
-get_posterior_eigen2 <- function(mod, eigenvals, zi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen2`, mod, eigenvals, zi, alpha)
 }
 
 get_variance_effects <- function(mod, alpha) {

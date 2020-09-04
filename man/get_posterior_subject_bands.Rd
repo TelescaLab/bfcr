@@ -9,7 +9,7 @@ get_posterior_subject_bands(mcmc_output, alpha_level = 0.05)
 \arguments{
 \item{mcmc_output}{Object returned from run_mcmc()}
 
-\item{alpha_level}{Specifies Type I error of credible band calculation}
+\item{alpha_level}{Type I error}
 }
 \value{
 a tibble with columns subject ID, response, mean, lower limit,
