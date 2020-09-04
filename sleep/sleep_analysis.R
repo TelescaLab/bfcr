@@ -76,10 +76,22 @@ mcmc_results <- run_mcmc(response, design_mean,
                   k, iter, burnin, thin = 1,
                   var = "unequal")
 
+
 subject_bands <- get_posterior_subject_bands(mcmc_results)
+subj <- 80
 p1 <- subject_bands %>% 
-  filter(id == 1, label == "actual") %>%
-  select(value)
+  filter(id == subj) %>%
+  ggplot() +
+  geom_point(aes(x = time, y = response)) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
+  theme_bw()
+p1
+
+p2 <- subject_bands %>%
+  filter(id == 1, label == "subject_mean") %>%
+  ggplot(aes(time, value)) +
+  geom_line() +
+  theme_bw()
 p2 <- subject_bands %>%
   filter(id == 1, label == "subject_mean") %>%
   select(value)
