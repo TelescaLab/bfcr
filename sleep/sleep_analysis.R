@@ -12,18 +12,13 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
             "BayesianConditionalFPCA/sleep/tabulated_data/",
             "shhs1-dataset-0.15.0.csv"))
 
+num_epochs <- 480
+id_range <- 200001:200500
+
 sleep_tabulated_filtered <- sleep_tabulated %>%
   select(nsrrid, age_s1)
 sleep_data <- inner_join(sleep_tabulated_filtered, relative_psd)
 
-sleep_data_filtered <- sleep_data %>%
-  group_by(nsrrid) %>%
-  filter(n() >= num_epochs, epoch <= num_epochs, 
-         nsrrid %in% 200001:200100) %>%
-  ungroup()
-
-num_epochs <- 480
-id_range <- 200001:200100
 sleep_data_filtered <- sleep_data %>%
   group_by(nsrrid) %>%
   filter(n() >= num_epochs, epoch <= num_epochs, 
@@ -63,7 +58,7 @@ response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
 
-k <- 30
+k <- 15
 iter <- 15000
 burnin <- 5000
 nchains <- 1

@@ -1,0 +1,235 @@
+\documentclass[useAMS,referee,usenatbib]{biom}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\title[This is an Example of Recto Running Head]{Bayesian Covariate Adjusted Functional Principal Components Analysis}
+
+%  Here are examples of different configurations of author/affiliation
+%  displays.  According to the Biometrics style, in some instances,
+%  the convention is to have superscript *, **, etc footnotes to indicate 
+%  which of multiple email addresses belong to which author.  In this case,
+%  use the \email{ } command to produce the emails in the display.
+
+%  In other cases, such as a single author or two authors from 
+%  different institutions, there should be no footnoting.  Here, use
+%  the \emailx{ } command instead. 
+
+%  The examples below corrspond to almost every possible configuration
+%  of authors and may be used as a guide.  For other configurations, consult
+%  a recent issue of the the journal.
+
+%  Single author -- USE \emailx{ } here so that no asterisk footnoting
+%  for the email address will be produced.
+
+%\author{John Author\emailx{email@address.edu} \\
+%Department of Statistics, University of Warwick, Coventry CV4 7AL, U.K.}
+
+%  Two authors from the same institution, with both emails -- use
+%  \email{ } here to produce the asterisk footnoting for each email address
+
+%\author{John Author$^{*}$\email{author@address.edu} and
+%Kathy Authoress$^{**}$\email{email2@address.edu} \\
+%Department of Statistics, University of Warwick, Coventry CV4 7AL, U.K.}
+
+%  Exactly two authors from different institutions, with both emails  
+%  USE \emailx{ } here so that no asterisk footnoting for the email address
+%  is produced.
+
+\author{John Shamshoian$^{1}$\email{donatello.telesca@ucla.edu}, Damla {\c S}ent{\"u}rk$^{1}$, Shafali Jeste$^{2}$, and Donatello Telesca$^{1,*}$ \\$^{1}$Department of Biostatistics, University of California, Los Angeles, California 90095, U.S.A.\\$^{2}$ Department of Psychiatry and Biobehavioral Sciences, University of California, Los Angeles,\\ California 90095, U.S.A.}
+\title[Bayesian Conditional Functional Principal Components Analysis]{Bayesian Conditional Functional Principal Components Analysis}
+
+
+\begin{document}
+	
+
+\label{firstpage}
+
+%  put the summary for your paper here
+
+\begin{abstract}
+	Many electroencephalography (EEG) studies aim to compare cognitive function between and within diagnostic groups. In our motivating study, resting state EEG data is collected on in a sample of 59 children with autism spectrum disorder and 38 age-matched typically developing (TD) controls. Peak alpha frequency (PAF), the frequency of maximal power within the alpha range (6 - 14 Hz), is a biomarker related to cognitive development and is known to increase with age in TD children. In this article we model alpha spectral power, rather than just the peak location. Patterns of variability of alpha spectral power between children are obscured by factors such as age. In the present work we develop methodology to estimate covariate-adjusted dependency patterns of alpha band oscillations, allowing for valid group level inference.  
+\end{abstract}
+
+%  Please place your key words in alphabetical order, separated
+%  by semicolons, with the first letter of the first word capitalized,
+%  and a period at the end of the list.
+%
+
+\begin{keywords}
+	Functional data analysis; Peak alpha frequency; Autism spectrum disorder; Covariate-adjusted.
+\end{keywords}
+
+%  As usual, the \maketitle command creates the title and author/affiliations
+%  display 
+
+\maketitle
+
+
+\section{Introduction}
+\label{s:intro}
+Autism spectrum disorder (ASD) is a complex neurodevelopmental disorder that affects about 1 in 54 children. ASD is characterized by difficulty in communication, restricted repetitive behaviors, and stereotypical behavior. Low functioning children may have limited behavioral repertoire, necessitating specialized assessment methods. Electroencephalography (EEG) provides a direct measure of postsynaptic brain activity and does not rely on behavioral output from young children with ASD, making EEG based biomarkers appealling for diagnosis, prognosis, and intervention purposes \citep*{Jeste2015}. In this article's motivating study, 59 heterogenous children with ASD and 38 age matched typically developing (TD) children had resting-state EEG signals recorded \citep*{Dickinson2017}. This study focused on alpha waves, which play a role in neural coordination and communication between distributed brain regions.
+
+The study investigated investigated peak alpha frequency (PAF), the frequency at which oscillations in the alpha rhythm [6-14 Hz] achieve maximal power and is known to shift from lower to higher frequencies as TD children age. The study found that children with ASD did not show increasing PAF with age. Furthermore, PAF was strongly correlated with non-verbal cognition. In this article we take a broader view and investigate the entire alpha spectrum as opposed to collapsing this information to a single point. EEG signals were recorded using a 128-channel sensor net at 500 Hz. After post-processing the raw EEG data, each child has 25 regions of interest and alpha spectral power captured from 6 to 14 Hz with .25 Hz increments. We propose to treat this data within a functional data framework, whree each spectral power curve is considered one observation. See \cite{Wang2016} for a broad review on functional data analysis (FDA). 
+
+FDA is a mature body of literature designed to handle high dimensional data with smoothness assumptions. Much attention has been devoted to estimating conditional means in a mixed model framework \citep{Guo2002, Morris2006, Montagna2012}. Less studied is the problem of estimating conditional patterns of variability. \cite{Cardot2007} developed a method to extract conditional patterns of variability for dense functional data and \cite{Jiang2010} extended this procedure to accommodate sparse functional data. These methods lie in the Frequentist framework and rely on bootstrap to perform uncertainty quantification. In addition, both methods do not scale appropriately for more than one covariate or group indicators. We propose a Bayesian covariate-adjusted FPCA model to estimate conditional patterns of variability of alpha spectral power, conditional on age and diagnostic status. Posterior sampling defines a straightforward mechanism for completing inference at the cost of specifying priors on all unknown parameters. The proposed method can accommodate group indicators or several variables due to some linearity assumptions. 
+
+The proposed method is closely related to the notion of regularized covariance estimation. As an early reference for regularized covariance estimation, \citet{Flury1984} developed a method to estimate a common set of principal components across $k$ groups. This concept was generalized by \citet{Franks2019}, who use partial pooling to estimate a set of principal components across $k$ groups. \citet{Fox2015} developed a Bayesian nonparametric method for estimating a time-varying covariance matrix through factor matrix products, where the loading of the factor matrix depending on predictors. However it's unclear how to extend this method in the context of independent functional observations or include discrete covariates such as group indicators. In contrast, \citet{Hoff2012} extends to allow factor loading to depend on continuous or discrete covariates. However, this flexibility requires some linear assumptions, which is in spirit similar to linear regression. See \citet{Li2014} and \citet{Quintero2017} for extensions of this model to the multivariate multilevel case. The model presented in Section \ref{s:model} can be seen as a functional extension of \citet{Hoff2012}, and we will highlight the similarities and differences as we go along. 
+
+The rest of this paper is organized as follows: Section \ref{s:model} gives the generating model for functional data, Section \ref{s:priors} lists prior choices and discusses the reasoning behind them, section \ref{s:posteriors} focuses on inference such as credible intervals for mean functions, Section \ref{s:simulation} gives a thorough simulation study, Section \ref{s:data} showcases the model on the motivating EEG case study, and Section \ref{s:discussion} concludes with a brief discussion. The sampling algorithm and  simulation study information are given in the supplement.
+
+\section{Model}
+\label{s:model}
+In this section we present the model associating patterns of variability and time-stable covariates. Let $y_{i}(t)$ denote the outcome for subject $i$ at point $t \in \mathcal{T}$ for some real compact interval $\mathcal{T}$. Let $\bmath{x} = (x_{1},\ldots,x_{d_{1}})^{\top}$ denote a $d_{1}$-dimensional time-stable covariate for subject $i$, with the dependence on $i$ removed for ease of presentation. The $k$-dimensional data-generating model is 
+\begin{align}
+y_{i}(t) &= \mu(t, x_{1}, \ldots,x_{d_{1}})   + \sum_{j=1}^{k}\psi_{j}(t, x_{1}, \ldots, x_{d_{1}})\eta_{ij} + \epsilon_{i}(t)
+\label{eq:model}
+\end{align}
+where $\mu(t, x_{1},\ldots, x_{d_{1}})$ is the conditional mean, $\psi_{j}(t, x_{1}, \ldots, x_{d_{1}})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. MARGINAL MOMENTS HERE Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression.  
+
+Lending toward conceptually straight-forward prior specifications, we  decompose $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. The complexity of the specific basis expansion will depend on the type of covariates and computational resources. For example, suppose $\bmath{x} = (x_{1})$ is a single continuous covariate. Then $\mu(t, x_{1})$ can be specified by either $\mu(t, x_{1}) = x_{1}\sum_{p=1}^{P}b_{p}(t)\beta_{p}$ or $\mu(t, x_{1}) = \sum_{p_{1}}^{P_{1}}\sum_{p_{2}}^{P_{2}}b_{p_{1}}(t)b_{p_{2}}(x)\beta_{p_{1}p_{2}}$, where $b(\cdot)$ represents marginal bases, $P, P_{1}$, and $P_{2}$ are the dimensions of marginal bases and $\beta$ represents coefficients for the mean structure. Either approach is valid but the tensor formulation is obviously more flexible while incurring a larger computational cost and a more complicated prior for regularization purposes. Continuing this example, $\psi_{j}(t, x_{1})$ can be expanded in a similar manner with $\Lambda_{j}$ denoting the set of latent basis coefficients. 
+
+This model has similarities to functional mixed effects models \citep{Morris2006, Guo2002}. However, in our formulation we design priors to accomodate tensor expansions for greater flexibility. Random components are also drawn  from a covariate-adjusted kernel as opposed to pre-specifying its shape. Estimating the distance metric yields important patterns of variability as is usual in functional principal component analyses. 
+The probabilistic model is completed by specifying distributional on assumptions on $\eta_{ij}$ and $\epsilon_{i}(t)$. We use $\eta_{ij}$
+\begin{equation*}
+\mu(t|\bmath{x_{i}}) =
+ \sum_{d=1}^{d_{1}}\mu_{d}(t)\psi(x_{id}),\;\;\;\phi_{k}(t|\bmath{x_{i}}) = \sum_{d=1}^{D}\phi_{kd}(t)x_{id}
+\end{equation*}
+Furthermore, we expand $\mu_{d}(t)$ and $\phi_{kd}(t)$ in terms of a P-dimensional fixed spline basis. In this paper we use p-splines \citep{Eilers1996}, although other choices are available. Expanding $\mu_{d}(t)$ and $\phi_{kd}(t)$, we have
+\begin{equation*}
+\mu_{d}(t) = \sum_{p=1}^{P}b_{p}(t)\theta_{pd}, \;\;\;\phi_{kd}(t) = \sum_{p=1}^{P}b_{p}(t)\lambda_{kpd}
+\end{equation*}
+where $b_{p}(t)$, $p=1,\ldots,P$, represent fixed basis splines. Let $\Theta$ be a $P\times D$ matrix with entry $(p, d)$ equal to $\theta_{pd}$, let $\Lambda_{k}$ be a $P\times K$ matrix with entry $(p, d)$ equal to $\lambda_{kpd}$, and let $b(t) = (b_{1}(t),\ldots,b_{p}(t))^{\top}$. Then Equation~(\ref{eq:model}) can be rewritten as 
+\begin{equation*}
+y_{i}(t) = b(t)^{\top}\Theta\bmath{x_{i}} + \sum_{k = 1}^{K}b(t)^{\top}\Lambda_{k}\bmath{x_{i}}\eta_{ik} + \epsilon_{i}(t)
+\end{equation*}
+Distributional assumptions must be imposed on $\eta_{ik}$ and $\epsilon_{i}(t)$. In this paper, we simply use $\eta_{ik} \sim N(0,1)$ and $\epsilon_{i}(t) \sim N(0, \sigma^{2})$. Of course, more complex choices are warranted by the application at hand. The model structure and assumptions yields the covariate-dependent mean
+\begin{equation*}
+\mathbb{E}(y_{i}(t)|\bmath{x_{i}}) = b(t)^{\top}\Theta\bmath{x_{i}}
+\end{equation*}
+and covariate-dependent covariance
+\begin{equation}
+\text{cov}(y_{i}(t), y_{i}(t')|\bmath{x_{i}}) =\sum_{k=1}^{K}b(t)^{\top}\Lambda_{k}\bmath{x_{i}}\bmath{x_{i}}^{\top}\Lambda_{k}^{\top}b(t')
+\label{Eq:Cov}
+\end{equation}
+This model can be interpreted as a functional extension to \citet{Hoff2012} via incorporating  basis spline expansions. In contrast to \citet{Hoff2012}, we avoid Wishart priors on the residual error process to increase model identifiability and to reflect our assumptions of the presence of measurement error. This model also shares similarities with functional mixed effects models \citep{Morris2006, Guo2002} in the time-varying linear structure of the mean. However, Equation~(\ref{eq:model}) models the subject to subject variability in a different manner. Instead of using a random intercept or random slope, this model uses a covariate-dependent functional probabilistic principal component analysis decomposition. This decomposition is nonparametric and is suitable when covariance estimation is one of the goals of analysis. 
+
+In contrast to covariance estimation via kernel smoothers \citep{Cardot2007, Jiang2010}, this model uses a quadratic time-varying covariance structure as seen from Equation~(\ref{Eq:Cov}). Although the aforementioned approaches are extremely flexible, they can face serious practical difficulties when the covariate dimension is not miniscule \citep{Montagna2012}. The linear structure approach relieves much of the computational burden. At the same time, the linear structure allows for group covariates, which is essential for the case study presented in this paper.
+\subsection{Prior Distributions}
+\label{s:priors}
+The Bayesian paradigm requires one to specify prior distributions for all unknown quantities. We use smoothing priors in the mean and covariance parameters to prevent overfitting. Let $\Theta_{d}$ and $\Lambda_{kd}$ denote the $d$th column of $\Theta$ and $\Lambda_{k}$ respectively. We assign a Gaussian Markov Random Field prior to $\Theta_{d}$ and $\Lambda_{kd}$ such that
+\begin{equation*}
+\Theta_{d}|\tau_{0d} \propto \exp\bigg(-\frac{\tau_{0d}}{2}\Theta_{d}^{\top}K_{0}\Theta_{d}\bigg),\;\;\;\Lambda_{kd}|\tau_{1d}\propto\exp\bigg(-\frac{\tau_{1d}}{2}\Lambda_{kd}^{\top}K_{0}\Lambda_{kd}\bigg)
+\end{equation*}
+where $K_{0}$ is the first-order difference matrix with $rank(K_{0}) = P-1$. Since $K_{0}$ does not have full rank, these priors are improper. In addition, $\tau_{0d}$ and $\tau_{1d}$ are assigned Gamma priors, so that $\tau_{0d},\tau_{1d}\sim \text{Gamma}(a_{\tau}, b_{\tau})$ with $\mathbb{E}(\tau_{0d}) = a_{\tau}/b_{\tau}$. We set $a_{\tau} = 1$ and $b_{\tau} =.0005$ which has been recommended by \citet{Lang2004}. We place a conventional Inverse-Gamma prior on $\sigma^{2}$, so that $\sigma^{-2} \sim \text{Gamma}(a_{\sigma}, b_{\sigma})$. We set $a_{\sigma},b_{\sigma} = .0001$ to achieve a diffuse yet proper prior on $\sigma^{-2}$.
+
+\subsection{Markov-Chain Monte-Carlo and Posterior Distributions}
+\label{s:posteriors}
+Analytic posterior distributions are intractable, so we rely on Markov-Chain Monte-Carlo techniques to draw samples from all relevant posterior distributions. Since all full conditionals of blocks of parameters are available in closed form, a simple Gibbs sampler updates each parameter block sequentially. See Web Appendix A for all block parameter updating steps.
+
+When the target of inference is a function $f$, as opposed to a single point, we adopt methodology from \citet{Crainiceanu2007} to form simultaneous credible bands. Suppose the domain of $f$ is $[t_{1}, t_{N}]$ and let $t_{1} < \ldots < t_{N}$ be a fine grid of points on this interval. Let $\mathbb{E}\{f(t_{j})\}$ and $\text{SD}\{f(t_{j})\}$ be the pointwise posterior mean and standard deviation of $f(t_{j})$ respectively. Let $\alpha^{*}$ be the $(1-\alpha)$ sample quantile of $\max_{1\leq j \leq N} |f(t_{j}) - \mathbb{E}\{f(t_{j})\}|/\text{SD}\{f(t_{j})\}$. Then $\mathbb{E}\{f(t_{j})\} \pm \alpha^{*} \text{SD}\{f(t_{j})\}, 1\leq j\leq N$ constitute $(1-\alpha)$ simultaneous credible intervals. This simultaneous credible band will be used to evaluate uncertainty in the mean and aspects of the covariance in Section~\ref{s:data}.
+
+\section{Operative Characteristics}
+\label{s:simulation}
+
+Please see the file \texttt{biomsample.tex} for fancy examples of making
+tables.  Here is a very simple one.  Use \texttt{table} for tables
+that are narrow enough to fit in one column of the typeset journl; use
+\texttt{table*} for tables that need to span two columns.  For
+figures, use of \texttt{figure} and \texttt{figure*} is analogous. 
+
+\begin{table}
+	\caption{This is a simple table.}
+	\label{t:one}
+	\begin{center}
+		\begin{tabular}{lrrr}
+			\Hline
+			Estimator & \multicolumn{1}{c}{$\beta_1$} &  \multicolumn{1}{c}{$\beta_2$} & 
+			\multicolumn{1}{c}{$\beta_3$} \\ \hline
+			MLE & 10.18 & $-$3.26 & 0.13 \\
+			OLS & 9.92 & $-$3.19 & 0.11 \\
+			WLS & 9.88 & $-$3.33 & 0.12 \\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+
+\section{Case Study}
+\label{s:data}
+
+\section{Discussion}
+\label{s:discussion}
+
+You can experiment with fancier tables than Table~\ref{t:one}.
+
+We can get bold symbols using \verb+\bmath+, for example, $\bmath{\alpha}_i$.
+
+
+Put your final comments here. 
+
+%  The \backmatter command formats the subsequent headings so that they
+%  are in the journal style.  Please keep this command in your document
+%  in this position, right after the final section of the main part of 
+%  the paper and right before the Acknowledgements, Supporting Information (Supplementary %  Materials),   and References sections. 
+
+\backmatter
+
+%  This section is optional.  Here is where you will want to cite
+%  grants, people who helped with the paper, etc.  But keep it short!
+
+\section*{Acknowledgements}
+
+The authors thank Professor A. Sen for some helpful suggestions,
+Dr C. R. Rangarajan for a critical reading of the original version of the
+paper, and an anonymous referee for very useful comments that improved
+the presentation of the paper.\vspace*{-8pt}
+
+
+
+%  Here, we create the bibliographic entries manually, following the
+%  journal style.  If you use this method or use natbib, PLEASE PAY
+%  CAREFUL ATTENTION TO THE BIBLIOGRAPHIC STYLE IN A RECENT ISSUE OF
+%  THE JOURNAL AND FOLLOW IT!  Failure to follow stylistic conventions
+%  just lengthens the time spend copyediting your paper and hence its
+%  position in the publication queue should it be accepted.
+
+%  We greatly prefer that you incorporate the references for your
+%  article into the body of the article as we have done here 
+%  (you can use natbib or not as you choose) than use BiBTeX,
+%  so that your article is self-contained in one file.
+%  If you do use BiBTeX, please use the .bst file that comes with 
+%  the distribution.  In this case, replace the thebibliography
+%  environment below by 
+%
+%  \bibliographystyle{biom} 
+% \bibliography{mybibilo.bib}
+
+\bibliographystyle{biom}  \bibliography{mybiblio}
+
+
+
+%  If your paper refers to supporting web material, then you MUST
+%  include this section!!  See Instructions for Authors at the journal
+%  website http://www.biometrics.tibs.org
+
+
+\section*{Supporting Information}
+
+Web Appendix A, referenced in Section~\ref{s:posteriors}, is available with
+this paper at the Biometrics website on Wiley Online
+Library.\vspace*{-8pt}
+
+\appendix
+
+%  To get the journal style of heading for an appendix, mimic the following.
+
+\section{}
+\subsection{Title of appendix}
+
+Put your short appendix here.  Remember, longer appendices are
+possible when presented as Supplementary Web Material.  Please 
+review and follow the journal policy for this material, available
+under Instructions for Authors at \texttt{http://www.biometrics.tibs.org}.
+
+\label{lastpage}
+\end{document}
