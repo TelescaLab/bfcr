@@ -1,0 +1,153 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Cardot}{Cardot}{2007}]{Cardot2007}
+Cardot, H. (2007).
+\newblock Conditional functional principal components analysis.
+\newblock {\em Scandinavian journal of statistics} {\bf 34,} 317--335.
+
+\bibitem[\protect\citeauthoryear{Crainiceanu, Ruppert, Carroll, Joshi, and
+  Goodner}{Crainiceanu et~al.}{2007}]{Crainiceanu2007}
+Crainiceanu, C.~M., Ruppert, D., Carroll, R.~J., Joshi, A., and Goodner, B.
+  (2007).
+\newblock Spatially adaptive bayesian penalized splines with heteroscedastic
+  errors.
+\newblock {\em Journal of Computational and Graphical Statistics} {\bf 16,}
+  265--288.
+
+\bibitem[\protect\citeauthoryear{Di, Crainiceanu, Caffo, and Punjabi}{Di
+  et~al.}{2009}]{Di2009}
+Di, C.-Z., Crainiceanu, C.~M., Caffo, B.~S., and Punjabi, N.~M. (2009).
+\newblock Multilevel functional principal component analysis.
+\newblock {\em The annals of applied statistics} {\bf 3,} 458.
+
+\bibitem[\protect\citeauthoryear{Dickinson, DiStefano, Senturk, and
+  Jeste}{Dickinson et~al.}{2018}]{Dickinson2017}
+Dickinson, A., DiStefano, C., Senturk, D., and Jeste, S.~S. (2018).
+\newblock Peak alpha frequency is a neural marker of cognitive function across
+  the autism spectrum.
+\newblock {\em European Journal of Neuroscience} {\bf 47,} 643--651.
+
+\bibitem[\protect\citeauthoryear{Eilers and Marx}{Eilers and
+  Marx}{1996}]{Eilers1996}
+Eilers, P.~H. and Marx, B.~D. (1996).
+\newblock Flexible smoothing with b-splines and penalties.
+\newblock {\em Statistical science} pages 89--102.
+
+\bibitem[\protect\citeauthoryear{Fan and Gijbels}{Fan and
+  Gijbels}{1996}]{Fan1996}
+Fan, J. and Gijbels, I. (1996).
+\newblock {\em Local polynomial modelling and its applications: monographs on
+  statistics and applied probability 66}, volume~66.
+\newblock CRC Press.
+
+\bibitem[\protect\citeauthoryear{Ferraty and Vieu}{Ferraty and
+  Vieu}{2006}]{Ferraty2006}
+Ferraty, F. and Vieu, P. (2006).
+\newblock {\em Nonparametric functional data analysis: theory and practice}.
+\newblock Springer Science \& Business Media.
+
+\bibitem[\protect\citeauthoryear{Flury}{Flury}{1984}]{Flury1984}
+Flury, B.~N. (1984).
+\newblock Common principal components in k groups.
+\newblock {\em Journal of the American Statistical Association} {\bf 79,}
+  892--898.
+
+\bibitem[\protect\citeauthoryear{Fox and Dunson}{Fox and
+  Dunson}{2015}]{Fox2015}
+Fox, E.~B. and Dunson, D.~B. (2015).
+\newblock Bayesian nonparametric covariance regression.
+\newblock {\em The Journal of Machine Learning Research} {\bf 16,} 2501--2542.
+
+\bibitem[\protect\citeauthoryear{Franks and Hoff}{Franks and
+  Hoff}{2019}]{Franks2019}
+Franks, A.~M. and Hoff, P. (2019).
+\newblock Shared subspace models for multi-group covariance estimation.
+\newblock {\em Journal of Machine Learning Research} {\bf 20,} 1--37.
+
+\bibitem[\protect\citeauthoryear{Guo}{Guo}{2002}]{Guo2002}
+Guo, W. (2002).
+\newblock Functional mixed effects models.
+\newblock {\em Biometrics} {\bf 58,} 121--128.
+
+\bibitem[\protect\citeauthoryear{Hoff and Niu}{Hoff and Niu}{2012}]{Hoff2012}
+Hoff, P.~D. and Niu, X. (2012).
+\newblock A covariance regression model.
+\newblock {\em Statistica Sinica} pages 729--753.
+
+\bibitem[\protect\citeauthoryear{Jeste, Kirkham, Senturk, Hasenstab, Sugar,
+  Kupelian, Baker, Sanders, Shimizu, Norona, et~al\mbox{.}}{Jeste
+  et~al.}{2015}]{Jeste2015}
+Jeste, S.~S., Kirkham, N., Senturk, D., Hasenstab, K., Sugar, C., Kupelian, C.,
+  Baker, E., Sanders, A.~J., Shimizu, C., Norona, A., et~al. (2015).
+\newblock Electrophysiological evidence of heterogeneity in visual statistical
+  learning in young children with asd.
+\newblock {\em Developmental science} {\bf 18,} 90--105.
+
+\bibitem[\protect\citeauthoryear{Jiang, Wang, et~al\mbox{.}}{Jiang
+  et~al.}{2010}]{Jiang2010}
+Jiang, C.-R., Wang, J.-L., et~al. (2010).
+\newblock Covariate adjusted functional principal components analysis for
+  longitudinal data.
+\newblock {\em The Annals of Statistics} {\bf 38,} 1194--1226.
+
+\bibitem[\protect\citeauthoryear{Lang and Brezger}{Lang and
+  Brezger}{2004}]{Lang2004}
+Lang, S. and Brezger, A. (2004).
+\newblock Bayesian p-splines.
+\newblock {\em Journal of computational and graphical statistics} {\bf 13,}
+  183--212.
+
+\bibitem[\protect\citeauthoryear{Li, Bruyneel, and Lesaffre}{Li
+  et~al.}{2014}]{Li2014}
+Li, B., Bruyneel, L., and Lesaffre, E. (2014).
+\newblock A multivariate multilevel gaussian model with a mixed effects
+  structure in the mean and covariance part.
+\newblock {\em Statistics in medicine} {\bf 33,} 1877--1899.
+
+\bibitem[\protect\citeauthoryear{Montagna, Tokdar, Neelon, and Dunson}{Montagna
+  et~al.}{2012}]{Montagna2012}
+Montagna, S., Tokdar, S.~T., Neelon, B., and Dunson, D.~B. (2012).
+\newblock Bayesian latent factor regression for functional and longitudinal
+  data.
+\newblock {\em Biometrics} {\bf 68,} 1064--1073.
+
+\bibitem[\protect\citeauthoryear{Morris and Carroll}{Morris and
+  Carroll}{2006}]{Morris2006}
+Morris, J.~S. and Carroll, R.~J. (2006).
+\newblock Wavelet-based functional mixed models.
+\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
+  Methodology)} {\bf 68,} 179--199.
+
+\bibitem[\protect\citeauthoryear{Quintero and Lesaffre}{Quintero and
+  Lesaffre}{2017}]{Quintero2017}
+Quintero, A. and Lesaffre, E. (2017).
+\newblock Multilevel covariance regression with correlated random effects in
+  the mean and variance structure.
+\newblock {\em Biometrical Journal} {\bf 59,} 1047--1066.
+
+\bibitem[\protect\citeauthoryear{Ramsay}{Ramsay}{2004}]{Ramsay2005}
+Ramsay, J.~O. (2004).
+\newblock Functional data analysis.
+\newblock {\em Encyclopedia of Statistical Sciences} {\bf 4,}.
+
+\bibitem[\protect\citeauthoryear{Scheipl, Staicu, and Greven}{Scheipl
+  et~al.}{2015}]{Scheipl2015}
+Scheipl, F., Staicu, A.-M., and Greven, S. (2015).
+\newblock Functional additive mixed models.
+\newblock {\em Journal of Computational and Graphical Statistics} {\bf 24,}
+  477--501.
+
+\bibitem[\protect\citeauthoryear{Wang, Chiou, and Mueller}{Wang
+  et~al.}{2015}]{Wang2016}
+Wang, J.-L., Chiou, J.-M., and Mueller, H.-G. (2015).
+\newblock Review of functional data analysis.
+\newblock {\em arXiv preprint arXiv:1507.05135} .
+
+\bibitem[\protect\citeauthoryear{Yang, Zhu, Choi, Cox, et~al\mbox{.}}{Yang
+  et~al.}{2016}]{Yang2016}
+Yang, J., Zhu, H., Choi, T., Cox, D.~D., et~al. (2016).
+\newblock Smoothing and mean--covariance estimation of functional data with a
+  bayesian hierarchical model.
+\newblock {\em Bayesian Analysis} {\bf 11,} 649--670.
+
+\end{thebibliography}

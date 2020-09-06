@@ -97,6 +97,10 @@ TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_in
     .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
 }
 
+get_proposal <- function(old) {
+    .Call(`_BayesianConditionalFPCA_get_proposal`, old)
+}
+
 armadillo_modulus2 <- function(indicies, n) {
     .Call(`_BayesianConditionalFPCA_armadillo_modulus2`, indicies, n)
 }
@@ -141,11 +145,11 @@ PredictY2 <- function(ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec) {
     invisible(.Call(`_BayesianConditionalFPCA_PredictY2`, ImputedY, observedOrder, X, B, Theta, Lambda, Eta, Prec))
 }
 
-Proposal <- function(Theta, Lambda, noise = .1, samples = 200L) {
+Proposal <- function(Theta, Lambda, noise, samples) {
     .Call(`_BayesianConditionalFPCA_Proposal`, Theta, Lambda, noise, samples)
 }
 
-cpploglik_bayes <- function(Theta, Lambda, precision, Phi, X, B, Y, cores = 1L) {
+cpploglik_bayes <- function(Theta, Lambda, precision, Phi, X, B, Y, cores) {
     .Call(`_BayesianConditionalFPCA_cpploglik_bayes`, Theta, Lambda, precision, Phi, X, B, Y, cores)
 }
 
@@ -161,64 +165,24 @@ get_posterior_predictive_bands2 <- function(mod, quantiles) {
     .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands2`, mod, quantiles)
 }
 
-get_posterior_means <- function(mod, xi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_means`, mod, xi, alpha)
+get_posterior_subject_bands_cpp <- function(mcmc_output, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_subject_bands_cpp`, mcmc_output, alpha)
+}
+
+get_posterior_means_cpp <- function(mcmc_results, xi, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_means_cpp`, mcmc_results, xi, alpha)
 }
 
 get_posterior_coefs <- function(mod, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_coefs`, mod, alpha)
 }
 
-extract_eigenfn <- function(Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
-    .Call(`_BayesianConditionalFPCA_extract_eigenfn`, Lambda, Delta, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
-}
-
-get_posterior_eigen <- function(mod, eigenvals, zi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen`, mod, eigenvals, zi, alpha)
-}
-
-extract_eigenfn2 <- function(Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z) {
-    .Call(`_BayesianConditionalFPCA_extract_eigenfn2`, Lambda, Psi, Psi_sqrt, Psi_sqrt_inv, B, eigenvals, z)
-}
-
 arma_cov2cor <- function(V) {
     .Call(`_BayesianConditionalFPCA_arma_cov2cor`, V)
 }
 
-#' Posterior inference for covariate-adjusted covariance function
-#' 
-#' @param mod mcmc object
-#' @param eigenvals Number of eigenvalues to keep
-#' @param zi Covariate vector of interest
-#' @param alpha Type I error rate
-#' @details Generates posterior inference for covariate adjusted
-#'  eigenfunctions, surfaces, and magnitudes
-#' @return
-#' An R list containing the following elements 
-#' 
-#' \code{lower} A matrix containing the lower bound of the simultaneous 
-#' credible band of eigenfunctions  
-#' 
-#' \code{mean} A matrix containing the posterior mean of eigenfunctions  
-#' 
-#' \code{upper} A matrix containing the upper bound of the simultaneous 
-#' credible band of eigenfunctions  
-#' 
-#' \code{eigenval_intervals} A matrix containing a 1-alpha credible interval
-#' for eigenvalues  
-#' 
-#' \code{eigenval_pve_intervals} A matrix containing a 1-alpha credible 
-#' interval for relative eigenvalues  
-#' 
-#' \code{surface} Posterior covariance surface  
-#' 
-#' \code{magnitude} Total variance of the fitted covariance surface across, one
-#' for each sample
-#' 
-#' \code{raw_magnitude} 1-alpha credible interval for total variance
-#' @export
-get_posterior_eigen2 <- function(mod, eigenvals, zi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen2`, mod, eigenvals, zi, alpha)
+get_posterior_eigen_cpp <- function(mcmc_results, eigenvals, zi, alpha = 0.05) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_eigen_cpp`, mcmc_results, eigenvals, zi, alpha)
 }
 
 get_variance_effects <- function(mod, alpha) {
@@ -241,15 +205,32 @@ rcpparma_bothproducts <- function(x) {
     .Call(`_BayesianConditionalFPCA_rcpparma_bothproducts`, x)
 }
 
-mymain <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
-    .Call(`_BayesianConditionalFPCA_mymain`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
-<<<<<<< HEAD
-}
-
-run_mcmc <- function(response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin = 1L, var = "unequal") {
-    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, thin, var)
-=======
->>>>>>> 04800115332f6ca527e8c88ab1b14dc1e7327988
+#' Run Markov-Chain Monte-Carlo
+#' 
+#' Generate samples from the posterior distribution. This 
+#' algorithm pre-dominantly uses Gibbs sampling
+#' @param response N x T response matrix, where N is number of subjects and T is number
+#' of time points. Values can be NA if there's missing data
+#' @param design_mean N x d_{1} design matrix for mean structure
+#' @param design_var N x d_{2} design matrix for the covariance structure
+#' @param basis User generated basis matrix
+#' @param time vector of time points
+#' @param penalties_mean List of smoothing penalties for mean structure
+#' @param penalties_var List of smoothin penalties for covariance structure
+#' @param indices_mean Maps penalties in the mean structure to beta coefficients
+#' @param indices_var Maps penalties in the covariance structure to lambda
+#' coefficients
+#' @param kdim Dimension of latent subspace
+#' @param iter Number of iterations to run
+#' @param burnin Number of iterations to use as burn-in. This is only relevant when
+#' passing the returned object into post-processing functions
+#' @param thin Thinning defaulting to 1
+#' @param var Can be set to "unequal" to estimate subject-specific measurement
+#' errors or "pooled" to estimate a pooled measurement error variance
+#' @export run_mcmc
+#' @return A List containing 3 lists including data, control, and samples.
+run_mcmc <- function(response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin = 1L, var = "unequal") {
+    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin, var)
 }
 
 timesTwo <- function(x) {

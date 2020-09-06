@@ -3,7 +3,7 @@
 // #include <omp.h>
 // #endif
 #include "updateParam.h"
-#include "Utility.h"
+#include "Utils.h"
 #include "EMfuncs.h"
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;

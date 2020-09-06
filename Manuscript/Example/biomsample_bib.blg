@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2020)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: biomsample_bib.aux
+The style file: biom.bst
+Database file #1: biomsample_bib.bib
+You've used 21 entries,
+            2146 wiz_defined-function locations,
+            643 strings with 6623 characters,
+and the built_in function-call counts, 8755 in all, are:
+= -- 811
+> -- 412
+< -- 16
++ -- 137
+- -- 129
+* -- 809
+:= -- 1549
+add.period$ -- 63
+call.type$ -- 21
+change.case$ -- 147
+chr.to.int$ -- 21
+cite$ -- 21
+duplicate$ -- 309
+empty$ -- 577
+format.name$ -- 166
+if$ -- 1664
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 22
+newline$ -- 108
+num.names$ -- 84
+pop$ -- 101
+preamble$ -- 1
+purify$ -- 148
+quote$ -- 0
+skip$ -- 213
+stack$ -- 0
+substring$ -- 608
+swap$ -- 141
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 122
+warning$ -- 0
+while$ -- 81
+width$ -- 0
+write$ -- 273

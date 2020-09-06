@@ -1,5 +1,5 @@
 #include <RcppArmadillo.h>
-#include "Utility.h"
+#include "Utils.h"
 using namespace Rcpp;
 
 // [[Rcpp::export]]
