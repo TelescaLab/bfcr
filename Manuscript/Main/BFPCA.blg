@@ -3,44 +3,44 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: BFPCA.aux
 The style file: biom.bst
 Database file #1: mybiblio.bib
-You've used 21 entries,
+You've used 23 entries,
             2146 wiz_defined-function locations,
-            671 strings with 7722 characters,
-and the built_in function-call counts, 9946 in all, are:
-= -- 933
-> -- 556
+            685 strings with 8040 characters,
+and the built_in function-call counts, 10911 in all, are:
+= -- 1019
+> -- 620
 < -- 16
-+ -- 184
-- -- 180
-* -- 940
-:= -- 1737
-add.period$ -- 63
-call.type$ -- 21
-change.case$ -- 160
-chr.to.int$ -- 21
-cite$ -- 21
-duplicate$ -- 327
-empty$ -- 596
-format.name$ -- 219
-if$ -- 1867
++ -- 205
+- -- 201
+* -- 1039
+:= -- 1911
+add.period$ -- 69
+call.type$ -- 23
+change.case$ -- 177
+chr.to.int$ -- 23
+cite$ -- 23
+duplicate$ -- 357
+empty$ -- 650
+format.name$ -- 242
+if$ -- 2044
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 23
-newline$ -- 108
-num.names$ -- 84
-pop$ -- 125
+missing$ -- 25
+newline$ -- 118
+num.names$ -- 92
+pop$ -- 138
 preamble$ -- 1
-purify$ -- 162
+purify$ -- 179
 quote$ -- 0
-skip$ -- 239
+skip$ -- 257
 stack$ -- 0
-substring$ -- 708
-swap$ -- 157
+substring$ -- 766
+swap$ -- 171
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 122
+type$ -- 134
 warning$ -- 0
-while$ -- 99
+while$ -- 108
 width$ -- 0
-write$ -- 273
+write$ -- 299

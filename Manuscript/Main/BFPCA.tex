@@ -1,7 +1,11 @@
-\documentclass[useAMS,referee,usenatbib]{biom}
+\documentclass[useAMS,usenatbib]{biom}
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{amsmath}
+
+\DeclareMathOperator{\E}{\mathbb{E}}
+
 \title[This is an Example of Recto Running Head]{Bayesian Covariate Adjusted Functional Principal Components Analysis}
 
 %  Here are examples of different configurations of author/affiliation
@@ -80,15 +84,23 @@ The rest of this paper is organized as follows: Section \ref{s:model} gives the 
 \section{Model}
 \label{s:model}
 In this section we present the model associating patterns of variability and time-stable covariates. Let $y_{i}(t)$ denote the outcome for subject $i$ at point $t \in \mathcal{T}$ for some real compact interval $\mathcal{T}$. Let $\bmath{x} = (x_{1},\ldots,x_{d_{1}})^{\top}$ denote a $d_{1}$-dimensional time-stable covariate for subject $i$, with the dependence on $i$ removed for ease of presentation. The $k$-dimensional data-generating model is 
-\begin{align}
-y_{i}(t) &= \mu(t, x_{1}, \ldots,x_{d_{1}})   + \sum_{j=1}^{k}\psi_{j}(t, x_{1}, \ldots, x_{d_{1}})\eta_{ij} + \epsilon_{i}(t)
-\label{eq:model}
-\end{align}
-where $\mu(t, x_{1},\ldots, x_{d_{1}})$ is the conditional mean, $\psi_{j}(t, x_{1}, \ldots, x_{d_{1}})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. MARGINAL MOMENTS HERE Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression.  
+\begin{gather}
+y_{i}(t) = \mu(t, \bmath{x})   + r_{k}(t, \bmath{x})  + \epsilon_{i}(t)\label{eq:model}\\
+r_{k}(t, \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t, \bmath{x})\eta_{ij}\label{eq:covariance}\\
+\eta_{ij} \sim N(0, 1),\;\;\;\;\epsilon_{i}(t) \sim N(0, \varphi^{2})
+\label{eq:random}
+\end{gather}
+where $\mu(t, \bmath{x})$ is the conditional mean, $\psi_{j}(t, \bmath{x})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. Using equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) the conditional covariance function is expressed as
+\begin{gather*}
+\sum_{j=1}^{k}\sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})
+\end{gather*}
 
-Lending toward conceptually straight-forward prior specifications, we  decompose $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. The complexity of the specific basis expansion will depend on the type of covariates and computational resources. For example, suppose $\bmath{x} = (x_{1})$ is a single continuous covariate. Then $\mu(t, x_{1})$ can be specified by either $\mu(t, x_{1}) = x_{1}\sum_{p=1}^{P}b_{p}(t)\beta_{p}$ or $\mu(t, x_{1}) = \sum_{p_{1}}^{P_{1}}\sum_{p_{2}}^{P_{2}}b_{p_{1}}(t)b_{p_{2}}(x)\beta_{p_{1}p_{2}}$, where $b(\cdot)$ represents marginal bases, $P, P_{1}$, and $P_{2}$ are the dimensions of marginal bases and $\beta$ represents coefficients for the mean structure. Either approach is valid but the tensor formulation is obviously more flexible while incurring a larger computational cost and a more complicated prior for regularization purposes. Continuing this example, $\psi_{j}(t, x_{1})$ can be expanded in a similar manner with $\Lambda_{j}$ denoting the set of latent basis coefficients. 
+Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression. Lending toward conceptually straight-forward prior specifications, we  build $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases in a similar spirit as \citet{Scheipl2015}. In particular, spline bases allow for varying coefficient models, tensor expansions, covariate interactions. We simply adjust the prior to accomodate a diverse set of functional forms.
 
-This model has similarities to functional mixed effects models \citep{Morris2006, Guo2002}. However, in our formulation we design priors to accomodate tensor expansions for greater flexibility. Random components are also drawn  from a covariate-adjusted kernel as opposed to pre-specifying its shape. Estimating the distance metric yields important patterns of variability as is usual in functional principal component analyses. 
+\iffalse The complexity of the specific basis expansion will depend on the type of covariates and computational resources. For example, suppose $\bmath{x} = (x_{1})$ is a single continuous covariate. Then $\mu(t, x_{1})$ can be specified by either $\mu(t, x_{1}) = x_{1}\sum_{p=1}^{P}b_{p}(t)\beta_{p}$ or $\mu(t, x_{1}) = \sum_{p_{1}}^{P_{1}}\sum_{p_{2}}^{P_{2}}b_{p_{1}}(t)b_{p_{2}}(x)\beta_{p_{1}p_{2}}$, where $b(\cdot)$ represents marginal bases, $P, P_{1}$, and $P_{2}$ are the dimensions of marginal bases and $\beta$ represents coefficients for the mean structure. Either approach is valid but the tensor formulation is obviously more flexible while incurring a larger computational cost and a more complicated prior for regularization purposes. Continuing this example, $\psi_{j}(t, x_{1})$ can be expanded in a similar manner with $\Lambda_{j}$ denoting the set of latent basis coefficients. 
+\fi
+
+Compared to functional mixed effects models \citep{Morris2006, Guo2002}, our methods yield more flexible mean functions. However, more importantly, this procedure estimates a conditional covariance function in a nonparametric fashion, instead of using a parameterized covariance function. Hence, this model is appropriate for signal extraction \cite{Di2009} and visualizing patterns of variability. While \citet{Cardot2007} and \cite{ Jiang2010} develop a framework for estimating conditional  covariance functions, the proposed method is the first to offer full probabilistic inference in the form of a posterior distribution. \citet{Hoff2012} developed a similar method with application to multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. In contrast, the use of general additive terms as in \cite{Scheipl2015} alleviates this lack of flexibility.   However, the proposed method is the first  Conditional covariance estimation has been explored in However, in our formulation we design priors to accomodate tensor expansions for greater flexibility. Random components are also drawn  from a covariate-adjusted kernel as opposed to pre-specifying its shape. Estimating the distance metric yields important patterns of variability as is usual in functional principal component analyses. 
 The probabilistic model is completed by specifying distributional on assumptions on $\eta_{ij}$ and $\epsilon_{i}(t)$. We use $\eta_{ij}$
 \begin{equation*}
 \mu(t|\bmath{x_{i}}) =
@@ -104,7 +116,7 @@ y_{i}(t) = b(t)^{\top}\Theta\bmath{x_{i}} + \sum_{k = 1}^{K}b(t)^{\top}\Lambda_{
 \end{equation*}
 Distributional assumptions must be imposed on $\eta_{ik}$ and $\epsilon_{i}(t)$. In this paper, we simply use $\eta_{ik} \sim N(0,1)$ and $\epsilon_{i}(t) \sim N(0, \sigma^{2})$. Of course, more complex choices are warranted by the application at hand. The model structure and assumptions yields the covariate-dependent mean
 \begin{equation*}
-\mathbb{E}(y_{i}(t)|\bmath{x_{i}}) = b(t)^{\top}\Theta\bmath{x_{i}}
+\mathbb{E}(y_{i}(t)|\bld{x_{i}}) = b(t)^{\top}\Theta\bld{x_{i}}
 \end{equation*}
 and covariate-dependent covariance
 \begin{equation}

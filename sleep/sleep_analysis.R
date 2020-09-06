@@ -10,10 +10,10 @@ load(paste0("/Users/johnshamshoian/Documents/R_projects/",
             "relative_psd.RData"))
 sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/",
             "BayesianConditionalFPCA/sleep/tabulated_data/",
-            "shhs1-dataset-0.15.0.csv"))
+            "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
-num_epochs <- 480
-id_range <- 200001:200500
+num_epochs <- 60
+id_range <- 200001:200100
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
   select(nsrrid, age_s1)
@@ -43,7 +43,13 @@ spec_age$term <- "age_s1"
 age_basis <- smoothCon(object = spec_age,
                        data = data.frame(age_grid))[[1]]$X
 penalty <- as.matrix(spam::precmat.RW2(epoch_df))
-# penalty <- as.matrix(precmat.IGMRFreglat(age_df, epoch_df), order = 2)
+penalty <- as.matrix(precmat.IGMRFreglat(age_df, epoch_df), order = 2)
+epoch_marginal_penalty <- as.matrix(precmat.RW2(epoch_df), order = 2)
+age_marginal_penalty <- as.matrix(precmat.RW2(age_df), order = 2)
+Q1 <- kronecker(diag(age_df), epoch_marginal_penalty)
+Q2 <- kronecker(age_marginal_penalty, diag(epoch_df))
+age_penalty <- kronecker(penalty_2, diag(epoch_df))
+epoch_penalty <- kronecker(diag(age_df), penalty_1)
 mean_penalty <- list(penalty)
 var_penalty <- list(penalty)
 mean_indices <- c(1)

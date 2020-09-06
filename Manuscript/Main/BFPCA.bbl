@@ -14,6 +14,12 @@ Crainiceanu, C.~M., Ruppert, D., Carroll, R.~J., Joshi, A., and Goodner, B.
 \newblock {\em Journal of Computational and Graphical Statistics} {\bf 16,}
   265--288.
 
+\bibitem[\protect\citeauthoryear{Di, Crainiceanu, Caffo, and Punjabi}{Di
+  et~al.}{2009}]{Di2009}
+Di, C.-Z., Crainiceanu, C.~M., Caffo, B.~S., and Punjabi, N.~M. (2009).
+\newblock Multilevel functional principal component analysis.
+\newblock {\em The annals of applied statistics} {\bf 3,} 458.
+
 \bibitem[\protect\citeauthoryear{Dickinson, DiStefano, Senturk, and
   Jeste}{Dickinson et~al.}{2018}]{Dickinson2017}
 Dickinson, A., DiStefano, C., Senturk, D., and Jeste, S.~S. (2018).
@@ -123,6 +129,13 @@ Quintero, A. and Lesaffre, E. (2017).
 Ramsay, J.~O. (2004).
 \newblock Functional data analysis.
 \newblock {\em Encyclopedia of Statistical Sciences} {\bf 4,}.
+
+\bibitem[\protect\citeauthoryear{Scheipl, Staicu, and Greven}{Scheipl
+  et~al.}{2015}]{Scheipl2015}
+Scheipl, F., Staicu, A.-M., and Greven, S. (2015).
+\newblock Functional additive mixed models.
+\newblock {\em Journal of Computational and Graphical Statistics} {\bf 24,}
+  477--501.
 
 \bibitem[\protect\citeauthoryear{Wang, Chiou, and Mueller}{Wang
   et~al.}{2015}]{Wang2016}
