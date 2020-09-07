@@ -42,15 +42,12 @@ Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean,
                arma::uvec indices_mean, arma::uvec indices_var,
                arma::uword kdim, arma::uword iter, arma::uword burnin,
                arma::uword thin=1, std::string var="unequal") {
-  
   Data dat(response, design_mean,
            design_var, basis, time,
            penalties_mean, penalties_var,
            indices_mean, indices_var, kdim,
            iter, burnin, thin);
-
   Parameters pars(dat);
-  
   Transformations transf(dat, pars);
   Sampler* mysampler = SamplerFactory::new_mcmc(var, dat, pars, transf);
   mysampler->sample_parameters();

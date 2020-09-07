@@ -12,8 +12,10 @@ public:
   arma::field<arma::mat> penalties_mean;
   arma::field<arma::mat> penalties_var;
   arma::uvec indices_mean, indices_var;
+  arma::uword n_smooths_mean, n_smooths_var;
   arma::uword iter, thin, burnin;
   arma::vec time;
+  arma::uvec seq_along_start, seq_along_end;
   Data(arma::mat&, arma::mat&, arma::mat&,
        arma::mat&, arma::vec&,
        arma::field<arma::mat>&,arma::field<arma::mat>&,

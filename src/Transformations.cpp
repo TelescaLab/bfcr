@@ -34,14 +34,15 @@ Transformations::Transformations(Data& dat, Parameters& pars) {
   }
   fit_beta = pars.beta * dat.design_mean.t();
   lambda_old = arma::mat(dat.basis_dim, dat.d2);
-  phi_lambda_sum = arma::mat(dat.indices_var.n_elem,
+  phi_lambda_sum = arma::mat(dat.n_smooths_var,
                              dat.kdim, arma::fill::zeros);
-  delta_cumprod = arma::vec(dat.indices_var.n_elem);
+  //delta_cumprod = arma::vec(dat.indices_var.n_elem);
+  delta_cumprod = arma::mat(dat.n_smooths_var, dat.kdim);
   blk_diag_phi_delta = arma::cube(dat.basis_dim * dat.d2,
                                   dat.basis_dim * dat.d2,
                                   dat.kdim, arma::fill::zeros);
-  blk_diag_delta_cumprod = arma::mat(dat.indices_var.n_elem,
-                                     dat.kdim, arma::fill::ones);
+  //blk_diag_delta_cumprod = arma::mat(dat.indices_var.n_elem,
+                //                     dat.kdim, arma::fill::ones);*
 }
 
 void Transformations::build_blk_diag_mean(Data& dat, Parameters& pars) {
@@ -95,6 +96,20 @@ void Transformations::build_blk_diag_var(Data& dat,
   }
 }
 void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
+  for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
+    delta_cumprod.row(i) = arma::cumprod(pars.delta.row(i));
+    for (arma::uword k = 0; k < dat.kdim; k++) {
+      blk_diag_phi_delta.slice(k).submat(
+          dat.basis_dim * dat.seq_along_start(i), 
+          dat.basis_dim * dat.seq_along_start(i),
+          dat.basis_dim * (dat.seq_along_end(i) + 1) - 1,
+          dat.basis_dim * (dat.seq_along_end(i) + 1) - 1) =
+            arma::diagmat(arma::vectorise(
+                pars.phi.slice(k).cols(dat.seq_along_start(i),
+                               dat.seq_along_end(i)) * delta_cumprod(i, k)));
+    }
+  }
+  /*
   int old_index = 0;
   int start = 0;
   int end = -1;
@@ -108,6 +123,7 @@ void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
       end_phi_delta = end_phi_delta + dat.penalties_var(d).n_rows;
       blk_diag_delta_cumprod.row(d) = arma::cumprod(pars.delta.row(d));
       for (arma::uword k = 0; k < dat.kdim; k++) {
+        Rcpp::Rcout << "start: " << start << " end: " << end << std::endl;
         blk_diag_phi_delta.slice(k).submat(
             start_phi_delta, start_phi_delta,
             end_phi_delta, end_phi_delta) =
@@ -117,7 +133,7 @@ void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
       old_index = dat.indices_mean(d);
     }
     
-  }
+  }*/
 }
 
 void Transformations::complete_response(Data& dat, Parameters& pars) {

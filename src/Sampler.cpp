@@ -78,6 +78,7 @@ void SamplerUnequal::write_parameters() {
   pars.varphi_container.col(pars.iteration) = pars.varphi;
   pars.tau1_container.col(pars.iteration) = pars.tau1;
   pars.tau2_container.slice(pars.iteration) = pars.tau2;
+  pars.phi_container(pars.iteration) = pars.phi;
   pars.delta_container.slice(pars.iteration) = pars.delta;
   pars.tausq_container(pars.iteration) = pars.tausq;
   pars.a1_container.col(pars.iteration) = pars.a1_;
@@ -92,6 +93,7 @@ void SamplerPooled::write_parameters() {
   pars.varphi_container.col(pars.iteration) = pars.varphi;
   pars.tau1_container.col(pars.iteration) = pars.tau1;
   pars.tau2_container.slice(pars.iteration) = pars.tau2;
+  pars.phi_container(pars.iteration) = pars.phi;
   pars.delta_container.slice(pars.iteration) = pars.delta;
   pars.a1_container.col(pars.iteration) = pars.a1_;
   pars.a2_container.col(pars.iteration) = pars.a2_;
@@ -109,7 +111,10 @@ Rcpp::List SamplerUnequal::get_samples() {
                             Rcpp::Named("delta", pars.delta_container),
                             Rcpp::Named("tausq", pars.tausq_container),
                             Rcpp::Named("a1", pars.a1_container),
-                            Rcpp::Named("a2", pars.a2_container)));
+                            Rcpp::Named("a2", pars.a2_container),
+                            Rcpp::Named("block_diag_mean", transf.blk_diag_mean_penalties),
+                            Rcpp::Named("blok_diag_var", transf.blk_diag_var_penalties),
+                            Rcpp::Named("block_diag_phi_delta", transf.blk_diag_phi_delta)));
 }
 
 Rcpp::List SamplerPooled::get_samples() {

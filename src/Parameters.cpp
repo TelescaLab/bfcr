@@ -11,9 +11,9 @@ Parameters::Parameters(Data& dat) {
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::zeros);
   tau2 = arma::mat(dat.penalties_var.n_elem, dat.kdim, arma::fill::zeros);
   phi = arma::cube(dat.basis_dim, dat.d2, dat.kdim, arma::fill::ones);
-  delta = arma::mat(dat.penalties_var.n_elem, dat.kdim, arma::fill::ones);
-  a1_ = arma::vec(dat.indices_var.n_elem, arma::fill::ones);
-  a2_ = arma::vec(dat.indices_var.n_elem, arma::fill::ones);
+  delta = arma::mat(dat.n_smooths_var, dat.kdim, arma::fill::ones);
+  a1_ = arma::vec(dat.n_smooths_var, arma::fill::ones);
+  a2_ = arma::vec(dat.n_smooths_var, arma::fill::ones);
   a1 = 2;
   a2 = 2;
   beta_container = arma::cube(dat.basis_dim, dat.d1, dat.iter);
@@ -23,10 +23,10 @@ Parameters::Parameters(Data& dat) {
   tau1_container = arma::mat(dat.indices_mean.n_elem, dat.iter);
   tau2_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
   phi_container = arma::field<arma::cube>(dat.iter);
-  delta_container = arma::cube(dat.indices_var.n_elem, dat.kdim, dat.iter);
+  delta_container = arma::cube(dat.n_smooths_var, dat.kdim, dat.iter);
   tausq_container = arma::vec(dat.iter);
-  a1_container = arma::mat(dat.indices_var.n_elem, dat.iter);
-  a2_container = arma::mat(dat.indices_var.n_elem, dat.iter);
+  a1_container = arma::mat(dat.n_smooths_var, dat.iter);
+  a2_container = arma::mat(dat.n_smooths_var, dat.iter);
 }
 
 void Parameters::update_beta(Data& dat, Transformations& transf) {
@@ -55,7 +55,7 @@ void Parameters::update_lambda(Data& dat, Transformations& transf) {
       arma::kron(dat.design_var.t() * arma::diagmat(eta.col(k)) * 
       arma::diagmat(varphi) * 
       (dat.design_var.t() * arma::diagmat(eta.col(k))).t(),
-      transf.btb) + transf.blk_diag_var_penalties.slice(k) +
+      transf.btb) + transf.blk_diag_var_penalties.slice(k); +
         arma::diagmat(transf.blk_diag_phi_delta.slice(k));
     transf.lambda_g = arma::vectorise((transf.bty - 
       transf.btb * transf.fit_lambda_removed) * arma::diagmat(varphi) *
@@ -183,56 +183,33 @@ void Parameters::update_phi(Data& dat, Transformations& transf) {
 
 void Parameters::update_delta(Data& dat, Transformations& transf) {
   double update_a = 0, update_b = 0;
-  arma::uword start = 0;
-  arma::uword end = static_cast<double>(dat.penalties_var(0).n_rows) /
-    static_cast<double>(dat.basis_dim) - 1;
-  arma::uword num_field_elements = dat.penalties_var.n_elem;
-  arma::uword old_index = 1;
-  for(arma::uword i = 0; i < num_field_elements; i++){
-    if (dat.indices_var(i) != old_index) {
-      start = end + 1;
-      end = end + dat.penalties_var(i).n_rows / dat.basis_dim;
-    }
-    for (arma::uword k = 0; k < dat.kdim; k++) {
+   for (arma::uword k = 0; k < dat.kdim; k++) {
+    for(arma::uword i = 0; i < dat.n_smooths_var; i++){
       transf.phi_lambda_sum(i, k) = arma::as_scalar(
-        arma::accu(arma::square(lambda.slice(k).cols(start, end)) %
-          phi.slice(k).cols(start, end)));
+        arma::accu(arma::square(lambda.slice(k).cols(dat.seq_along_start(i), dat.seq_along_end(i))) %
+          phi.slice(k).cols(dat.seq_along_start(i), dat.seq_along_end(i))));
     }
-    old_index = dat.indices_var(i);
   }
-  start = 0;
-  end = static_cast<double>(dat.penalties_var(0).n_rows) /
-    static_cast<double>(dat.basis_dim) - 1;
-  old_index = 1;
-  for(arma::uword i = 0; i < num_field_elements; i++){
-    if (dat.indices_var(i) != old_index) {
-      start = end + 1;
-      end = end + dat.penalties_var(i).n_rows / dat.basis_dim;
-    }
-    
+  for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
     for (arma::uword k = 0; k < dat.kdim; k++) {
       
-      transf.delta_cumprod = delta.row(i).t();
-      transf.delta_cumprod(k) = 1;
-      transf.delta_cumprod = arma::cumprod(transf.delta_cumprod);
+      transf.delta_cumprod.row(i) = delta.row(i);
+      transf.delta_cumprod.row(i)(k) = 1;
+      transf.delta_cumprod.row(i) = arma::cumprod(transf.delta_cumprod.row(i));
       for (arma::uword kp = 0; kp < k; kp++) {
-        transf.delta_cumprod(kp) = 0;
+        transf.delta_cumprod.row(i)(kp) = 0;
       }
-      
       update_b = delta_b + .5 * arma::as_scalar(arma::accu(
-        transf.delta_cumprod % transf.phi_lambda_sum.row(i).t()));
-      if (k == 0) {
-        update_a = a1_(i) + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
-        
-        delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
-      } else {
-        update_a = a2_(i) + dat.basis_dim * (end - start + 1) * (dat.kdim - k) / 2;
-        
-        delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
-        
-      }
+        transf.delta_cumprod.row(i).t() % transf.phi_lambda_sum.row(i).t()));
+      update_a = a2_(i);
+      if (k == 0) update_a = a1_(i);
+      update_a = update_a + dat.basis_dim * 
+        (dat.seq_along_end(i) - dat.seq_along_start(i) + 1) * 
+        (dat.kdim - k) / 2;
+      
+      delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
+      
     }
-    old_index = dat.indices_var(i);
   }
   transf.build_blk_diag_phi_delta(dat, *this);
 }
@@ -259,13 +236,11 @@ void Parameters::update_tausq(Data& dat, Transformations& transf) {
 void Parameters::update_alpha(Data& dat, Transformations& transf) {
   double update_a = dat.response.n_elem / 2;
   double update_b = arma::accu(transf.squared_diff % psi) / 2;
-  //Rcpp::Rcout << "MEAN: " << update_a / update_b << std::endl << 
-  //"UPDATE_B: " << update_b << std::endl << "SQUARED DIFF: " << transf.squared_diff(0) << std::endl;
   alpha = R::rgamma(update_a, 1 / update_b);
 }
 
 void Parameters::update_a1(Data& dat) {
-  for (arma::uword i = 0; i < dat.indices_var.n_elem; i++) {
+  for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
     double proposal = get_proposal(a1_(i));
     double log_ratio = 
       R::dgamma(delta.row(i)(0), proposal, 1, 1) +
@@ -280,7 +255,7 @@ void Parameters::update_a1(Data& dat) {
 
 
 void Parameters::update_a2(Data& dat) {
-  for (arma::uword i = 0; i < dat.indices_var.n_elem; i++) {
+  for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
     double proposal = get_proposal(a2_(i));
     Rcpp::NumericVector delta_tail = 
       Rcpp::wrap(delta.row(i).tail(dat.kdim - 1));
