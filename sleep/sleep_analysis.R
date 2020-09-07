@@ -53,8 +53,8 @@ model_penalties <- tensor.prod.penalties(list(age_marginal_penalty,
 #design_var <- age_basis[[1]]$X
 design_mean <- cbind(rep(1, num_subjects))
 design_var <- cbind(rep(1, num_subjects))
-mean_penalty <- list(epoch_marginal_penalty)
-var_penalty <- list(epoch_marginal_penalty)
+mean_penalty <- list(16*epoch_marginal_penalty)
+var_penalty <- list(16*epoch_marginal_penalty)
 mean_indices <- c(1)
 var_indices <- c(1)
 
@@ -65,10 +65,9 @@ response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
 
-k <- 15
-iter <- 15000
-burnin <- 7500
-nchains <- 1
+k <- 5
+iter <- 5000
+burnin <- 2500
 thin <- 1
 loglik <- 0
 mcmc_results <- run_mcmc(response, design_mean,
@@ -83,7 +82,7 @@ mcmc_results <- run_mcmc(response, design_mean,
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, c(1))
 eigen_bands <- get_posterior_eigen(mcmc_results, 6, c(1))
-subj <- c(1, 10, 20, 30)
+subj <- c(21, 3, 4, 5)
 subject_bands %>% 
   filter(id %in% subj) %>%
   ggplot() +

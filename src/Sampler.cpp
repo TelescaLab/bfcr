@@ -27,8 +27,8 @@ void SamplerUnequal::sample_parameters() {
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
-      pars.update_phi(dat, transf);
-      pars.update_delta(dat, transf);
+      //pars.update_phi(dat, transf);
+      //pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);
       pars.update_tausq(dat, transf);
       pars.update_a1(dat);

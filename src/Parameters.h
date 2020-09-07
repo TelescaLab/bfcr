@@ -40,7 +40,7 @@ public:
   double varphi_a = .001;
   double varphi_b = .001;
   double tau_a = 1;
-  double tau_b = 0.005;
+  double tau_b = 0.5;
   double phi_a = 2;
   double phi_b = 2;
   double delta_a1 = 2;
