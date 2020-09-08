@@ -31,7 +31,7 @@ public:
   arma::mat eta_transf;
   arma::mat fit_lambda, fit_beta, lambda_old;
   arma::mat phi_lambda_sum;
-  arma::vec delta_cumprod;
+  arma::mat delta_cumprod;
   arma::cube blk_diag_phi_delta;
   arma::mat blk_diag_delta_cumprod;
   arma::vec squared_diff;
