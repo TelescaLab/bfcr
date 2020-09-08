@@ -22,13 +22,21 @@ void SamplerUnequal::sample_parameters() {
         
         goto stop;
       }
-      pars.update_beta(dat, transf);
+      // Rcpp::Rcout << "updating beta\n";
+       pars.update_beta(dat, transf);
+      //Rcpp::Rcout << "updating lambda\n";
+      //Rcpp::Rcout << "tau2: " << pars.tau2 << "\n";
       pars.update_lambda(dat, transf); 
+      //Rcpp::Rcout << "updating eta\n";
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
-      //pars.update_phi(dat, transf);
-      //pars.update_delta(dat, transf);
+      // pars.update_tau1_delta(dat, transf);
+      // pars.update_tau1_nu(dat, transf);
+      // pars.update_tau2_delta(dat, transf);
+      // pars.update_tau2_nu(dat, transf);
+      pars.update_phi(dat, transf);
+      pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);
       pars.update_tausq(dat, transf);
       pars.update_a1(dat);
@@ -57,6 +65,10 @@ void SamplerPooled::sample_parameters() {
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
+      pars.update_tau1_delta(dat, transf);
+      pars.update_tau1_nu(dat, transf);
+      pars.update_tau2_delta(dat, transf);
+      pars.update_tau2_nu(dat, transf);
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
       pars.update_varphi(dat, transf); 
@@ -83,6 +95,10 @@ void SamplerUnequal::write_parameters() {
   pars.tausq_container(pars.iteration) = pars.tausq;
   pars.a1_container.col(pars.iteration) = pars.a1_;
   pars.a2_container.col(pars.iteration) = pars.a2_;
+  pars.tau1_delta_container.col(pars.iteration) = pars.tau1_delta;
+  pars.tau1_nu_container.col(pars.iteration) = pars.tau1_nu;
+  pars.tau2_delta_container.slice(pars.iteration) = pars.tau2_delta;
+  pars.tau2_nu_container.slice(pars.iteration) = pars.tau2_nu;
   pars.iteration++;
 }
 
@@ -97,6 +113,10 @@ void SamplerPooled::write_parameters() {
   pars.delta_container.slice(pars.iteration) = pars.delta;
   pars.a1_container.col(pars.iteration) = pars.a1_;
   pars.a2_container.col(pars.iteration) = pars.a2_;
+  pars.tau1_delta_container.col(pars.iteration) = pars.tau1_delta;
+  pars.tau1_nu_container.col(pars.iteration) = pars.tau1_nu;
+  pars.tau2_delta_container.slice(pars.iteration) = pars.tau2_delta;
+  pars.tau2_nu_container.slice(pars.iteration) = pars.tau2_nu;
   pars.iteration++;
 }
 

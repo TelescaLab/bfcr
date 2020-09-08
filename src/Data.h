@@ -16,6 +16,11 @@ public:
   arma::uword iter, thin, burnin;
   arma::vec time;
   arma::uvec seq_along_start, seq_along_end;
+  arma::ivec rank_mean, rank_var;
+  arma::uvec seq_along_start_repeated_mean;
+  arma::uvec seq_along_end_repeated_mean;
+  arma::uvec seq_along_start_repeated_var;
+  arma::uvec seq_along_end_repeated_var;
   Data(arma::mat&, arma::mat&, arma::mat&,
        arma::mat&, arma::vec&,
        arma::field<arma::mat>&,arma::field<arma::mat>&,

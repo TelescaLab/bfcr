@@ -1,4 +1,9 @@
 #include "Data.h"
+
+arma::ivec get_rank(arma::field<arma::mat>& penalties);
+arma::umat get_seq_along_repeated(int basis_dim,
+                                  arma::field<arma::mat>& penalties,
+                                  arma::uvec& indices);
 Rcpp::List Data::write_data() {
   return(Rcpp::List::create(Rcpp::Named("response", response),
                             Rcpp::Named("basis", basis),
@@ -44,12 +49,24 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   this->response.elem(missing).fill(0);
   seq_along_start = arma::uvec(n_smooths_var);
   seq_along_end = arma::uvec(n_smooths_var);
+  arma::umat seq_along_mat_mean = get_seq_along_repeated(basis_dim, 
+                                                    penalties_mean,
+                                                    indices_mean);
+  arma::umat seq_along_mat_var = get_seq_along_repeated(basis_dim,
+                                                        penalties_var,
+                                                        indices_var);
+  seq_along_start_repeated_mean = seq_along_mat_mean.col(0);
+  seq_along_end_repeated_mean = seq_along_mat_mean.col(1);
+  seq_along_start_repeated_var = seq_along_mat_var.col(0);
+  seq_along_end_repeated_var = seq_along_mat_var.col(1);
   int old_index = -1;
   int start = 0;
   int end = -1;
   arma::uword counter = 0;
   seq_along_start(0) = start;
   seq_along_end(0) = end;
+  rank_mean = arma::ivec(penalties_mean.n_elem);
+  rank_var = arma::ivec(penalties_var.n_elem);
   for (arma::uword i = 0; i < penalties_var.n_elem; i++) {
     if (indices_var(i) != old_index) {
       end = end + penalties_var(i).n_rows / basis_dim;
@@ -60,7 +77,35 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
       old_index = indices_var(i);
     }
   }
-  Rcpp::Rcout << "in data construction\n";
-  Rcpp::Rcout << arma::size(seq_along_start) << "\n";
-  Rcpp::Rcout << arma::size(seq_along_end) << "\n";
+  for (arma::uword i = 0; i < penalties_mean.n_elem; i++) {
+    rank_mean(i) = arma::rank(penalties_mean(i));
+  }
+  for (arma::uword i = 0; i < penalties_mean.n_elem; i++) {
+    rank_var(i) = arma::rank(penalties_var(i)); // check rank is correct
+  }
+}
+
+arma::umat get_seq_along_repeated(int basis_dim,
+                                  arma::field<arma::mat>& penalties,
+                                  arma::uvec& indices) {
+  arma::umat start_end = arma::umat(penalties.n_elem, 2);
+  int start = -penalties(0).n_rows / basis_dim;;
+  int old_index = 0;
+  int end = -1;
+  for (arma::uword i = 0; i < penalties.n_elem; i++) {
+    if (old_index != indices(i)) {
+      end = end + penalties(i).n_rows / basis_dim;
+      start = start + penalties(i).n_rows / basis_dim;
+    }
+    start_end(i, 0) = start;
+    start_end(i, 1) = end;
+  }
+  return(start_end);
+}
+
+arma::ivec get_rank(arma::field<arma::mat>& penalties) {
+  arma::ivec rank_vec(penalties.n_elem);
+  for (arma::uword i = 0; i < penalties.n_elem; i++) {
+    rank_vec(i) = arma::rank(penalties(i));
+  }
 }

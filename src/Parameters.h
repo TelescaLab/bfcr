@@ -19,6 +19,10 @@ public:
   arma::vec psi;
   arma::vec tau1;
   arma::mat tau2;
+  arma::vec tau1_delta;
+  arma::mat tau2_delta;
+  arma::vec tau1_nu;
+  arma::mat tau2_nu;
   arma::mat delta;
   arma::uword iteration = 0;
   Parameters(Data&);
@@ -29,6 +33,10 @@ public:
   void update_varphi(Data&, Transformations&);
   void update_tau1(Data&, Transformations&);
   void update_tau2(Data&, Transformations&);
+  void update_tau1_delta(Data&, Transformations&);
+  void update_tau2_delta(Data&, Transformations&);
+  void update_tau1_nu(Data&, Transformations&);
+  void update_tau2_nu(Data&, Transformations&);
   void update_phi(Data&, Transformations&);
   void update_delta(Data&, Transformations&);
   void update_psi(Data&, Transformations&);
@@ -37,10 +45,10 @@ public:
   void update_a1(Data&);
   void update_a2(Data&);
   void write_parameters();
-  double varphi_a = .001;
-  double varphi_b = .001;
-  double tau_a = 1;
-  double tau_b = 0.5;
+  double tau_a;
+  double tau_b;
+  double varphi_a;
+  double varphi_b;
   double phi_a = 2;
   double phi_b = 2;
   double delta_a1 = 2;
@@ -60,5 +68,9 @@ public:
   arma::field<arma::cube> phi_container;
   arma::cube delta_container;
   arma::vec tausq_container;
+  arma::mat tau1_delta_container;
+  arma::mat tau1_nu_container;
+  arma::cube tau2_delta_container;
+  arma::cube tau2_nu_container;
 };
 #endif
