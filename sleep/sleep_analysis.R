@@ -5,7 +5,7 @@ library(spam)
 library(plotly)
 library(microbenchmark)
 
-load(paste0("/Users/johnshamshoian/Documents/R_projects/", 
+load(paste0("/Users/johnshamshoian/Documents/R_projects/",
             "BayesianConditionalFPCA/sleep/data/",
             "relative_psd.RData"))
 sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/",
@@ -22,7 +22,7 @@ sleep_data <- inner_join(sleep_tabulated_filtered, relative_psd)
 
 sleep_data_filtered <- sleep_data %>%
   group_by(nsrrid) %>%
-  filter(n() >= num_epochs, epoch <= num_epochs, 
+  filter(n() >= num_epochs, epoch <= num_epochs,
          nsrrid %in% id_range) %>%
   ungroup()
 
@@ -35,7 +35,7 @@ age_grid <- sleep_data_filtered %>%
   group_by(nsrrid) %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
-  select(age_s1) 
+  select(age_s1)
 age_df <- ceiling(10 / 100 * (max(age_grid) - min(age_grid)))
 epoch_spec <- s(epoch_grid, bs = "ps", k = epoch_df)
 age_spec <- s(age_grid, bs = "ps", k = age_df)
@@ -79,7 +79,7 @@ burnin <- 2500
 thin <- 1
 loglik <- 0
 mcmc_results <- run_mcmc(response, design_mean,
-                  design_var, epoch_basis_spline, 
+                  design_var, epoch_basis_spline,
                   epoch_grid,
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
@@ -90,7 +90,7 @@ subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, design_mean[4,])
 eigen_bands <- get_posterior_eigen(mcmc_results, 6, design_mean[5,])
 subj <- 40:43
-subject_bands %>% 
+subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
   geom_point(aes(x = time, y = response), alpha = .5) +
@@ -113,10 +113,9 @@ eigen_bands$eigenfunctions %>%
 plot_ly() %>%
   add_surface(z =~ eigen_bands$surface)
 
-mean_bands %>% 
+mean_bands %>%
   ggplot(mapping = aes(time)) +
   geom_line(aes(y=mean)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
   labs(x = "Epoch", y = "Relative delta power spectral density") +
   theme_bw()
-
