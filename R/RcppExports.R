@@ -169,8 +169,8 @@ get_posterior_subject_bands_cpp <- function(mcmc_output, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_subject_bands_cpp`, mcmc_output, alpha)
 }
 
-get_posterior_means_cpp <- function(mcmc_results, xi, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_means_cpp`, mcmc_results, xi, alpha)
+get_posterior_means_cpp_correct <- function(mcmc_results, xi, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_means_cpp_correct`, mcmc_results, xi, alpha)
 }
 
 get_posterior_coefs <- function(mod, alpha) {
@@ -181,8 +181,8 @@ arma_cov2cor <- function(V) {
     .Call(`_BayesianConditionalFPCA_arma_cov2cor`, V)
 }
 
-get_posterior_eigen_cpp <- function(mcmc_results, eigenvals, zi, alpha = 0.05) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen_cpp`, mcmc_results, eigenvals, zi, alpha)
+get_posterior_eigen_cpp_correct <- function(mcmc_results, eigenvals, zi, alpha = 0.05) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_eigen_cpp_correct`, mcmc_results, eigenvals, zi, alpha)
 }
 
 get_variance_effects <- function(mod, alpha) {

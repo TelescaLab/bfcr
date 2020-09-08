@@ -65,8 +65,8 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   arma::uword counter = 0;
   seq_along_start(0) = start;
   seq_along_end(0) = end;
-  rank_mean = arma::ivec(penalties_mean.n_elem);
-  rank_var = arma::ivec(penalties_var.n_elem);
+  rank_mean = get_rank(penalties_mean);
+  rank_var = get_rank(penalties_var);
   for (arma::uword i = 0; i < penalties_var.n_elem; i++) {
     if (indices_var(i) != old_index) {
       end = end + penalties_var(i).n_rows / basis_dim;
@@ -76,12 +76,6 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
       counter++;
       old_index = indices_var(i);
     }
-  }
-  for (arma::uword i = 0; i < penalties_mean.n_elem; i++) {
-    rank_mean(i) = arma::rank(penalties_mean(i));
-  }
-  for (arma::uword i = 0; i < penalties_mean.n_elem; i++) {
-    rank_var(i) = arma::rank(penalties_var(i)); // check rank is correct
   }
 }
 
@@ -108,4 +102,5 @@ arma::ivec get_rank(arma::field<arma::mat>& penalties) {
   for (arma::uword i = 0; i < penalties.n_elem; i++) {
     rank_vec(i) = arma::rank(penalties(i));
   }
+  return(rank_vec);
 }

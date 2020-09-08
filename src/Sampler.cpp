@@ -22,12 +22,8 @@ void SamplerUnequal::sample_parameters() {
         
         goto stop;
       }
-      // Rcpp::Rcout << "updating beta\n";
-       pars.update_beta(dat, transf);
-      //Rcpp::Rcout << "updating lambda\n";
-      //Rcpp::Rcout << "tau2: " << pars.tau2 << "\n";
+      pars.update_beta(dat, transf);
       pars.update_lambda(dat, transf); 
-      //Rcpp::Rcout << "updating eta\n";
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);

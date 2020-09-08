@@ -7,7 +7,7 @@ Parameters::Parameters(Data& dat) {
   varphi = 100 * arma::vec(dat.n, arma::fill::ones);
   psi = arma::vec(dat.n, arma::fill::ones);
   tau_a = 1;
-  tau_b = 0.0005;
+  tau_b = 0.005;
   alpha = 1;
   tausq = 1;
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);
@@ -124,8 +124,8 @@ void Parameters::update_tau1(Data& dat, Transformations& transf) {
   arma::uword old_index = 1;
   
   for(arma::uword i = 0; i < num_field_elements; i++){
-    //tau_a = tau1_nu(i) / 2;
-    //tau_b = tau1_delta(i) * tau1_nu(i) / 2;
+    // tau_a = tau1_nu(i) / 2;
+    // tau_b = tau1_delta(i) * tau1_nu(i) / 2;
     if(dat.indices_mean(i) != old_index){
       start = end + 1;
       end = end + dat.penalties_mean(i).n_rows / dat.basis_dim;
@@ -172,8 +172,8 @@ void Parameters::update_tau2(Data& dat, Transformations& transf) {
 }
 
 void Parameters::update_tau1_delta(Data& dat, Transformations& transf){
-  double a = 10;
-  double b = 10;
+  double a = 1;
+  double b = 1;
   double update_a;
   double update_b;
   for (arma::uword i = 0; i < dat.penalties_mean.n_elem; i++) {
@@ -201,8 +201,8 @@ void Parameters::update_tau1_nu(Data& dat, Transformations& transf){
   }
 }
 void Parameters::update_tau2_delta(Data& dat, Transformations& transf) {
-  double a = 10;
-  double b = 10;
+  double a = 1;
+  double b = 1;
   double update_a;
   double update_b;
   for (arma::uword k = 0; k < dat.kdim; k++) {

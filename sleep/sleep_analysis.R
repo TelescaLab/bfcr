@@ -37,49 +37,30 @@ age_grid <- sleep_data_filtered %>%
   ungroup() %>%
   select(age_s1)
 age_df <- ceiling(10 / 100 * (max(age_grid) - min(age_grid)))
-epoch_spec <- s(epoch_grid, bs = "ps", k = epoch_df)
-age_spec <- s(age_grid, bs = "ps", k = age_df)
-age_spec$term <- "age_s1"
 
-epoch_basis <- smoothCon(epoch_spec,
-                         data = data.frame(epoch_grid))
-age_basis <- smoothCon(object = age_spec,
-                       data = data.frame(age_grid))
-epoch_marginal_penalty <- epoch_basis[[1]]$S[[1]]
-age_marginal_penalty <- age_basis[[1]]$S[[1]]
-model_penalties <- tensor.prod.penalties(list(age_marginal_penalty,
-                                              epoch_marginal_penalty))
+epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
+epoch_penalty <- attr(epoch_basis, "S")
+age_basis <- ps(age_grid$age_s1, df = age_df, intercept = TRUE)
+age_penalty <- attr(age_basis, "S")
+model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
+design_mean <- age_basis
+design_var <- age_basis
+mean_indices <- c(1, 1)
+var_indices <- c(1, 1)
 mean_penalty <- model_penalties
 var_penalty <- model_penalties
-mean_indices <- c(1,1)
-var_indices <- c(1,1)
-design_mean <- age_basis[[1]]$X
-design_var <- age_basis[[1]]$X
-# design_mean <- cbind(rep(1, num_subjects))
-# design_var <- cbind(rep(1, num_subjects))
-# mean_penalty <- list(16*epoch_marginal_penalty)
-# var_penalty <- list(16*epoch_marginal_penalty)
-# reduced_penalty <- matrix(0, nrow = epoch_df, epoch_df)
-# reduced_penalty[2:epoch_df, 2:epoch_df] <- epoch_basis[[1]]$S[[1]]
-# mean_penalty <- list(reduced_penalty)
-# var_penalty <- list(reduced_penalty)
-# mean_penalty <- list(matrix(0, 24, 24))
-# var_penalty <- list(matrix(0, 24, 24))
-# mean_indices <- c(1)
-# var_indices <- c(1)
 
-epoch_basis_spline <- epoch_basis[[1]]$X
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
 
-k <- 15
+k <- 10
 iter <- 5000
 burnin <- 2500
 thin <- 1
 loglik <- 0
 mcmc_results <- run_mcmc(response, design_mean,
-                  design_var, epoch_basis_spline,
+                  design_var, epoch_basis,
                   epoch_grid,
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
@@ -87,9 +68,10 @@ mcmc_results <- run_mcmc(response, design_mean,
                   var = "unequal")
 
 subject_bands <- get_posterior_subject_bands(mcmc_results)
-mean_bands <- get_posterior_means(mcmc_results, design_mean[4,])
-eigen_bands <- get_posterior_eigen(mcmc_results, 6, design_mean[5,])
-subj <- 40:43
+mean_bands <- get_posterior_means(mcmc_results, design_mean[6,])
+evals <- 3
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, design_mean[6,])
+subj <- 1:4
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
@@ -98,10 +80,10 @@ subject_bands %>%
   facet_wrap(. ~ id) +
   theme_bw()
 
-number.labs <- paste0("Eigenfunction ", 1:6, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
+number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
                       " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
                       100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
-names(number.labs) <- c("1":6)
+names(number.labs) <- c("1":evals)
 eigen_bands$eigenfunctions %>%
   ggplot(aes(x=time)) +
   facet_wrap(. ~ number, labeller = labeller(number = number.labs)) +
@@ -119,3 +101,4 @@ mean_bands %>%
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
   labs(x = "Epoch", y = "Relative delta power spectral density") +
   theme_bw()
+
