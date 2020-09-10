@@ -3,44 +3,50 @@ Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: BFPCA.aux
 The style file: biom.bst
 Database file #1: mybiblio.bib
+Repeated entry---line 249 of file mybiblio.bib
+ : @article{Montagna2012
+ :                      ,
+I'm skipping whatever remains of this entry
+Warning--empty year in Bhattacharya2011
 You've used 23 entries,
             2146 wiz_defined-function locations,
-            685 strings with 8040 characters,
-and the built_in function-call counts, 10911 in all, are:
-= -- 1019
-> -- 620
-< -- 16
-+ -- 205
-- -- 201
-* -- 1039
-:= -- 1911
+            681 strings with 7923 characters,
+and the built_in function-call counts, 10754 in all, are:
+= -- 1008
+> -- 594
+< -- 17
++ -- 196
+- -- 192
+* -- 1009
+:= -- 1878
 add.period$ -- 69
 call.type$ -- 23
-change.case$ -- 177
+change.case$ -- 173
 chr.to.int$ -- 23
-cite$ -- 23
-duplicate$ -- 357
+cite$ -- 24
+duplicate$ -- 358
 empty$ -- 650
-format.name$ -- 242
-if$ -- 2044
+format.name$ -- 233
+if$ -- 2020
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 25
+missing$ -- 26
 newline$ -- 118
 num.names$ -- 92
-pop$ -- 138
+pop$ -- 141
 preamble$ -- 1
-purify$ -- 179
+purify$ -- 176
 quote$ -- 0
-skip$ -- 257
+skip$ -- 259
 stack$ -- 0
-substring$ -- 766
+substring$ -- 762
 swap$ -- 171
 text.length$ -- 3
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 134
-warning$ -- 0
-while$ -- 108
+type$ -- 132
+warning$ -- 1
+while$ -- 107
 width$ -- 0
-write$ -- 299
+write$ -- 297
+(There was 1 error message)

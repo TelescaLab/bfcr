@@ -1,5 +1,11 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citeauthoryear{Bhattacharya and Dunson}{Bhattacharya and
+  Dunson}{}]{Bhattacharya2011}
+Bhattacharya, A. and Dunson, D.~B.
+\newblock Sparse bayesian infinite factor models.
+\newblock {\em Biometrika} pages 291--306.
+
 \bibitem[\protect\citeauthoryear{Cardot}{Cardot}{2007}]{Cardot2007}
 Cardot, H. (2007).
 \newblock Conditional functional principal components analysis.
@@ -14,24 +20,12 @@ Crainiceanu, C.~M., Ruppert, D., Carroll, R.~J., Joshi, A., and Goodner, B.
 \newblock {\em Journal of Computational and Graphical Statistics} {\bf 16,}
   265--288.
 
-\bibitem[\protect\citeauthoryear{Di, Crainiceanu, Caffo, and Punjabi}{Di
-  et~al.}{2009}]{Di2009}
-Di, C.-Z., Crainiceanu, C.~M., Caffo, B.~S., and Punjabi, N.~M. (2009).
-\newblock Multilevel functional principal component analysis.
-\newblock {\em The annals of applied statistics} {\bf 3,} 458.
-
 \bibitem[\protect\citeauthoryear{Dickinson, DiStefano, Senturk, and
   Jeste}{Dickinson et~al.}{2018}]{Dickinson2017}
 Dickinson, A., DiStefano, C., Senturk, D., and Jeste, S.~S. (2018).
 \newblock Peak alpha frequency is a neural marker of cognitive function across
   the autism spectrum.
 \newblock {\em European Journal of Neuroscience} {\bf 47,} 643--651.
-
-\bibitem[\protect\citeauthoryear{Eilers and Marx}{Eilers and
-  Marx}{1996}]{Eilers1996}
-Eilers, P.~H. and Marx, B.~D. (1996).
-\newblock Flexible smoothing with b-splines and penalties.
-\newblock {\em Statistical science} pages 89--102.
 
 \bibitem[\protect\citeauthoryear{Fan and Gijbels}{Fan and
   Gijbels}{1996}]{Fan1996}
@@ -142,6 +136,11 @@ Scheipl, F., Staicu, A.-M., and Greven, S. (2015).
 Wang, J.-L., Chiou, J.-M., and Mueller, H.-G. (2015).
 \newblock Review of functional data analysis.
 \newblock {\em arXiv preprint arXiv:1507.05135} .
+
+\bibitem[\protect\citeauthoryear{Wood}{Wood}{2017}]{Wood2017}
+Wood, S.~N. (2017).
+\newblock {\em Generalized additive models: an introduction with R}.
+\newblock CRC press.
 
 \bibitem[\protect\citeauthoryear{Yang, Zhu, Choi, Cox, et~al\mbox{.}}{Yang
   et~al.}{2016}]{Yang2016}

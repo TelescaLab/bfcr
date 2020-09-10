@@ -5,7 +5,7 @@
 \usepackage{amsmath}
 
 \DeclareMathOperator{\E}{\mathbb{E}}
-
+\newcommand{\vect}{\text{vec}}
 \title[This is an Example of Recto Running Head]{Bayesian Covariate Adjusted Functional Principal Components Analysis}
 
 %  Here are examples of different configurations of author/affiliation
@@ -44,7 +44,7 @@
 
 
 \begin{document}
-	
+
 
 \label{firstpage}
 
@@ -95,62 +95,64 @@ where $\mu(t, \bmath{x})$ is the conditional mean, $\psi_{j}(t, \bmath{x})$ form
 \sum_{j=1}^{k}\sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})
 \end{gather*}
 
-Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression. Lending toward conceptually straight-forward prior specifications, we  build $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. Borrowing notation from \citet{Scheipl2015}, $\mu(t, \bmath{x})$ can be specified as
+Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression. Lending toward conceptually straight-forward prior specifications, we  build $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. Borrowing notation from \citet{Scheipl2015}, $\mu(t, \bmath{x})$ can be written as
 \begin{gather}
 \mu(t, \bmath{x}) = \sum_{r=1}^{R}f_{r}(t, \bmath{x}_{r})
 \end{gather}
 where the set $\{\bmath{x}_{r}\}_{r=1}^{R}$ partitions the set of covariates $\bmath{x}$ into $R$ groups. This grouping framework leads to flexible specification of basis expansions. For example, when $\bmath{x}_{r}$ is a single scalar covariate $f_{r}(t, \bmath{x}_{r})$ could be a functional linear effect $\bmath{x}_{r}f(t)$ or a smooth effect $f(t, \bmath{x}_{r})$. If $\bmath{x}_{r} = (x_{r_{1}}, x_{r_{2}})$ is a vector of covariates, $f_{r}(t, \bmath{x}_{r})$ could be specified as $f_{r}(t, x_{r_{1}}, x_{r_{2}}) = f(t, x_{r_{1}}, x_{r_{2}}), x_{r_{1}}f(t, x_{r_{2}})$, or $x_{r_{1}}x_{r_{2}}f(t)$. These terms are approximated by a set of basis functions with corresponding priors to encourage smooth effects. 
 
-The $f_{r}(t, \bmath{x}_{r})$ terms can be represented using matrix algebra. For example, let $\sum_{j=1}^{p}\sum_{m=1}^{p_{r}}b_{j}(t)b^{r}_{m}(x_{r})  \beta_{rjm}$ be a tensor spline expansion for $f(t, x_{r}).$ where $\{b_{j}\}_{j=1}^{p}$ is a marginal basis expansion in $t$ and $\{b_{m}^{r}\}_{m=1}^{p_{r}}$ is a marginal basis expansion in $x_{r}$. Let $\bmath{b}(t) = (b_{1}(t), \ldots, b_{p}(t))^{\top}, \bmath{b}^{r}(t) = (b_{1}^{r}(x_{r}), \ldots, b_{p_{r}}^{r}(x_{r}))^{\top}$, and arrange the coefficients into a $p\times p_{r}$ matrix $\beta_{r}$. Then \begin{align*}
-f_{r}(t, x_{r}) = \bmath{b}(t)^{\top}\beta_{r} \bmath{b}^{r}(x_{r})
+The $f_{r}(t, \bmath{x}_{r})$ terms can be represented using matrix algebra. For example, let \\$\sum_{j=1}^{p}\sum_{m=1}^{p_{r}}b_{j}(t)b^{r}_{m}(x_{r})  \beta_{rjm}$ be a tensor spline expansion for $f(t, x_{r})$ where $\{b_{j}\}_{j=1}^{p}$ is a marginal basis expansion in $t$ and $\{b_{m}^{r}\}_{m=1}^{p_{r}}$ is a marginal basis expansion in $x_{r}$. Let $\bmath{b}(t) = (b_{1}(t), \ldots, b_{p}(t))^{\top}, \bmath{b}^{r}(t) = (b_{1}^{r}(x_{r}), \ldots, b_{p_{r}}^{r}(x_{r}))^{\top}$, and arrange the coefficients into a $p\times p_{r}$ matrix $\beta_{r}$. Then 
+\begin{align*}
+f_{r}(t, x_{r}) = \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(x_{r})
 \end{align*}
 Continuing this way, we can write
-\begin{align*}
-\mu(t, \bmath{x}_{r}) &= \bmath{b}(t)\begin{pmatrix}\beta_{1} & \cdots & \beta_{R}\end{pmatrix}\begin{pmatrix}\bmath{b}^{1}(\bmath{x}_{1}) & \cdots & \bmath{b}^{R}(\bmath{x}_{R})\end{pmatrix}\\
-&=\bmath{b}(t)\beta \bmath{\tilde{X}}(\bmath{x})
-\end{align*}
-Let $r(d_{1}) = \sum_{j=1}^{R}p_{r}$. Then $\beta$ is a $p\times r(d_{1})$ coefficient matrix and $\bmath{\tilde{X}}(\bmath{x})$ is a $1\times r(d_{1})$ vector of spline evaluations. Similarly, $\psi_{j}(t,\bmath{x})$ can be represented by 
-\begin{align}
-\psi_{j}(t, \bmath{x}) = \bmath{b}(t)^{\top}\Lambda_{j}\bmath{\tilde{X}}(\bmath{x})\label{eq:basis}
-\end{align}
+\begin{equation}
+\mu(t, \bmath{x}) = \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})
+\end{equation}
+where $\beta = \begin{pmatrix}\beta_{1}\,|\cdots|\,\beta_{R}\end{pmatrix}$ and $\bmath{\tilde{X}}(\bmath{x}) = \begin{pmatrix}\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\end{pmatrix}$.
+Let $r(d_{1}) = \sum_{j=1}^{R}p_{r}$. Then $\beta$ is a $p\times r(d_{1})$ coefficient matrix and $\bmath{\tilde{X}}(\bmath{x})$ is a $1\times r(d_{1})$ vector of spline evaluations. Similarly, $\psi_{j}(t,\bmath{x})$ can be written as
+
+\begin{equation}
+\psi_{j}(t, \bmath{x}) = \bmath{b}(t)^{\top}\Lambda_{j}\,\bmath{\tilde{X}}(\bmath{x})
+\label{eq:basis}
+\end{equation}
 where $\Lambda_{j}$ is a $p\times r(d_{1})$ loading matrix.
 Unlike previous work on functional covariance regression \citep{Cardot2007, Jiang2010}, equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) specify a generative model for functional covariance regression. Complete with priors detailed in Section \ref{s:priors}, posterior inference is evaluated through Markov-Chain Monte Carlo (MCMC). This is important because empirical methods require resampling to perform inference. However, resampling techniques for functional data come with pitfalls. Any fitted model will have smoothing bias (to regularize rapidly varying functions). A parametric bootstrap would generate data from a biased model, and subsequently cause even more bias by smoothing once again for each bootstrap replicate. Nonparametric bootstrapping causes undersmoothing due to the presence of repeated functions.
 
-Outside of the FDA literature, \citet{Hoff2012} developed a similar model for covariance regression with multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. To overcome this parametric limitation, the authors develop a factor matrix process estimate a time-varying covariance matrix characterizing influenza incidence across the United States. This approach is flexible but each gibbs sample iteration requires a cholesky decomposition of an $n\times n$ matrix where $n$ is the number of subjects. The basis approach taken in equation \ref{eq:basis} would only require a cholesky decomposition of a $p \cdot r(d_{1}) \times p\cdot r(d_{1})$ matrix for each iteration. Therefore the basis transform approach is likely to scale better to large data sets.   \iffalse However, the factor matrix process sets a does not accommodate discrete covariates In contrast, the use of general additive terms as in \cite{Scheipl2015} alleviates this lack of flexibility.   However, the proposed method is the first  Conditional covariance estimation has been explored in However, in our formulation we design priors to accomodate tensor expansions for greater flexibility. Random components are also drawn  from a covariate-adjusted kernel as opposed to pre-specifying its shape. Estimating the distance metric yields important patterns of variability as is usual in functional principal component analyses. 
-The probabilistic model is completed by specifying distributional on assumptions on $\eta_{ij}$ and $\epsilon_{i}(t)$. We use $\eta_{ij}$
-\begin{equation*}
-\mu(t|\bmath{x_{i}}) =
- \sum_{d=1}^{d_{1}}\mu_{d}(t)\psi(x_{id}),\;\;\;\phi_{k}(t|\bmath{x_{i}}) = \sum_{d=1}^{D}\phi_{kd}(t)x_{id}
-\end{equation*}
-Furthermore, we expand $\mu_{d}(t)$ and $\phi_{kd}(t)$ in terms of a P-dimensional fixed spline basis. In this paper we use p-splines \citep{Eilers1996}, although other choices are available. Expanding $\mu_{d}(t)$ and $\phi_{kd}(t)$, we have
-\begin{equation*}
-\mu_{d}(t) = \sum_{p=1}^{P}b_{p}(t)\theta_{pd}, \;\;\;\phi_{kd}(t) = \sum_{p=1}^{P}b_{p}(t)\lambda_{kpd}
-\end{equation*}
-where $b_{p}(t)$, $p=1,\ldots,P$, represent fixed basis splines. Let $\Theta$ be a $P\times D$ matrix with entry $(p, d)$ equal to $\theta_{pd}$, let $\Lambda_{k}$ be a $P\times K$ matrix with entry $(p, d)$ equal to $\lambda_{kpd}$, and let $b(t) = (b_{1}(t),\ldots,b_{p}(t))^{\top}$. Then Equation~(\ref{eq:model}) can be rewritten as 
-\begin{equation*}
-y_{i}(t) = b(t)^{\top}\Theta\bmath{x_{i}} + \sum_{k = 1}^{K}b(t)^{\top}\Lambda_{k}\bmath{x_{i}}\eta_{ik} + \epsilon_{i}(t)
-\end{equation*}
-Distributional assumptions must be imposed on $\eta_{ik}$ and $\epsilon_{i}(t)$. In this paper, we simply use $\eta_{ik} \sim N(0,1)$ and $\epsilon_{i}(t) \sim N(0, \sigma^{2})$. Of course, more complex choices are warranted by the application at hand. The model structure and assumptions yields the covariate-dependent mean
-\begin{equation*}
-\mathbb{E}(y_{i}(t)|\bld{x_{i}}) = b(t)^{\top}\Theta\bld{x_{i}}
-\end{equation*}
-and covariate-dependent covariance
-\begin{equation}
-\text{cov}(y_{i}(t), y_{i}(t')|\bmath{x_{i}}) =\sum_{k=1}^{K}b(t)^{\top}\Lambda_{k}\bmath{x_{i}}\bmath{x_{i}}^{\top}\Lambda_{k}^{\top}b(t')
-\label{Eq:Cov}
-\end{equation}
-This model can be interpreted as a functional extension to \citet{Hoff2012} via incorporating  basis spline expansions. In contrast to \citet{Hoff2012}, we avoid Wishart priors on the residual error process to increase model identifiability and to reflect our assumptions of the presence of measurement error. This model also shares similarities with functional mixed effects models \citep{Morris2006, Guo2002} in the time-varying linear structure of the mean. However, Equation~(\ref{eq:model}) models the subject to subject variability in a different manner. Instead of using a random intercept or random slope, this model uses a covariate-dependent functional probabilistic principal component analysis decomposition. This decomposition is nonparametric and is suitable when covariance estimation is one of the goals of analysis. 
-
-In contrast to covariance estimation via kernel smoothers \citep{Cardot2007, Jiang2010}, this model uses a quadratic time-varying covariance structure as seen from Equation~(\ref{Eq:Cov}). Although the aforementioned approaches are extremely flexible, they can face serious practical difficulties when the covariate dimension is not miniscule \citep{Montagna2012}. The linear structure approach relieves much of the computational burden. At the same time, the linear structure allows for group covariates, which is essential for the case study presented in this paper.
-\fi
+Outside of the FDA literature, \citet{Hoff2012} developed a similar model for covariance regression with multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. To overcome this parametric limitation, the authors develop a factor matrix process estimate a time-varying covariance matrix characterizing influenza incidence across the United States. This approach is flexible but each gibbs sample iteration requires a cholesky decomposition of an $n\times n$ matrix where $n$ is the number of subjects. The basis approach taken in equation \ref{eq:basis} would only require a cholesky decomposition of a $p \cdot r(d_{1}) \times p\cdot r(d_{1})$ matrix for each iteration. Therefore the basis transform approach is likely to scale better for large data sets such as the SHHS, provided $r(d_{1})$ is not too large.  
 \section{Prior Distributions}
 \label{s:priors}
-The Bayesian paradigm requires one to specify prior distributions for all unknown quantities. We use smoothing priors in the mean and covariance parameters to prevent overfitting. Let $\Theta_{d}$ and $\Lambda_{kd}$ denote the $d$th column of $\Theta$ and $\Lambda_{k}$ respectively. We assign a Gaussian Markov Random Field prior to $\Theta_{d}$ and $\Lambda_{kd}$ such that
-\begin{equation*}
-\Theta_{d}|\tau_{0d} \propto \exp\bigg(-\frac{\tau_{0d}}{2}\Theta_{d}^{\top}K_{0}\Theta_{d}\bigg),\;\;\;\Lambda_{kd}|\tau_{1d}\propto\exp\bigg(-\frac{\tau_{1d}}{2}\Lambda_{kd}^{\top}K_{0}\Lambda_{kd}\bigg)
-\end{equation*}
-where $K_{0}$ is the first-order difference matrix with $rank(K_{0}) = P-1$. Since $K_{0}$ does not have full rank, these priors are improper. In addition, $\tau_{0d}$ and $\tau_{1d}$ are assigned Gamma priors, so that $\tau_{0d},\tau_{1d}\sim \text{Gamma}(a_{\tau}, b_{\tau})$ with $\mathbb{E}(\tau_{0d}) = a_{\tau}/b_{\tau}$. We set $a_{\tau} = 1$ and $b_{\tau} =.0005$ which has been recommended by \citet{Lang2004}. We place a conventional Inverse-Gamma prior on $\sigma^{2}$, so that $\sigma^{-2} \sim \text{Gamma}(a_{\sigma}, b_{\sigma})$. We set $a_{\sigma},b_{\sigma} = .0001$ to achieve a diffuse yet proper prior on $\sigma^{-2}$.
+In this section we place priors on all unknown quantities of interest. We begin by placing prior on $\mu(t, \bmath{x})$. As we have seen in equation \ref{eq:mu}, this amounts to placing a prior on each $\beta_{r}$ submatrix. The rows of $\beta_{r}$ are associated with a $p\times p$ penalty matrix $K$, and the columns of $\beta_{r}$ are associated with a $p_{r}\times p_{r}$ penalty matrix $K_{r}$. These penalties are designed to encourage smoothness and can target magnitude penalization, squared derivative shrinkage, or local changes in $\beta_{r}$ through a differencing penalty. In this paper we penalize the second order difference of $\beta_{r}$ coefficients in both directions, but other penalties could be used as well. A prior for $\beta_{r}$ respecting the tensor structure is constructed as follows \citep{Wood2017}. Let $\tilde{K} = I_{p_{r}\times p_{r}}\otimes K$ and $\tilde{K_{r}} = K_{r} \otimes I_{p\times p}$. The prior for the vectorized form of $\beta_{r}$ is
 
+\begin{gather*}
+\vect(\beta_{r}) \,|\, \tau_{1xr}, \tau_{1tr} \sim\\ \exp\{-0.5\vect(\beta_{r})^{\top}( \tau_{1xr} \tilde{K}_{r} + \tau_{1tr}\tilde{K})\vect(\beta_{r})\}
+\end{gather*} 
+where $\tau_{1xr}, \tau_{1tr}$ are smoothing parameters. If $p_{r} = 1$ then $\beta_{r}$ is a $p\times 1$ vector and $\tilde{K}_{r} = 0$. In this case the prior simplifies to 
+\begin{align*}
+\beta_{r} \,|\tau_{1tr}\sim \exp\{-0.5\tau_{1tr}\beta_{r}^{\top}\tilde{K}\beta_{r}\}
+\end{align*}
+This prior is improper but provided that proper priors are set for $\tau_{1tr}, \tau_{1xr}$, the posterior of $\beta_{r}$ will be proper \citep{Lang2004}. Priors for $\psi_{j}(t, \bmath{x})$. However, $\psi_{j}(t,\bmath{x})$ for larger $j$ should also contribute less to the fit than earlier terms. Therefore the prior for $\psi_{j}(t,\bmath{x})$ should encourage smoothing and shrinkage aspects. Let $\Lambda_{rj}$ be the analogous component to $\beta_{r}$. Re-using the same penalty matrices as above, the prior for $\Lambda_{rj}$ is 
+\begin{gather*}
+\vect(\Lambda_{rj})\,|\,\tau_{2jxr},\tau_{2jtr}, \tau_{rj}^{*}, \phi_{rj} \sim \\\exp \{-0.5\vect(\Lambda_{rj})^{\top}(\tau_{2jxr}\tilde{K}_{r} + \tau_{2jtr}\tilde{K} + \tau^{*}_{rj}\phi_{rj})\vect(\Lambda_{rj})\}
+\end{gather*}
+where $\tau_{2jxr}, \tau_{2jtr}$ are smoothing parameters and $\phi_{rj}$, $\tau^{*}_{rj}$ are shrinkage parameters. Here $\phi_{rj}$ is a diagonal matrix with dimension $p\cdot p_{r}\times p\cdot p_{r}$. If $p_{r} =1$ (so that $\Lambda_{rj}$ is a column vector), then the prior becomes
+\begin{gather*}
+\Lambda_{rj} \,|\tau_{2jtr}, \tau^{*}_{rj},\phi_{rj} \sim\\
+\exp\{-0.5\Lambda_{rj}^{\top}(\tau_{2jtr}\tilde{K} + \phi_{rj}\tau^{*}_{rj})\Lambda_{rj}\}
+\end{gather*}
+similar to the case when $\beta_{rj}$ is a column vector. In summary, these priors for $\mu(t,\bmath{x})$ and $\psi_{j}(t,\bmath{x})$ are design to reflect our assumptions of smoothness in the functional data outcomes. All smoothing parameters are given a gamma prior distribution, 
+\begin{gather*}
+\tau_{1xr}, \tau_{1tr} \sim \text{Gamma}(a_{\tau}, b_{\tau})\\
+\tau_{2jxr}, \tau_{2jtr} \sim \text{Gamma}(a_{\tau}, b_{\tau})
+\end{gather*}
+where we use the `rate' parameterization of the Gamma distribution (i.e., if $x \sim Gamma(a, b)$, then $\E[x] = a/b$). In addition we use ideas from the Gamma Multiplicative Process Prior (GMPP) \citep{Bhattacharya2011, Montagna2012} to assign priors to $\tau^{*}_{rj}$ and $\phi_{rj}$. The prior for $\tau^{*}_{rj}$ is
+\begin{align*}
+\tau^{*}_{rj} &= \prod_{l=1}^{r}\delta_{lr}\\
+\delta_{r1} &\sim \text{Gamma}(a_{r0}, 1)\\
+ \delta_{rl} &\sim \text{Gamma}(a_{r1}, 1),\,\, l > 1\\
+ a_{r0}, a_{r1} &\sim \text{Gamma}(2,1)
+\end{align*}
+so that the $\tau_{rj}$ are stochastically increasing in $j$. This shrinkage is data-adaptive so that later entries of $\Lambda_{rj}$ may or may not be shrunk toward zero depending on the model fit. In particular, specifying a conservative choice of $k$ (number of latent functional factors) should not change results compared to setting $k$ to some ``optimal'' choice. 
 \subsection{Markov-Chain Monte-Carlo and Posterior Distributions}
 \label{s:posteriors}
 Analytic posterior distributions are intractable, so we rely on Markov-Chain Monte-Carlo techniques to draw samples from all relevant posterior distributions. Since all full conditionals of blocks of parameters are available in closed form, a simple Gibbs sampler updates each parameter block sequentially. See Web Appendix A for all block parameter updating steps.
@@ -166,21 +168,6 @@ that are narrow enough to fit in one column of the typeset journl; use
 \texttt{table*} for tables that need to span two columns.  For
 figures, use of \texttt{figure} and \texttt{figure*} is analogous. 
 
-\begin{table}
-	\caption{This is a simple table.}
-	\label{t:one}
-	\begin{center}
-		\begin{tabular}{lrrr}
-			\Hline
-			Estimator & \multicolumn{1}{c}{$\beta_1$} &  \multicolumn{1}{c}{$\beta_2$} & 
-			\multicolumn{1}{c}{$\beta_3$} \\ \hline
-			MLE & 10.18 & $-$3.26 & 0.13 \\
-			OLS & 9.92 & $-$3.19 & 0.11 \\
-			WLS & 9.88 & $-$3.33 & 0.12 \\
-			\hline
-		\end{tabular}
-	\end{center}
-\end{table}
 
 
 \section{Case Study}
