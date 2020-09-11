@@ -6,8 +6,8 @@ Parameters::Parameters(Data& dat) {
   eta = arma::mat(dat.n, dat.kdim, arma::fill::randn);
   varphi = 100 * arma::vec(dat.n, arma::fill::ones);
   psi = arma::vec(dat.n, arma::fill::ones);
-  tau_a = 1;
-  tau_b = 0.005;
+  tau_a = 0.0005;
+  tau_b = 0.0005;
   alpha = 1;
   tausq = 1;
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);

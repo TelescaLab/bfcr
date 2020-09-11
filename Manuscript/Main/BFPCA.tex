@@ -1,4 +1,4 @@
-\documentclass[useAMS,usenatbib]{biom}
+\documentclass[useAMS,referee,usenatbib]{biom}
 \usepackage{xcolor}
 \usepackage{amsmath}
 \usepackage{amsfonts}
@@ -40,7 +40,7 @@
 %  is produced.
 
 \author{John Shamshoian$^{1}$\email{donatello.telesca@ucla.edu}, Damla {\c S}ent{\"u}rk$^{1}$, Shafali Jeste$^{2}$, and Donatello Telesca$^{1,*}$ \\$^{1}$Department of Biostatistics, University of California, Los Angeles, California 90095, U.S.A.\\$^{2}$ Department of Psychiatry and Biobehavioral Sciences, University of California, Los Angeles,\\ California 90095, U.S.A.}
-\title[Bayesian Conditional Functional Principal Components Analysis]{Bayesian Conditional Functional Principal Components Analysis}
+\title[Bayesian Functional Covariance Regression]{Bayesian Functional Covariance Regression}
 
 
 \begin{document}
@@ -60,7 +60,7 @@
 %
 
 \begin{keywords}
-	Functional data analysis; Peak alpha frequency; Autism spectrum disorder; Covariate-adjusted.
+	Autism spectrum disorder; Covariance regression; Functional data analysis; Peak alpha frequency; Power spectral density; Sleep heart health study.
 \end{keywords}
 
 %  As usual, the \maketitle command creates the title and author/affiliations
@@ -85,14 +85,14 @@ The rest of this paper is organized as follows: Section \ref{s:model} gives the 
 \label{s:model}
 In this section we present the model associating patterns of variability and time-stable covariates. Let $y_{i}(t)$ denote the outcome for subject $i$ at point $t \in \mathcal{T}$ for some real compact interval $\mathcal{T}$. Let $\bmath{x} = (x_{1},\ldots,x_{d_{1}})^{\top}$ denote a $d_{1}$-dimensional time-stable covariate for subject $i$, with the dependence on $i$ removed for ease of presentation. The $k$-dimensional data-generating model is 
 \begin{gather}
-y_{i}(t) = \mu(t, \bmath{x})   + r_{k}(t, \bmath{x})  + \epsilon_{i}(t)\label{eq:model}\\
-r_{k}(t, \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t, \bmath{x})\eta_{ij}\label{eq:covariance}\\
+y_{i}(t) = \mu(t, \bmath{x})   + r_{i}(t, \bmath{x})  + \epsilon_{i}(t)\label{eq:model}\\
+r_{i}(t, \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t, \bmath{x})\eta_{ij}\label{eq:covariance}\\
 \eta_{ij} \sim N(0, 1),\;\;\;\;\epsilon_{i}(t) \sim N(0, \varphi^{2})
 \label{eq:random}
 \end{gather}
-where $\mu(t, \bmath{x})$ is the conditional mean, $\psi_{j}(t, \bmath{x})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. Using equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) the conditional covariance function is expressed as
+where $\mu(t, \bmath{x})$ is the conditional mean, $\psi_{j}(t, \bmath{x})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. Using equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) the conditional covariance function $c(t, t', \bmath{x})$ is
 \begin{gather*}
-\sum_{j=1}^{k}\sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})
+c(t,t', \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})
 \end{gather*}
 
 Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression. Lending toward conceptually straight-forward prior specifications, we  build $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. Borrowing notation from \citet{Scheipl2015}, $\mu(t, \bmath{x})$ can be written as
@@ -152,7 +152,9 @@ where we use the `rate' parameterization of the Gamma distribution (i.e., if $x 
  \delta_{rl} &\sim \text{Gamma}(a_{r1}, 1),\,\, l > 1\\
  a_{r0}, a_{r1} &\sim \text{Gamma}(2,1)
 \end{align*}
-so that the $\tau_{rj}$ are stochastically increasing in $j$. This shrinkage is data-adaptive so that later entries of $\Lambda_{rj}$ may or may not be shrunk toward zero depending on the model fit. In particular, specifying a conservative choice of $k$ (number of latent functional factors) should not change results compared to setting $k$ to some ``optimal'' choice. 
+so that the $\tau_{rj}$ are stochastically increasing in $j$. This shrinkage is data-adaptive so that later entries of $\Lambda_{rj}$ may or may not be shrunk toward zero depending on the model fit. In particular, specifying a conservative choice of $k$ (number of latent functional factors) should not change results too much compared to setting $k$ to some ``optimal'' choice. 
+
+\section{Simulations}
 \subsection{Markov-Chain Monte-Carlo and Posterior Distributions}
 \label{s:posteriors}
 Analytic posterior distributions are intractable, so we rely on Markov-Chain Monte-Carlo techniques to draw samples from all relevant posterior distributions. Since all full conditionals of blocks of parameters are available in closed form, a simple Gibbs sampler updates each parameter block sequentially. See Web Appendix A for all block parameter updating steps.

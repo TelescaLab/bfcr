@@ -49,54 +49,6 @@ cpp_EM_new <- function(X, B, Y, K, Theta_init, Lambda_init, cores = 1L) {
     .Call(`_BayesianConditionalFPCA_cpp_EM_new`, X, B, Y, K, Theta_init, Lambda_init, cores)
 }
 
-armadillo_modulus <- function(indicies, n) {
-    .Call(`_BayesianConditionalFPCA_armadillo_modulus`, indicies, n)
-}
-
-completeY <- function(Y, missing_sub, missing_time) {
-    invisible(.Call(`_BayesianConditionalFPCA_completeY`, Y, missing_sub, missing_time))
-}
-
-MCMC_Impute <- function(y, observedTimes, fullTimes, X, B, K, iter, nchains, thin) {
-    .Call(`_BayesianConditionalFPCA_MCMC_Impute`, y, observedTimes, fullTimes, X, B, K, iter, nchains, thin)
-}
-
-completeY2 <- function(Y, missing_sub, missing_time) {
-    invisible(.Call(`_BayesianConditionalFPCA_completeY2`, Y, missing_sub, missing_time))
-}
-
-run_mcmc_Morris <- function(Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik) {
-    .Call(`_BayesianConditionalFPCA_run_mcmc_Morris`, Y, Time, X, Z, B, K, iter, burnin, nchains, thin, loglik)
-}
-
-run_mcmc_Morris_Tensor <- function(Y, Time, X, Z, B, MeanPenalties, VarPenalties, Meanindices, Varindices, K, iter, burnin, nchains, thin, loglik) {
-    .Call(`_BayesianConditionalFPCA_run_mcmc_Morris_Tensor`, Y, Time, X, Z, B, MeanPenalties, VarPenalties, Meanindices, Varindices, K, iter, burnin, nchains, thin, loglik)
-}
-
-BuildBlkDiag <- function(Penalties, indices, Tau, BlkDiag) {
-    invisible(.Call(`_BayesianConditionalFPCA_BuildBlkDiag`, Penalties, indices, Tau, BlkDiag))
-}
-
-testfunc <- function() {
-    invisible(.Call(`_BayesianConditionalFPCA_testfunc`))
-}
-
-MCMC_Sparse <- function(Y, X, B, K, iter, nchains, thin) {
-    .Call(`_BayesianConditionalFPCA_MCMC_Sparse`, Y, X, B, K, iter, nchains, thin)
-}
-
-MCMC_Tempered <- function(Y, X, B, K, iter, nchains, thin, beta, Theta_init, Lambda_init, Eta_init, Prec_init) {
-    .Call(`_BayesianConditionalFPCA_MCMC_Tempered`, Y, X, B, K, iter, nchains, thin, beta, Theta_init, Lambda_init, Eta_init, Prec_init)
-}
-
-MCMC_Wrapper <- function(Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init) {
-    .Call(`_BayesianConditionalFPCA_MCMC_Wrapper`, Y, X, B, K, iter, nchains, thin, Theta_init, Lambda_init, Eta_init)
-}
-
-TemperedMCMC <- function(Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta) {
-    .Call(`_BayesianConditionalFPCA_TemperedMCMC`, Y, X, B, K, iter, thin, Theta_init, Lambda_init, Eta_init, Prec_init, beta)
-}
-
 get_proposal <- function(old) {
     .Call(`_BayesianConditionalFPCA_get_proposal`, old)
 }
@@ -189,22 +141,6 @@ get_variance_effects <- function(mod, alpha) {
     .Call(`_BayesianConditionalFPCA_get_variance_effects`, mod, alpha)
 }
 
-rcpparma_hello_world <- function() {
-    .Call(`_BayesianConditionalFPCA_rcpparma_hello_world`)
-}
-
-rcpparma_outerproduct <- function(x) {
-    .Call(`_BayesianConditionalFPCA_rcpparma_outerproduct`, x)
-}
-
-rcpparma_innerproduct <- function(x) {
-    .Call(`_BayesianConditionalFPCA_rcpparma_innerproduct`, x)
-}
-
-rcpparma_bothproducts <- function(x) {
-    .Call(`_BayesianConditionalFPCA_rcpparma_bothproducts`, x)
-}
-
 #' Run Markov-Chain Monte-Carlo
 #' 
 #' Generate samples from the posterior distribution. This 
@@ -231,121 +167,5 @@ rcpparma_bothproducts <- function(x) {
 #' @return A List containing 3 lists including data, control, and samples.
 run_mcmc <- function(response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin = 1L, var = "unequal") {
     .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin, var)
-}
-
-timesTwo <- function(x) {
-    .Call(`_BayesianConditionalFPCA_timesTwo`, x)
-}
-
-updateProjBeta <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateProjBeta`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj, beta))
-}
-
-updatePrecPBeta <- function(Proj, Y, B, beta) {
-    .Call(`_BayesianConditionalFPCA_updatePrecPBeta`, Proj, Y, B, beta)
-}
-
-updateTauBeta <- function(Theta, Lambda, Tau, beta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateTauBeta`, Theta, Lambda, Tau, beta))
-}
-
-choose_coordinate <- function(log_weights) {
-    .Call(`_BayesianConditionalFPCA_choose_coordinate`, log_weights)
-}
-
-updateThetaLambdaPT <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X, beta) {
-    .Call(`_BayesianConditionalFPCA_updateThetaLambdaPT`, Lambda, Theta, Eta, Delta, Proj, Tau, X, beta)
-}
-
-updateEtaPT <- function(Lambda, Theta, Eta, Delta, Proj, X, beta) {
-    .Call(`_BayesianConditionalFPCA_updateEtaPT`, Lambda, Theta, Eta, Delta, Proj, X, beta)
-}
-
-updateProj <- function(Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateProj`, Lambda, Theta, Eta, Delta, Prec, X, Y, B, Proj))
-}
-
-updateThetaLambdaP <- function(Lambda, Theta, Eta, Delta, Proj, Tau, X) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaP`, Lambda, Theta, Eta, Delta, Proj, Tau, X))
-}
-
-updateEtaP <- function(Lambda, Theta, Eta, Delta, Proj, X) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEtaP`, Lambda, Theta, Eta, Delta, Proj, X))
-}
-
-updateDelta <- function(Proj, Theta, Lambda, Eta, Delta, X) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateDelta`, Proj, Theta, Lambda, Eta, Delta, X))
-}
-
-updatePrecP <- function(Proj, Y, B) {
-    .Call(`_BayesianConditionalFPCA_updatePrecP`, Proj, Y, B)
-}
-
-updateLambda <- function(Y, Lambda, r, Gamma, X, B, prec) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateLambda`, Y, Lambda, r, Gamma, X, B, prec))
-}
-
-updateLambda2 <- function(Y, Lambda, Tau, Gamma, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateLambda2`, Y, Lambda, Tau, Gamma, X, B, prec, Theta))
-}
-
-updateTheta <- function(Y, Lambda, Tau, Gamma, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateTheta`, Y, Lambda, Tau, Gamma, X, B, prec, Theta))
-}
-
-updateTheta2 <- function(Y, Lambda, Tau, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateTheta2`, Y, Lambda, Tau, X, B, prec, Theta))
-}
-
-updateThetaLambda <- function(Y, Lambda, Eta, Tau, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambda`, Y, Lambda, Eta, Tau, X, B, prec, Theta))
-}
-
-updateThetaLambdaMH <- function(Y, Theta, Lambda, Tau, prec, X, B, noise, n) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateThetaLambdaMH`, Y, Theta, Lambda, Tau, prec, X, B, noise, n))
-}
-
-updateEta <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEta`, Y, Lambda, Sigma, Eta, X, B, prec, Theta))
-}
-
-updateEta2 <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEta2`, Y, Lambda, Sigma, Eta, X, B, prec, Theta))
-}
-
-updateEta3 <- function(Y, Lambda, Eta, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEta3`, Y, Lambda, Eta, X, B, prec, Theta))
-}
-
-updatePrec <- function(Y, Lambda, Gamma, X, B, Theta) {
-    .Call(`_BayesianConditionalFPCA_updatePrec`, Y, Lambda, Gamma, X, B, Theta)
-}
-
-updateTau <- function(Theta, Lambda, Tau) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateTau`, Theta, Lambda, Tau))
-}
-
-updateSigma <- function(Eta, Sigma) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateSigma`, Eta, Sigma))
-}
-
-updateSigBeta <- function(sigma, SigBeta, Phi, X) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateSigBeta`, sigma, SigBeta, Phi, X))
-}
-
-updateLambdaS <- function(Y, Lambda, Tau, c, Gamma, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateLambdaS`, Y, Lambda, Tau, c, Gamma, X, B, prec, Theta))
-}
-
-updateThetaS <- function(Y, Lambda, Tau, Gamma, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateThetaS`, Y, Lambda, Tau, Gamma, X, B, prec, Theta))
-}
-
-updateEtaS <- function(Y, Lambda, Sigma, Eta, X, B, prec, Theta) {
-    invisible(.Call(`_BayesianConditionalFPCA_updateEtaS`, Y, Lambda, Sigma, Eta, X, B, prec, Theta))
-}
-
-updatePrecS <- function(Y, Lambda, Gamma, X, B, Theta) {
-    .Call(`_BayesianConditionalFPCA_updatePrecS`, Y, Lambda, Gamma, X, B, Theta)
 }
 
