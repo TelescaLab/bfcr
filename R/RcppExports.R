@@ -109,6 +109,14 @@ find_stepsize <- function(Y, Theta, Lambda, prec, X, B, noise) {
     invisible(.Call(`_BayesianConditionalFPCA_find_stepsize`, Y, Theta, Lambda, prec, X, B, noise))
 }
 
+dmvnrm_arma_fast <- function(x, mean, sigma, logd = FALSE) {
+    .Call(`_BayesianConditionalFPCA_dmvnrm_arma_fast`, x, mean, sigma, logd)
+}
+
+calculate_waic_cpp <- function(mcmc_output, observed_time, waic_return) {
+    invisible(.Call(`_BayesianConditionalFPCA_calculate_waic_cpp`, mcmc_output, observed_time, waic_return))
+}
+
 get_posterior_predictive_bands <- function(mod, quantiles) {
     .Call(`_BayesianConditionalFPCA_get_posterior_predictive_bands`, mod, quantiles)
 }
