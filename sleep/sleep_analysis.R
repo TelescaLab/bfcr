@@ -3,19 +3,20 @@ library(tidyverse)
 library(mgcv)
 library(spam)
 library(plotly)
-library(microbenchmark)
+library(dlnm)
 
 load(paste0("/Users/johnshamshoian/Documents/R_projects/",
-            "BayesianConditionalFPCA/sleep/data/",
+            "bfcr/sleep/data/",
             "relative_psd.RData"))
 sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/",
-            "BayesianConditionalFPCA/sleep/tabulated_data/",
+            "bfcr/sleep/tabulated_data/",
             "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:206000
+id_range <- 200001:200100
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
+  filter(EEG1qual == 4) %>%
   select(nsrrid, age_s1, bmi_s1) %>%
   drop_na()
 sleep_data <- inner_join(sleep_tabulated_filtered, relative_psd)
@@ -42,7 +43,7 @@ epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
 epoch_penalty <- attr(epoch_basis, "S")
 
 # Age adjusted
-{
+if (TRUE) {
   age_basis <- ps(age_grid$age_s1, df = age_df, intercept = TRUE)
   age_penalty <- attr(age_basis, "S")
   model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
@@ -55,7 +56,7 @@ epoch_penalty <- attr(epoch_basis, "S")
 }
 
 # Not age adjusted
-{
+if (FALSE) {
   design_mean <- cbind(rep(1, num_subjects))
   design_var <- cbind(rep(1, num_subjects))
   mean_indices <- c(1)
@@ -66,12 +67,13 @@ epoch_penalty <- attr(epoch_basis, "S")
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-
+response[1,4] <- NA
+response[1, 6] <- NA
+response[3, 1:3] <- NA
 k <- as.numeric(commandArgs(trailingOnly = TRUE))
-iter <- 1
-burnin <- 2
-thin <- 10
-loglik <- 0
+iter <- 100
+burnin <- 50
+thin <- 1
 mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
                   epoch_grid,
@@ -79,13 +81,14 @@ mcmc_results <- run_mcmc(response, design_mean,
                   mean_indices, var_indices,
                   k, iter, burnin, thin = thin,
                   var = "unequal")
-save(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/",
-                                 "BayesianConditionalFPCA/sleep/mcmc_output/mcmc_results",
-                                 k,
-                                 ".RData"))
+calculate_waic(mcmc_results)
+# saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/",
+#                                  "bfcr/sleep/mcmc_output/mcmc_results",
+#                                  k,
+#                                  ".rds"))
 
 # subject_bands <- get_posterior_subject_bands(mcmc_results)
-# mean_bands <- get_posterior_means(mcmc_results, design_mean[3,])
+# mean_bands <- get_posterior_means(mcmc_results, design_mean[10,])
 # evals <- 4
 # eigen_bands <- get_posterior_eigen(mcmc_results, evals, design_var[2,])
 # subj <- 1:4
