@@ -53,7 +53,7 @@ get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05) {
 #' xi <- c(1)
 #' mean_bands <- get_posterior_means(mcmc_output, xi)
 get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
-  mean_matrix <- get_posterior_means_cpp(mcmc_output, xi, alpha_level)
+  mean_matrix <- get_posterior_means_cpp_correct(mcmc_output, xi, alpha_level)
   mean_tibble <- tibble(lower = mean_matrix[,1],
                         mean = mean_matrix[,2],
                         upper = mean_matrix[,3],
@@ -93,7 +93,7 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
 #' \code{raw_magnitude} 1-alpha credible interval for total variance
 #' @export get_posterior_eigen
 get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05) {
-  post_eigen <- get_posterior_eigen_cpp(mcmc_results, eigenvals, zi, alpha_level)
+  post_eigen <- get_posterior_eigen_cpp_correct(mcmc_results, eigenvals, zi, alpha_level)
   eigenfunctions <- tibble(mean = c(post_eigen$mean_eigen),
                            lower = c(post_eigen$lower_eigen),
                            upper = c(post_eigen$upper_eigen),

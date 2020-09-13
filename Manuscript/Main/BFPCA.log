@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  4 SEP 2020 23:32
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  10 SEP 2020 15:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -90,7 +90,22 @@ File: thp.sty 2014/10/28 v2.2c Theorem extension package (FMi)
 \c@step=\count274
 \theorempreskipamount=\skip56
 \theorempostskipamount=\skip57
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/endfloat/endfloat.sty
+Package: endfloat 2019/04/15 v2.7 LaTeX2e package puts figures and tables at en
+d (jdm)
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/keyval.sty
+Package: keyval 2014/10/28 v1.15 key=value parser (DPC)
+\KV@toks@=\toks18
 )
+\c@postfigure=\count275
+\efloat@postfff=\write3
+\@ef@fffopen=\count276
+\c@posttable=\count277
+\efloat@postttt=\write4
+\@ef@tttopen=\count278
+))
 (/usr/local/texlive/2020/texmf-dist/tex/latex/xcolor/xcolor.sty
 Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
 
@@ -122,7 +137,7 @@ Package: amstext 2000/06/29 v2.01 AMS text
 
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsgen.sty
 File: amsgen.sty 1999/11/30 v2.0 generic functions
-\@emptytoks=\toks18
+\@emptytoks=\toks19
 \ex@=\dimen140
 ))
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsbsy.sty
@@ -132,13 +147,13 @@ Package: amsbsy 1999/11/29 v1.2d Bold Symbols
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsmath/amsopn.sty
 Package: amsopn 2016/03/08 v2.02 operator names
 )
-\inf@bad=\count275
+\inf@bad=\count279
 LaTeX Info: Redefining \frac on input line 227.
-\uproot@=\count276
-\leftroot@=\count277
+\uproot@=\count280
+\leftroot@=\count281
 LaTeX Info: Redefining \overline on input line 389.
-\classnum@=\count278
-\DOTSCASE@=\count279
+\classnum@=\count282
+\DOTSCASE@=\count283
 LaTeX Info: Redefining \ldots on input line 486.
 LaTeX Info: Redefining \dots on input line 489.
 LaTeX Info: Redefining \cdots on input line 610.
@@ -147,26 +162,26 @@ LaTeX Info: Redefining \cdots on input line 610.
 \big@size=\dimen142
 LaTeX Font Info:    Redeclaring font encoding OML on input line 733.
 LaTeX Font Info:    Redeclaring font encoding OMS on input line 734.
-\macc@depth=\count280
-\c@MaxMatrixCols=\count281
+\macc@depth=\count284
+\c@MaxMatrixCols=\count285
 \dotsspace@=\muskip16
-\c@parentequation=\count282
-\dspbrk@lvl=\count283
-\tag@help=\toks19
-\row@=\count284
-\column@=\count285
-\maxfields@=\count286
-\andhelp@=\toks20
+\c@parentequation=\count286
+\dspbrk@lvl=\count287
+\tag@help=\toks20
+\row@=\count288
+\column@=\count289
+\maxfields@=\count290
+\andhelp@=\toks21
 \eqnshift@=\dimen143
 \alignsep@=\dimen144
 \tagshift@=\dimen145
 \tagwidth@=\dimen146
 \totwidth@=\dimen147
 \lineht@=\dimen148
-\@envbody=\toks21
+\@envbody=\toks22
 \multlinegap=\skip59
 \multlinetaggap=\skip60
-\mathdisplay@stack=\toks22
+\mathdisplay@stack=\toks23
 LaTeX Info: Redefining \[ on input line 2859.
 LaTeX Info: Redefining \] on input line 2860.
 )
@@ -184,7 +199,7 @@ LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 )
 (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
-\l__kernel_color_stack_int=\count287
+\l__kernel_color_stack_int=\count291
 \l__pdf_internal_box=\box50
 )
 (./BFPCA.aux)
@@ -204,20 +219,23 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 46.
 LaTeX Font Info:    ... okay on input line 46.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 46.
 LaTeX Font Info:    ... okay on input line 46.
-
+ (./endrotfloat.sty
+Package: endrotfloat 2007/01/23 v1.0 LaTeX2e package puts sideways figures and 
+tables at end
+)
 (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count288
+\scratchcounter=\count292
 \scratchdimen=\dimen149
 \scratchbox=\box51
-\nofMPsegments=\count289
-\nofMParguments=\count290
-\everyMPshowfont=\toks23
-\MPscratchCnt=\count291
+\nofMPsegments=\count293
+\nofMParguments=\count294
+\everyMPshowfont=\toks24
+\MPscratchCnt=\count295
 \MPscratchDim=\dimen150
-\MPnumerator=\count292
-\makeMPintoPDFobject=\count293
-\everyMPtoPDFconversion=\toks24
+\MPnumerator=\count296
+\makeMPintoPDFobject=\count297
+\everyMPtoPDFconversion=\toks25
 )
 LaTeX Font Info:    Trying to load font information for U+eur on input line 69.
 
@@ -236,87 +254,146 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 69.
 (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
-Overfull \vbox (2.83331pt too high) has occurred while \output is active []
+Overfull \vbox (10.83334pt too high) has occurred while \output is active []
 
 
 [1{/usr/local/texlive/2020/texmf-var/fonts/map/pdftex/updmap/pdftex.map}
 
+]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 1
+ []
+
+[1
 
 ]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 2
  []
 
 [2]
-Overfull \hbox (26.9486pt too wide) detected at line 134
-\OT1/cmr/m/n/9 ^^B[]\OMS/cmsy/m/n/9 j\OML/cmm/m/it/9 ^^\[] \OMS/cmsy/m/n/9 / []
- [] ^^@ []\OT1/cmr/m/n/9 ^^B[]\OML/cmm/m/it/9 K[]\OT1/cmr/m/n/9 ^^B[][]\OML/cmm
-/m/it/9 ;    \OT1/cmr/m/n/9 ^^C[]\OMS/cmsy/m/n/9 j\OML/cmm/m/it/9 ^^\[] \OMS/cm
-sy/m/n/9 / [] [] ^^@ []\OT1/cmr/m/n/9 ^^C[]\OML/cmm/m/it/9 K[]\OT1/cmr/m/n/9 ^^
-C[][]
- []
-
-(./BFPCA.bbl
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 3
  []
 
 [3]
-Underfull \hbox (badness 1721) in paragraph at lines 142--145
-[]\OT1/cmr/m/n/9 Wang, J.-L., Chiou, J.-M., and Mueller, H.-G. (2015).
- []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-)
+
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 4
  []
 
-[4] (./BFPCA.aux) ) 
+[4]
+
+LaTeX Warning: Reference `eq:mu' on page 5 undefined on input line 125.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 5
+ []
+
+[5]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 6
+ []
+
+[6]
+Overfull \hbox (1.0981pt too wide) in paragraph at lines 147--149
+\OT1/cmr/m/n/12 where we use the `rate' pa-ram-e-ter-i-za-tion of the Gamma dis
+-tri-bu-tion (i.e., if $\OML/cmm/m/it/12 x \OMS/cmsy/m/n/12 ^^X \OML/cmm/m/it/1
+2 Gamma\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 a; b\OT1/cmr/m/n/12 )$,
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 7
+ []
+
+[7]
+
+LaTeX Warning: Reference `t:one' on page 8 undefined on input line 181.
+
+
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 8
+ []
+
+[8] (./BFPCA.bbl
+Overfull \hbox (4.62497pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 9
+ []
+
+[9]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 10
+ []
+
+[10]) AED endfloat: Processing end Figures and Tables
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 11
+ []
+
+[11] (./BFPCA.aux)
+
+LaTeX Warning: There were undefined references.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2954 strings out of 480608
- 36655 string characters out of 5903631
- 294975 words of memory out of 5000000
- 18829 multiletter control sequences out of 15000+600000
- 547756 words of font info for 80 fonts, out of 8000000 for 9000
+ 3209 strings out of 480608
+ 40401 string characters out of 5903631
+ 291889 words of memory out of 5000000
+ 19071 multiletter control sequences out of 15000+600000
+ 550527 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 33i,12n,38p,1427b,326s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfo
-nts/cmextra/cmbsy7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/a
-msfonts/cm/cmbx10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmbx12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmbx7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmbx9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmcsc10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/
-cmextra/cmex9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmmi9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/c
-mextra/cmmib6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfon
-ts/cmextra/cmmib7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/am
-sfonts/cmextra/cmmib9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/publi
-c/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr5.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmr7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmr9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-sy9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
-10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9
-.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.p
-fb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msam
-10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/
-msam7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbo
-ls/msbm10.pfb>
-Output written on BFPCA.pdf (4 pages, 275819 bytes).
+ 33i,12n,38p,1284b,326s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy
+7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10
+.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.
+pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx7.pf
+b></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pf
+b></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
+></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb>
+</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi6.pfb></
+usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></us
+r/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></us
+r/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib7.pfb>
+</usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></
+usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></us
+r/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr6.pfb></usr/l
+ocal/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/loca
+l/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/t
+exlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texl
+ive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
+ve/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive
+/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/
+2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2
+020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/202
+0/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2020
+/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/
+2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on BFPCA.pdf (12 pages, 284514 bytes).
 PDF statistics:
- 121 PDF objects out of 1000 (max. 8388607)
- 88 compressed objects within 1 object stream
+ 144 PDF objects out of 1000 (max. 8388607)
+ 103 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 
