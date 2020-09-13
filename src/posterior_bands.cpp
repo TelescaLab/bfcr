@@ -1,5 +1,4 @@
 #include <RcppArmadillo.h>
-#include "updateParam.h"
 #include "Utils.h"
 
 // [[Rcpp::depends(RcppArmadillo)]]
