@@ -394,6 +394,32 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// dmvnrm_arma_fast
+double dmvnrm_arma_fast(arma::mat const& x, arma::rowvec const& mean, arma::mat const& sigma, bool const logd);
+RcppExport SEXP _BayesianConditionalFPCA_dmvnrm_arma_fast(SEXP xSEXP, SEXP meanSEXP, SEXP sigmaSEXP, SEXP logdSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat const& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< arma::rowvec const& >::type mean(meanSEXP);
+    Rcpp::traits::input_parameter< arma::mat const& >::type sigma(sigmaSEXP);
+    Rcpp::traits::input_parameter< bool const >::type logd(logdSEXP);
+    rcpp_result_gen = Rcpp::wrap(dmvnrm_arma_fast(x, mean, sigma, logd));
+    return rcpp_result_gen;
+END_RCPP
+}
+// calculate_waic_cpp
+void calculate_waic_cpp(Rcpp::List& mcmc_output, Rcpp::List& observed_time, arma::mat& waic_return);
+RcppExport SEXP _BayesianConditionalFPCA_calculate_waic_cpp(SEXP mcmc_outputSEXP, SEXP observed_timeSEXP, SEXP waic_returnSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< Rcpp::List& >::type mcmc_output(mcmc_outputSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List& >::type observed_time(observed_timeSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type waic_return(waic_returnSEXP);
+    calculate_waic_cpp(mcmc_output, observed_time, waic_return);
+    return R_NilValue;
+END_RCPP
+}
 // get_posterior_predictive_bands
 arma::mat get_posterior_predictive_bands(List mod, arma::vec quantiles);
 RcppExport SEXP _BayesianConditionalFPCA_get_posterior_predictive_bands(SEXP modSEXP, SEXP quantilesSEXP) {
@@ -545,6 +571,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_Proposal", (DL_FUNC) &_BayesianConditionalFPCA_Proposal, 4},
     {"_BayesianConditionalFPCA_cpploglik_bayes", (DL_FUNC) &_BayesianConditionalFPCA_cpploglik_bayes, 8},
     {"_BayesianConditionalFPCA_find_stepsize", (DL_FUNC) &_BayesianConditionalFPCA_find_stepsize, 7},
+    {"_BayesianConditionalFPCA_dmvnrm_arma_fast", (DL_FUNC) &_BayesianConditionalFPCA_dmvnrm_arma_fast, 4},
+    {"_BayesianConditionalFPCA_calculate_waic_cpp", (DL_FUNC) &_BayesianConditionalFPCA_calculate_waic_cpp, 3},
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands, 2},
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands2", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands2, 2},
     {"_BayesianConditionalFPCA_get_posterior_subject_bands_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_subject_bands_cpp, 2},
