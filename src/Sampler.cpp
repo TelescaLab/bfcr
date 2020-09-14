@@ -31,12 +31,12 @@ void SamplerUnequal::sample_parameters() {
       // pars.update_tau1_nu(dat, transf);
       // pars.update_tau2_delta(dat, transf);
       // pars.update_tau2_nu(dat, transf);
-      pars.update_phi(dat, transf);
-      pars.update_delta(dat, transf);
+      // pars.update_phi(dat, transf);
+      // pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);
       pars.update_tausq(dat, transf);
-      pars.update_a1(dat);
-      pars.update_a2(dat);
+      // pars.update_a1(dat);
+      // pars.update_a2(dat);
       pars.varphi = pars.psi;
       transf.complete_response(dat, pars);
     }
