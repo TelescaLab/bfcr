@@ -67,10 +67,8 @@ if (FALSE) {
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-response[1,4] <- NA
-response[1, 6] <- NA
-response[3, 1:3] <- NA
-k <- as.numeric(commandArgs(trailingOnly = TRUE))
+
+#k <- as.numeric(commandArgs(trailingOnly = TRUE))
 iter <- 100
 burnin <- 50
 thin <- 1
@@ -87,50 +85,50 @@ calculate_waic(mcmc_results)
 #                                  k,
 #                                  ".rds"))
 
-# subject_bands <- get_posterior_subject_bands(mcmc_results)
-# mean_bands <- get_posterior_means(mcmc_results, design_mean[10,])
-# evals <- 4
-# eigen_bands <- get_posterior_eigen(mcmc_results, evals, design_var[2,])
-# subj <- 1:4
-# subject_bands %>%
-#   filter(id %in% subj) %>%
-#   ggplot() +
-#   geom_point(aes(x = time, y = response), alpha = .5) +
-#   geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
-#   facet_wrap(. ~ id) +
-#   theme_bw()
-# 
-# number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
-#                       " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
-#                       100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
-# names(number.labs) <- c("1":evals)
-# eigen_bands$eigenfunctions %>%
-#   ggplot(aes(x=time)) +
-#   facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Value") +
-#   theme_bw()
-# 
-# plot_ly() %>%
-#   add_surface(z =~ eigen_bands$surface)
-# 
-# L <- list()
-# L$y <- lapply(1:num_subjects, function(i) response[i,])
-# L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
-# res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
-# 
-# plot_ly() %>%
-#   add_surface(z =~ res$fittedCov)
-# mean_bands %>%
-#   ggplot(mapping = aes(time)) +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Relative delta power spectral density") +
-#   theme_bw()
-# plot(res$mu, type = "l")
-# cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values) 
-# cumsum(eigen_bands$prop_var_explained[2,]) * 100 
+subject_bands <- get_posterior_subject_bands(mcmc_results)
+mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[1,])
+evals <- 4
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_mean[1,])
+subj <- 1:4
+subject_bands %>%
+  filter(id %in% subj) %>%
+  ggplot() +
+  geom_point(aes(x = time, y = response), alpha = .5) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
+  facet_wrap(. ~ id) +
+  theme_bw()
+
+number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
+                      " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
+                      100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
+names(number.labs) <- c("1":evals)
+eigen_bands$eigenfunctions %>%
+  ggplot(aes(x=time)) +
+  facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Value") +
+  theme_bw()
+
+plot_ly() %>%
+  add_surface(z =~ eigen_bands$surface)
+
+L <- list()
+L$y <- lapply(1:num_subjects, function(i) response[i,])
+L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
+res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
+
+plot_ly() %>%
+  add_surface(z =~ res$fittedCov)
+mean_bands %>%
+  ggplot(mapping = aes(time)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Relative delta power spectral density") +
+  theme_bw()
+plot(res$mu, type = "l")
+cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
+cumsum(eigen_bands$prop_var_explained[2,]) * 100
 # # 
 # L <- list()
 # L$y <- lapply(1:num_subjects, function(i) response[i,])
