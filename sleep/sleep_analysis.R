@@ -69,9 +69,10 @@ response <- t(matrix(sleep_data_filtered$psd,
                    ncol = num_subjects))
 
 #k <- as.numeric(commandArgs(trailingOnly = TRUE))
-iter <- 100
-burnin <- 50
-thin <- 1
+iter <- 5000
+burnin <- 2500
+thin <- 2
+k <- 20
 mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
                   epoch_grid,
@@ -89,7 +90,7 @@ subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[1,])
 evals <- 4
 eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_mean[1,])
-subj <- 1:4
+subj <- 5:13
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
