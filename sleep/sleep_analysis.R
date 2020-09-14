@@ -67,10 +67,9 @@ if (FALSE) {
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-
-#k <- as.numeric(commandArgs(trailingOnly = TRUE))
-iter <- 100
-burnin <- 50
+k <- 8
+iter <- 1000
+burnin <- 500
 thin <- 1
 mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
