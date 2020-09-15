@@ -13,7 +13,7 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
             "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:200100
+id_range <- 200001:206000
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
@@ -72,7 +72,7 @@ response <- t(matrix(sleep_data_filtered$psd,
 iter <- 5000
 burnin <- 2500
 thin <- 2
-k <- 20
+k <- 10
 mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
                   epoch_grid,
