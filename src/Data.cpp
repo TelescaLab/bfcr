@@ -4,6 +4,10 @@ arma::ivec get_rank(arma::field<arma::mat>& penalties);
 arma::umat get_seq_along_repeated(int basis_dim,
                                   arma::field<arma::mat>& penalties,
                                   arma::uvec& indices);
+arma::uvec get_seq_along_elongated(int basis_dim,
+                                   arma::field<arma::mat>& penalties,
+                                   arma::uvec& indices,
+                                   arma::mat& design_var);
 Rcpp::List Data::write_data() {
   return(Rcpp::List::create(Rcpp::Named("response", response),
                             Rcpp::Named("basis", basis),
@@ -55,6 +59,11 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   arma::umat seq_along_mat_var = get_seq_along_repeated(basis_dim,
                                                         penalties_var,
                                                         indices_var);
+  seq_along_elongated = get_seq_along_elongated(basis_dim,
+                                                penalties_var,
+                                                indices_var,
+                                                design_var);
+  Rcpp::Rcout << seq_along_elongated << "\n";
   seq_along_start_repeated_mean = seq_along_mat_mean.col(0);
   seq_along_end_repeated_mean = seq_along_mat_mean.col(1);
   seq_along_start_repeated_var = seq_along_mat_var.col(0);
@@ -74,8 +83,8 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
       seq_along_end(counter) = end;
       start = end + 1;
       counter++;
-      old_index = indices_var(i);
     }
+    old_index = indices_var(i);
   }
 }
 
@@ -91,12 +100,37 @@ arma::umat get_seq_along_repeated(int basis_dim,
       end = end + penalties(i).n_rows / basis_dim;
       start = start + penalties(i).n_rows / basis_dim;
     }
+    old_index = indices(i);
     start_end(i, 0) = start;
     start_end(i, 1) = end;
   }
   return(start_end);
 }
 
+arma::uvec get_seq_along_elongated(int basis_dim, 
+                               arma::field<arma::mat>& penalties,
+                               arma::uvec& indices,
+                               arma::mat& design_var) {
+  arma::uvec elongated(design_var.n_cols);
+  Rcpp::Rcout << arma::size(elongated) << "\n";
+  int start = 0;
+  int old_index = 0;
+  int end = -1;
+  arma::uword counter = 0;
+  for (arma::uword i = 0; i < penalties.n_elem; i++) {
+    if (old_index != indices(i)) {
+      end = end + penalties(i).n_rows / basis_dim;
+      Rcpp::Rcout << "start: " << start << "\n";
+      Rcpp::Rcout << "end: " << end << "\n";
+      elongated.rows(start, end) = counter * 
+        arma::ones<arma::uvec>(end - start + 1);
+      start = end + 1;
+      counter++;
+    }
+    old_index = indices(i);
+  }
+  return(elongated);
+}
 arma::ivec get_rank(arma::field<arma::mat>& penalties) {
   arma::ivec rank_vec(penalties.n_elem);
   for (arma::uword i = 0; i < penalties.n_elem; i++) {

@@ -47,6 +47,7 @@ public:
   void write_parameters();
   double tau_a;
   double tau_b;
+  double tau_cutoff;
   double varphi_a;
   double varphi_b;
   double phi_a = 2;

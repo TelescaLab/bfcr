@@ -17,6 +17,7 @@ public:
   arma::vec time;
   arma::uvec seq_along_start, seq_along_end;
   arma::ivec rank_mean, rank_var;
+  arma::uvec seq_along_elongated;
   arma::uvec seq_along_start_repeated_mean;
   arma::uvec seq_along_end_repeated_mean;
   arma::uvec seq_along_start_repeated_var;
