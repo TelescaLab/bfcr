@@ -14,7 +14,7 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
             "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:206000
+id_range <- 200001:200100
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
@@ -68,76 +68,66 @@ if (FALSE) {
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-<<<<<<< HEAD
+
 k <- as.numeric(commandArgs(trailingOnly = TRUE))
 iter <- 10000
 burnin <- 5000
-thin <- 10
+thin <- 1
 mcmc_results <- run_mcmc(response, design_mean,  
-=======
-
-#k <- as.numeric(commandArgs(trailingOnly = TRUE))
-iter <- 5000
-burnin <- 2500
-thin <- 2
-k <- 10
-mcmc_results <- run_mcmc(response, design_mean,
->>>>>>> master
                   design_var, epoch_basis,
                   epoch_grid,
                   mean_penalty, var_penalty,
                   mean_indices, var_indices,
                   k, iter, burnin, thin = thin,
                   var = "unequal")
-<<<<<<< HEAD
 # calculate_waic(mcmc_results)
 saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/",
                                  "bfcr/sleep/mcmc_output/mcmc_results",
                                  k,
                                  ".rds"))
-# 
-# subject_bands <- get_posterior_subject_bands(mcmc_results)
-# mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[4,])
-# evals <- 4
-# eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[2,])
-# subj <- 1:9
-# subject_bands %>%
-#   filter(id %in% subj) %>%
-#   ggplot() +
-#   geom_point(aes(x = time, y = response), alpha = .5) +
-#   geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
-#   facet_wrap(. ~ id) +
-#   theme_bw()
-# 
-# number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
-#                       " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
-#                       100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
-# names(number.labs) <- c("1":evals)
-# eigen_bands$eigenfunctions %>%
-#   ggplot(aes(x=time)) +
-#   facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Value") +
-#   theme_bw()
-# 
-# plot_ly() %>%
-#   add_surface(z =~ eigen_bands$surface)
-# 
-# L <- list()
-# L$y <- lapply(1:num_subjects, function(i) response[i,])
-# L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
-# res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
-# 
-# plot_ly() %>%
-#   add_surface(z =~ res$fittedCov)
-# mean_bands %>%
-#   ggplot(mapping = aes(time)) +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Relative delta power spectral density") +
-#   theme_bw()
-# plot(res$mu, type = "l")
+
+subject_bands <- get_posterior_subject_bands(mcmc_results)
+mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[4,])
+evals <- 4
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[2,])
+subj <- 1:9
+subject_bands %>%
+  filter(id %in% subj) %>%
+  ggplot() +
+  geom_point(aes(x = time, y = response), alpha = .5) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
+  facet_wrap(. ~ id) +
+  theme_bw()
+
+number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
+                      " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
+                      100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
+names(number.labs) <- c("1":evals)
+eigen_bands$eigenfunctions %>%
+  ggplot(aes(x=time)) +
+  facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Value") +
+  theme_bw()
+
+plot_ly() %>%
+  add_surface(z =~ eigen_bands$surface)
+
+L <- list()
+L$y <- lapply(1:num_subjects, function(i) response[i,])
+L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
+res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
+
+plot_ly() %>%
+  add_surface(z =~ res$fittedCov)
+mean_bands %>%
+  ggplot(mapping = aes(time)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Relative delta power spectral density") +
+  theme_bw()
+plot(res$mu, type = "l")
 # cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
 # cumsum(eigen_bands$prop_var_explained[2,]) * 100
 =======
@@ -191,7 +181,6 @@ mean_bands %>%
 plot(res$mu, type = "l")
 cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
 cumsum(eigen_bands$prop_var_explained[2,]) * 100
->>>>>>> master
 # # 
 # L <- list()
 # L$y <- lapply(1:num_subjects, function(i) response[i,])
