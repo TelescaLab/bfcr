@@ -14,7 +14,7 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
             "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:206000
+id_range <- 200001:200420
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
@@ -38,22 +38,33 @@ age_grid <- sleep_data_filtered %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
   select(age_s1)
-age_df <- ceiling(10 / 100 * (max(age_grid) - min(age_grid)))
+age_df <- ceiling(5 / 100 * (max(age_grid) - min(age_grid)))
 
 epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
 epoch_penalty <- attr(epoch_basis, "S")
 
 # Age adjusted
 if (TRUE) {
-  age_basis <- ps(age_grid$age_s1, df = age_df, intercept = TRUE)
+  age_basis <- ps(age_grid$age_s1, df = 5, intercept = FALSE)
   age_penalty <- attr(age_basis, "S")
-  model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
-  design_mean <- age_basis
-  design_var <- age_basis
-  mean_indices <- c(1, 1)
-  var_indices <- c(1, 1)
-  mean_penalty <- model_penalties
-  var_penalty <- model_penalties
+  if (!(attr(age_basis, "intercept"))) {
+    model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
+    mean_indices <- c(1, 2, 2)
+    var_indices <- c(1, 2, 2)
+    var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+    # var_penalty <- list(epoch_penalty)
+    # var_penalty <- list(epoch_penalty, diag(180), diag(180))
+    mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+    # mean_penalty <- list(epoch_penalty, diag(180), diag(180))
+    design_mean <- cbind(1, age_basis)
+    design_var <- cbind(1, age_basis)
+    # design_var <- cbind(rep(1, num_subjects))
+  } else {
+    mean_indices <- c(1, 1)
+    var_indices <- c(1, 1)
+    mean_penalty <- model_penalties
+    var_penalty <- model_penalties
+  }
 }
 
 # Not age adjusted
@@ -68,10 +79,10 @@ if (FALSE) {
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-k <- as.numeric(commandArgs(trailingOnly = TRUE))
+k <- 8
 iter <- 10000
-burnin <- 5000
-thin <- 10
+burnin <- 2500
+thin <- 5
 mcmc_results <- run_mcmc(response, design_mean,  
                   design_var, epoch_basis,
                   epoch_grid,
@@ -85,50 +96,93 @@ saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/
                                  k,
                                  ".rds"))
 # 
-# subject_bands <- get_posterior_subject_bands(mcmc_results)
-# mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[4,])
-# evals <- 4
-# eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[2,])
-# subj <- 1:9
-# subject_bands %>%
-#   filter(id %in% subj) %>%
-#   ggplot() +
-#   geom_point(aes(x = time, y = response), alpha = .5) +
-#   geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
-#   facet_wrap(. ~ id) +
-#   theme_bw()
-# 
-# number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
-#                       " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
-#                       100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
-# names(number.labs) <- c("1":evals)
-# eigen_bands$eigenfunctions %>%
-#   ggplot(aes(x=time)) +
-#   facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Value") +
-#   theme_bw()
-# 
-# plot_ly() %>%
-#   add_surface(z =~ eigen_bands$surface)
-# 
-# L <- list()
-# L$y <- lapply(1:num_subjects, function(i) response[i,])
-# L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
-# res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
-# 
-# plot_ly() %>%
-#   add_surface(z =~ res$fittedCov)
-# mean_bands %>%
-#   ggplot(mapping = aes(time)) +
-#   geom_line(aes(y=mean)) +
-#   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
-#   labs(x = "Epoch", y = "Relative delta power spectral density") +
-#   theme_bw()
-# plot(res$mu, type = "l")
-# cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
-# cumsum(eigen_bands$prop_var_explained[2,]) * 100
+subject_bands <- get_posterior_subject_bands(mcmc_results)
+mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[5,])
+evals <- 8
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[5,])
+subj <- 11:19
+subject_bands %>%
+  filter(id %in% subj) %>%
+  ggplot() +
+  geom_point(aes(x = time, y = response), alpha = .5) +
+  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.5) +
+  facet_wrap(. ~ id) +
+  theme_bw()
+
+number.labs <- paste0("Eigenfunction ", 1:evals, ": ", 100 * round(eigen_bands$prop_var_explained[2,],2), "%",
+                      " (", 100 * round(eigen_bands$prop_var_explained[1,], 2), "% - ",
+                      100 * round(eigen_bands$prop_var_explained[3,], 2), "%)")
+names(number.labs) <- c("1":evals)
+eigen_bands$eigenfunctions %>%
+  ggplot(aes(x=time)) +
+  facet_wrap(. ~ number, labeller = labeller(number = number.labs), scales = "free") +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Value") +
+  theme_bw()
+
+plot_ly() %>%
+  add_surface(z =~ eigen_bands$surface)
+
+L <- list()
+L$y <- lapply(1:num_subjects, function(i) response[i,])
+L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
+res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
+
+plot_ly() %>%
+  add_surface(z =~ res$fittedCov)
+mean_bands %>%
+  ggplot(mapping = aes(time)) +
+  geom_line(aes(y=mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Epoch", y = "Relative delta power spectral density") +
+  theme_bw()
+plot(res$mu, type = "l")
+plot(res$phi[,2], type = "l")
+cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
+cumsum(eigen_bands$prop_var_explained[2,]) * 100
+
+(eigen(res$fittedCov)$values[1:20] * 100 / sum(eigen(res$fittedCov)$values))[1:k]
+eigen_bands$prop_var_explained * 100
+
+beta_list <- matrix(0, nrow = 7500, ncol = 120)
+counter <- 1
+for (i in 2501:10000) {
+  print(i)
+  beta_list[counter,] <- epoch_basis %*% mcmc_results$samples$beta[,,i] %*% design_mean[2,]
+  counter <- counter + 1
+}
+matplot(t(beta_list), type = "l")
+
+eigvec_list <- matrix(0, nrow = 7500, ncol = 120)
+mycov <- matrix(0, nrow = 120, ncol = 120)
+counter <- 1
+for (i in 2501:10000) {
+  print(i)
+  mycov[] <- 0
+  for (this_k in 1:k) {
+    mycov <- mycov + tcrossprod(epoch_basis %*% mcmc_results$samples$lambda[[i]][,,this_k] %*% design_var[4,])
+  }
+  eigvec_list[counter,] <- eigen(mycov)$vectors[,2]
+  counter <- counter + 1
+}
+eigvec_list_copy <- eigvec_list
+matplot(t(eigvec_list_copy), type = "l")
+initial <- eigvec_list[1,]
+for (i in 2:7500) {
+  print(i)
+#  if (sum((eigvec_list[i,] + initial)^2) < sum((eigvec_list[i,] - initial)^2)) {
+  if (eigvec_list[i, 112] > 0) {
+    eigvec_list[i,] <- eigvec_list[i,] * (-1)
+    
+  }
+  
+  initial <- (i - 1) / i * initial + 1 / i * eigvec_list[i,]
+}
+matplot(t(eigvec_list), type = "l")
+plot(colMeans(eigvec_list), type = "l")
+lines(res$phi[,2], col = "blue")
+lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 # # 
 # L <- list()
 # L$y <- lapply(1:num_subjects, function(i) response[i,])
