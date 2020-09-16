@@ -83,7 +83,7 @@ k <- 8
 iter <- 10000
 burnin <- 2500
 thin <- 5
-mcmc_results <- run_mcmc(response, design_mean,  
+mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
                   epoch_grid,
                   mean_penalty, var_penalty,
@@ -95,7 +95,7 @@ saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/
                                  "bfcr/sleep/mcmc_output/mcmc_results",
                                  k,
                                  ".rds"))
-# 
+#
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[5,])
 evals <- 8
@@ -174,16 +174,16 @@ for (i in 2:7500) {
 #  if (sum((eigvec_list[i,] + initial)^2) < sum((eigvec_list[i,] - initial)^2)) {
   if (eigvec_list[i, 112] > 0) {
     eigvec_list[i,] <- eigvec_list[i,] * (-1)
-    
+
   }
-  
+
   initial <- (i - 1) / i * initial + 1 / i * eigvec_list[i,]
 }
 matplot(t(eigvec_list), type = "l")
 plot(colMeans(eigvec_list), type = "l")
 lines(res$phi[,2], col = "blue")
 lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
-# # 
+# #
 # L <- list()
 # L$y <- lapply(1:num_subjects, function(i) response[i,])
 # L$t <- lapply(1:num_subjects, function(i) 1:num_epochs)
@@ -194,7 +194,7 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 # dim(predict(my_bs, newx = seq(from = 40, to = 80, by = 1)))
 # predict(age_basis, newx = seq(from = 40, to = 80, by = 1))
 # ?splines::predict.bs
-# 
+#
 # mysterybasis <- smoothCon(s(Age, bs = "ps", k = 6), data = data.frame(Age))
 # spec_age <- s(Age, bs = "ps", k = 6)
 # Predict.matrix(mysterybasis, new_age)
@@ -210,7 +210,7 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 #   mean_bands <- get_posterior_means(mcmc_results, new_age_spline[i,])
 #   mean_age[,i] <- mean_bands$mean
 # }
-# 
+#
 # plot_ly() %>%
 #   add_surface(z =~ mean_age)
 # magn <- matrix(0, nrow = 3,ncol = dim(new_age_spline)[1])
@@ -228,56 +228,56 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 #   pve[,i] <- eigen_bands$prop_var_explained
 #   mean_eigen[,i] <- eigen_bands$eigenfunctions$mean
 # }
-# 
-# 
+#
+#
 # plot_ly() %>%
 #   add_surface(z =~ mean_eigen)
-# 
-# 
-# my_ps <- function (x, df = 10, knots = NULL, degree = 3, intercept = FALSE, 
-#           fx = FALSE, S = NULL, diff = 2) 
+#
+#
+# my_ps <- function (x, df = 10, knots = NULL, degree = 3, intercept = FALSE,
+#           fx = FALSE, S = NULL, diff = 2)
 # {
 #   nx <- names(x)
 #   x <- as.vector(x)
 #   range <- range(x, na.rm = TRUE)
 #   nax <- is.na(x)
-#   if (nas <- any(nax)) 
+#   if (nas <- any(nax))
 #     x <- x[!nax]
-#   if ((degree <- as.integer(degree)) < 1) 
+#   if ((degree <- as.integer(degree)) < 1)
 #     stop("'degree' must be integer >= 1")
 #   if (is.null(knots) || length(knots) == 2L) {
 #     nik <- df - degree + 2 - intercept
-#     if (nik <= 1) 
+#     if (nik <= 1)
 #       stop("basis dimension too small for b-spline degree")
-#     xl <- (if (length(knots) == 2L) 
+#     xl <- (if (length(knots) == 2L)
 #       min(knots)
 #       else min(x)) - diff(range) * 0.001
-#     xu <- (if (length(knots) == 2L) 
+#     xu <- (if (length(knots) == 2L)
 #       max(knots)
 #       else max(x)) + diff(range) * 0.001
 #     dx <- (xu - xl)/(nik - 1)
 #     cat("xl is", xl, " xr is ", xu)
-#     knots <- seq(xl - dx * degree, xu + dx * degree, length = nik + 
+#     knots <- seq(xl - dx * degree, xu + dx * degree, length = nik +
 #                    2 * degree)
 #     print(knots)
 #   }
 #   else {
 #     df <- length(knots) - degree - 2 + intercept
-#     if (df - degree <= 1) 
+#     if (df - degree <= 1)
 #       stop("basis dimension too small for b-spline degree")
 #   }
-#   if (any(x < knots[degree + 1] | knots[length(knots) - degree] < 
-#           x)) 
+#   if (any(x < knots[degree + 1] | knots[length(knots) - degree] <
+#           x))
 #     warning("all obs expected within inner df-degree+int knots")
 #   basis <- splineDesign(knots, x, degree + 1, x * 0, TRUE)
-#   if (!intercept) 
+#   if (!intercept)
 #     basis <- basis[, -1L, drop = FALSE]
 #   if (nas) {
 #     nmat <- matrix(NA, length(nax), ncol(basis))
 #     nmat[!nax, ] <- basis
 #     basis <- nmat
 #   }
-#   if (diff < 1L) 
+#   if (diff < 1L)
 #     stop("'diff' must be an integer >=1")
 #   if (fx) {
 #     S <- NULL
@@ -285,14 +285,14 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 #   else if (is.null(S)) {
 #     S <- crossprod(diff(diag(ncol(basis) + !intercept), diff = diff))
 #     S <- (S + t(S))/2
-#     if (!intercept) 
+#     if (!intercept)
 #       S <- S[-1L, -1L, drop = FALSE]
 #   }
-#   else if (any(dim(S) != ncol(basis))) 
+#   else if (any(dim(S) != ncol(basis)))
 #     stop("dimensions of 'S' not compatible")
 #   dimnames(basis) <- list(nx, seq(ncol(basis)))
-#   attributes(basis) <- c(attributes(basis), list(df = df, knots = knots, 
-#                                                  degree = degree, intercept = intercept, fx = fx, S = S, 
+#   attributes(basis) <- c(attributes(basis), list(df = df, knots = knots,
+#                                                  degree = degree, intercept = intercept, fx = fx, S = S,
 #                                                  diff = diff))
 #   class(basis) <- c("ps", "matrix")
 #   return(basis)
@@ -301,7 +301,7 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 # ps
 # psbasis$m <- c(2,2)
 # predict_pspline(psbasis, new_age)
-# 
+#
 # bspline <- function(x, xl, xr, ndx, bdeg) {
 #   dx<-(xr-xl)/ndx
 #   knots<-seq(xl-bdeg*dx,xr+bdeg*dx,by=dx)
@@ -314,4 +314,4 @@ lines(-eigen_bands$eigenfunctions$mean[121:240], col = "red")
 # epoch_basis_bs1 <- bs(epoch_grid, knots = attr(epoch_basis, "knots"), intercept = FALSE)
 # ps2 <- spline.des(attr(epoch_basis, "knots"), epoch_grid, 4, 0 * epoch_grid)
 # ps3 <- bs(epoch_grid, knots = attr(epoch_basis, "knots"), Boundary.knots = NULL, intercept = TRUE)
-# ps4 
+# ps4

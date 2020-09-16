@@ -36,14 +36,20 @@ Transformations::Transformations(Data& dat, Parameters& pars) {
   lambda_old = arma::mat(dat.basis_dim, dat.d2);
   phi_lambda_sum = arma::mat(dat.n_smooths_var,
                              dat.kdim, arma::fill::zeros);
+<<<<<<< HEAD
   //delta_cumprod = arma::vec(dat.indices_var.n_elem);
+=======
+>>>>>>> master
   delta_cumprod = arma::mat(dat.n_smooths_var, dat.kdim, arma::fill::ones);
   blk_diag_phi_delta = arma::cube(dat.basis_dim * dat.d2,
                                   dat.basis_dim * dat.d2,
                                   dat.kdim, arma::fill::zeros);
+<<<<<<< HEAD
   //blk_diag_delta_cumprod = arma::mat(dat.indices_var.n_elem,
                 //                     dat.kdim, arma::fill::ones);*
                 
+=======
+>>>>>>> master
 }
 
 void Transformations::build_blk_diag_mean(Data& dat, Parameters& pars) {
@@ -75,7 +81,6 @@ void Transformations::build_blk_diag_var(Data& dat,
 
 void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
   for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
-    delta_cumprod.row(i) = arma::cumprod(pars.delta.row(i));
     for (arma::uword k = 0; k < dat.kdim; k++) {
       blk_diag_phi_delta.slice(k).submat(
           dat.basis_dim * dat.seq_along_start_delta(i), 

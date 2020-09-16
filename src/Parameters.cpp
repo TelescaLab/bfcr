@@ -266,6 +266,7 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
         (dat.kdim - k) / 2;
       delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
     }
+    transf.delta_cumprod.row(i) = arma::cumprod(delta.row(i));
   }
   transf.build_blk_diag_phi_delta(dat, *this);
 }
