@@ -19,7 +19,6 @@ public:
   arma::vec psi;
   arma::vec tau1;
   arma::mat tau2;
-  double tau_cutoff;
   arma::vec tau1_delta;
   arma::mat tau2_delta;
   arma::vec tau1_nu;

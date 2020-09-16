@@ -171,7 +171,7 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, doubl
   arma::uword num_time_pts = basis.n_rows;
   arma::mat quants(num_time_pts, 3);
   arma::vec current_mean;
-  for(arma::uword i = 0; i < iterations; i++){
+  for(arma::uword i = burnin; i < iterations; i++){
     current_mean = basis * beta.slice(i) * xi;
     stats(current_mean);
   }
@@ -182,7 +182,6 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, doubl
       arma::max(arma::abs(current_mean - stats.mean()) / stats.stddev());
     counter++;
   }
-  
   arma::vec alpha_vec = {1 - alpha};
   double m_star = arma::as_scalar(arma::quantile(m_alpha, alpha_vec));
   

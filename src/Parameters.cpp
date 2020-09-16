@@ -6,17 +6,11 @@ Parameters::Parameters(Data& dat) {
   eta = arma::mat(dat.n, dat.kdim, arma::fill::randn);
   varphi = 100 * arma::vec(dat.n, arma::fill::ones);
   psi = arma::vec(dat.n, arma::fill::ones);
-<<<<<<< HEAD
-  tau_a = 0;
+  tau_a = -.5;
   tau_b = 0;
-  tau_cutoff = 10E4;
-=======
-  tau_a = 1;
-  tau_b = 0.0005;
->>>>>>> master
+  // tau_cutoff = 1000;
   alpha = 1;
   tausq = 1;
-  tau_cutoff = 10000;
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);
   tau1_delta = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);
   tau1_nu = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);
@@ -72,11 +66,7 @@ void Parameters::update_lambda(Data& dat, Transformations& transf) {
       arma::kron(dat.design_var.t() * arma::diagmat(eta.col(k)) * 
       arma::diagmat(varphi) * 
       (dat.design_var.t() * arma::diagmat(eta.col(k))).t(),
-<<<<<<< HEAD
       transf.btb) + transf.blk_diag_var_penalties.slice(k) +
-=======
-      transf.btb) + transf.blk_diag_var_penalties.slice(k) + 
->>>>>>> master
         transf.blk_diag_phi_delta.slice(k);
     transf.lambda_g = arma::vectorise((transf.bty - 
       transf.btb * transf.fit_lambda_removed) * arma::diagmat(varphi) *
@@ -126,75 +116,38 @@ void Parameters::update_eta(Data& dat, Transformations& transf) {
 }
 
 void Parameters::update_tau1(Data& dat, Transformations& transf) {
-
   double update_a = 0, update_b = 0;
-  arma::uword start = 0;
-  arma::uword end = static_cast<double>(dat.penalties_mean(0).n_rows) /
-    static_cast<double>(dat.basis_dim) - 1;
-  arma::uword num_field_elements = dat.penalties_mean.n_elem;
-  arma::uword old_index = 1;
-  
-  for(arma::uword i = 0; i < num_field_elements; i++){
+  for(arma::uword i = 0; i < dat.penalties_mean.n_elem; i++){
     // tau_a = tau1_nu(i) / 2;
     // tau_b = tau1_delta(i) * tau1_nu(i) / 2;
-    if (dat.indices_mean(i) != old_index) {
-      start = end + 1;
-      end = end + dat.penalties_mean(i).n_rows / dat.basis_dim;
-    }
-    
     update_a = .5 * dat.rank_mean(i);
     update_b = .5 *
-      arma::as_scalar(arma::vectorise(beta.cols(start, end)).t() *
+      arma::as_scalar(arma::vectorise(beta.cols(dat.seq_along_tau1(i, 0),
+                                                dat.seq_along_tau1(i, 1))).t() *
       dat.penalties_mean(i) *
-      arma::vectorise(beta.cols(start, end)));
-<<<<<<< HEAD
-    //tau1(i) = R::rgamma(tau_a + update_a / 2.0, 1.0 / (tau_b + update_b));
-    double proposal = R::rgamma(tau_a + update_a / 2.0, 1.0 / (tau_b + update_b));
-    if (proposal <= tau_cutoff) tau1(i) = proposal;
-    old_index = dat.indices_mean(i);
-=======
-    double proposal = R::rgamma(tau_a + update_a / 2.0, 1.0 / (tau_b + update_b));
-    //if (proposal < tau_cutoff) tau1(i) = proposal;
-    tau1(i) = proposal;
->>>>>>> master
+      arma::vectorise(beta.cols(dat.seq_along_tau1(i, 0),
+                                dat.seq_along_tau1(i, 1))));
+    tau1(i) = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
   }
   transf.build_blk_diag_mean(dat, *this);
 }
 
 void Parameters::update_tau2(Data& dat, Transformations& transf) {
   double update_a = 0, update_b = 0;
-  arma::uword start = 0;
-  arma::uword end = static_cast<double>(dat.penalties_var(0).n_rows) /
-    static_cast<double>(dat.basis_dim) - 1;
-  arma::uword num_field_elements = dat.penalties_var.n_elem;
-  arma::uword old_index = 1;
-  
-  for(arma::uword i = 0; i < num_field_elements; i++){
-    
-    if (dat.indices_var(i) != old_index) {
-      start = end + 1;
-      end = end + dat.penalties_var(i).n_rows / dat.basis_dim;
-    }
-    
+  for(arma::uword i = 0; i < dat.penalties_var.n_elem; i++){
     for (arma::uword k = 0; k < dat.kdim; k++) {
       // tau_a = tau2_nu(i, k) / 2;
       // tau_b = tau2_delta(i, k) * tau2_nu(i, k) / 2;
       update_a = .5 * dat.rank_var(i);
       update_b = .5 *
-        arma::as_scalar(arma::vectorise(lambda.slice(k).cols(start, end)).t() *
-        dat.penalties_var(i) * arma::vectorise(lambda.slice(k).cols(start, end)));
-<<<<<<< HEAD
-      //tau2(i, k) = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
-      double proposal = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
-      if (proposal <= tau_cutoff) tau2(i, k) = proposal;
-=======
-      double proposal = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
-     // if (proposal < tau_cutoff) tau2(i, k) = proposal;
-     tau2(i, k) = proposal;
->>>>>>> master
+        arma::as_scalar(arma::vectorise(lambda.slice(k).cols(
+            dat.seq_along_tau2(i, 0), dat.seq_along_tau2(i, 1))).t() *
+        dat.penalties_var(i) * arma::vectorise(lambda.slice(k).cols(
+            dat.seq_along_tau2(i, 0), dat.seq_along_tau2(i, 1))));
+      tau2(i, k) = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
+      // double proposal = R::rgamma(tau_a + update_a, 1.0 / (tau_b + update_b));
+      // if (proposal < tau_cutoff) tau2(i, k) = proposal;
     }
-    old_index = dat.indices_var(i);
-    
   }
   transf.build_blk_diag_var(dat, *this);
 }
@@ -276,13 +229,9 @@ void Parameters::update_phi(Data& dat, Transformations& transf) {
     for (arma::uword j = 0; j < dat.d2; j++) {
       for (arma::uword k = 0; k < dat.kdim; k++) {
         phi(i, j, k) = 
-<<<<<<< HEAD
           R::rgamma(phi_a + .5, 1.0 / (phi_b + 
-          transf.delta_cumprod(dat.seq_along_elongated(j), k) * 
+          .5 * transf.delta_cumprod(dat.seq_along_elongated(j), k) * 
           ::pow(lambda(i, j, k), 2)));
-=======
-          R::rgamma(phi_a + .5, 1.0 / (phi_b + transf.delta_cumprod.row(0)(k) * ::pow(lambda(i, j, k), 2)));
->>>>>>> master
       }
     }
   }
@@ -293,8 +242,10 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
    for (arma::uword k = 0; k < dat.kdim; k++) {
     for(arma::uword i = 0; i < dat.n_smooths_var; i++){
       transf.phi_lambda_sum(i, k) = arma::as_scalar(
-        arma::accu(arma::square(lambda.slice(k).cols(dat.seq_along_start(i), dat.seq_along_end(i))) %
-          phi.slice(k).cols(dat.seq_along_start(i), dat.seq_along_end(i))));
+        arma::accu(arma::square(lambda.slice(k).cols(
+            dat.seq_along_start_delta(i), dat.seq_along_end_delta(i))) %
+          phi.slice(k).cols(
+              dat.seq_along_start_delta(i), dat.seq_along_end_delta(i))));
     }
   }
   for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
@@ -311,11 +262,9 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
       update_a = a2_(i);
       if (k == 0) update_a = a1_(i);
       update_a = update_a + dat.basis_dim * 
-        (dat.seq_along_end(i) - dat.seq_along_start(i) + 1) * 
+        (dat.seq_along_end_delta(i) - dat.seq_along_start_delta(i) + 1) * 
         (dat.kdim - k) / 2;
-      
       delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
-      
     }
     transf.delta_cumprod.row(i) = arma::cumprod(delta.row(i));
   }
