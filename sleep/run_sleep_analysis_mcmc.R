@@ -84,9 +84,9 @@ response <- t(matrix(sleep_data_filtered$psd,
                      ncol = num_subjects))
 
 k <- 12
-iter <- 10000
-burnin <- 2500
-thin <- 1
+iter <- 20000
+burnin <- 5000
+thin <- 10
 
 mcmc_results <- run_mcmc(response, design_mean,
                          design_var, epoch_basis,
@@ -101,8 +101,7 @@ saveRDS(
                 "bfcr/sleep/mcmc_output/mcmc_results.rds")
 )
 
-# k,
-# ".rds"))
+### NOT RUN
 
 # Not age adjusted
 if (FALSE)
