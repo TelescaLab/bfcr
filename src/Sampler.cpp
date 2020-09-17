@@ -27,11 +27,7 @@ void SamplerUnequal::sample_parameters() {
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
-      // pars.update_tau1_delta(dat, transf);
-      // pars.update_tau1_nu(dat, transf);
-      // pars.update_tau2_delta(dat, transf);
-      // pars.update_tau2_nu(dat, transf);
-      /// pars.update_phi(dat, transf);
+      pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);
       pars.update_tausq(dat, transf);
@@ -61,10 +57,6 @@ void SamplerPooled::sample_parameters() {
       pars.update_eta(dat, transf);
       pars.update_tau1(dat, transf);
       pars.update_tau2(dat, transf);
-      pars.update_tau1_delta(dat, transf);
-      pars.update_tau1_nu(dat, transf);
-      pars.update_tau2_delta(dat, transf);
-      pars.update_tau2_nu(dat, transf);
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
       pars.update_varphi(dat, transf); 
@@ -73,7 +65,7 @@ void SamplerPooled::sample_parameters() {
       transf.complete_response(dat, pars);
     }
     progress_bar.increment();
-    pars.write_parameters();
+    write_parameters();
   }
   stop:
     NULL;
@@ -89,12 +81,8 @@ void SamplerUnequal::write_parameters() {
   pars.phi_container(pars.iteration) = pars.phi;
   pars.delta_container.slice(pars.iteration) = pars.delta;
   pars.tausq_container(pars.iteration) = pars.tausq;
-  pars.a1_container.col(pars.iteration) = pars.a1_;
-  pars.a2_container.col(pars.iteration) = pars.a2_;
-  pars.tau1_delta_container.col(pars.iteration) = pars.tau1_delta;
-  pars.tau1_nu_container.col(pars.iteration) = pars.tau1_nu;
-  pars.tau2_delta_container.slice(pars.iteration) = pars.tau2_delta;
-  pars.tau2_nu_container.slice(pars.iteration) = pars.tau2_nu;
+  pars.a1_container.col(pars.iteration) = pars.a1;
+  pars.a2_container.col(pars.iteration) = pars.a2;
   pars.iteration++;
 }
 
@@ -107,12 +95,8 @@ void SamplerPooled::write_parameters() {
   pars.tau2_container.slice(pars.iteration) = pars.tau2;
   pars.phi_container(pars.iteration) = pars.phi;
   pars.delta_container.slice(pars.iteration) = pars.delta;
-  pars.a1_container.col(pars.iteration) = pars.a1_;
-  pars.a2_container.col(pars.iteration) = pars.a2_;
-  pars.tau1_delta_container.col(pars.iteration) = pars.tau1_delta;
-  pars.tau1_nu_container.col(pars.iteration) = pars.tau1_nu;
-  pars.tau2_delta_container.slice(pars.iteration) = pars.tau2_delta;
-  pars.tau2_nu_container.slice(pars.iteration) = pars.tau2_nu;
+  pars.a1_container.col(pars.iteration) = pars.a1;
+  pars.a2_container.col(pars.iteration) = pars.a2;
   pars.iteration++;
 }
 

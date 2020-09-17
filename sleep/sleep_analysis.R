@@ -102,10 +102,10 @@ saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/
                                  ".rds"))
 #
 subject_bands <- get_posterior_subject_bands(mcmc_results)
-mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[5,])
+mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[3,])
 evals <- k
-eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[5,])
-subj <- 21:29
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[3,])
+subj <- 31:39
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
@@ -143,7 +143,10 @@ mean_bands %>%
   labs(x = "Epoch", y = "Relative delta power spectral density") +
   theme_bw()
 plot(res$mu, type = "l")
+plot(res$phi[,1], type = "l")
+lines(eigen_bands$eigenfunctions$mean[1:120], col = "blue")
 plot(res$phi[,2], type = "l")
+lines(eigen_bands$eigenfunctions$mean[121:240], col="blue")
 cumsum(eigen(res$fittedCov)$values)[1:20] * 100 / sum(eigen(res$fittedCov)$values)
 cumsum(eigen_bands$prop_var_explained[2,]) * 100
 
