@@ -15,18 +15,18 @@ public:
   arma::uword n_smooths_mean, n_smooths_var;
   arma::uword iter, thin, burnin;
   arma::vec time;
-  arma::uvec seq_along_start, seq_along_end;
+  arma::uvec seq_along_start_delta, seq_along_end_delta;
   arma::ivec rank_mean, rank_var;
-  arma::uvec seq_along_start_repeated_mean;
-  arma::uvec seq_along_end_repeated_mean;
-  arma::uvec seq_along_start_repeated_var;
-  arma::uvec seq_along_end_repeated_var;
+  arma::uvec seq_along_elongated;
   Data(arma::mat&, arma::mat&, arma::mat&,
        arma::mat&, arma::vec&,
        arma::field<arma::mat>&,arma::field<arma::mat>&,
        arma::uvec&, arma::uvec&, arma::uword, arma::uword, 
        arma::uword, arma::uword);
   Rcpp::List write_data();
+  arma::umat get_seq_along_tau(arma::field<arma::mat>&, arma::uvec&);
+  arma::umat seq_along_tau1;
+  arma::umat seq_along_tau2;
 };
 
 #endif

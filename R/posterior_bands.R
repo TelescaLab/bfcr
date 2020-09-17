@@ -106,5 +106,7 @@ get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05) {
          surface = post_eigen$surface,
          magnitude = post_eigen$magnitude,
          raw_magnitude = post_eigen$raw_magnitude,
-         time = post_eigen$time))
+         time = post_eigen$time,
+         eval_mat = post_eigen$pve_mat))
+         
 }

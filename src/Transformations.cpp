@@ -36,77 +36,57 @@ Transformations::Transformations(Data& dat, Parameters& pars) {
   lambda_old = arma::mat(dat.basis_dim, dat.d2);
   phi_lambda_sum = arma::mat(dat.n_smooths_var,
                              dat.kdim, arma::fill::zeros);
-  //delta_cumprod = arma::vec(dat.indices_var.n_elem);
-  delta_cumprod = arma::mat(dat.n_smooths_var, dat.kdim);
+  // delta_cumprod = arma::mat(dat.n_smooths_var, dat.kdim, arma::fill::ones);
+  delta_cumprod = arma::mat(dat.n_smooths_var, dat.kdim, arma::fill::zeros);
+  for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
+    delta_cumprod.row(i) = arma::cumprod(pars.delta.row(i));
+  }
   blk_diag_phi_delta = arma::cube(dat.basis_dim * dat.d2,
                                   dat.basis_dim * dat.d2,
                                   dat.kdim, arma::fill::zeros);
-  //blk_diag_delta_cumprod = arma::mat(dat.indices_var.n_elem,
-                //                     dat.kdim, arma::fill::ones);*
 }
 
 void Transformations::build_blk_diag_mean(Data& dat, Parameters& pars) {
-  arma::uword old_index = 0;
-  arma::uword start;
-  arma::uword end = -1;
-  for (arma::uword d = 0; d < dat.indices_mean.n_elem; d++) {
-    if (dat.indices_mean(d) == old_index) {
+  blk_diag_mean_penalties.zeros();
+  for (arma::uword i = 0; i < dat.indices_mean.n_elem; i++) {
       blk_diag_mean_penalties.submat(
-        start, start, end, end) =
-          pars.tau1(d) * dat.penalties_mean(d) + 
-          blk_diag_mean_penalties.submat(start, start, end, end);
-    } else {
-      start = end + 1;
-      end = start + dat.penalties_mean(d).n_rows - 1;
-      
-      blk_diag_mean_penalties.submat(
-        start, start, end, end) =
-          pars.tau1(d) * dat.penalties_mean(d);
-      
-    }
-    
-    old_index = dat.indices_mean(d);
+        dat.basis_dim * dat.seq_along_tau1(i, 0),
+        dat.basis_dim * dat.seq_along_tau1(i, 0),
+        dat.basis_dim * (dat.seq_along_tau1(i, 1) + 1) - 1,
+        dat.basis_dim * (dat.seq_along_tau1(i, 1) + 1) - 1) =
+          pars.tau1(i) * dat.penalties_mean(i);
   }
 }
 
 void Transformations::build_blk_diag_var(Data& dat,
                                          Parameters& pars) {
   for (arma::uword k = 0; k < dat.kdim; k++) {
-    arma::uword old_index = 0;
-    arma::uword start;
-    arma::uword end = -1;
-    for (arma::uword d = 0; d < dat.indices_var.n_elem; d++) {
-      if (dat.indices_var(d) == old_index) {
-        blk_diag_var_penalties.slice(k).submat(
-            start, start, end, end) =
-              pars.tau2(d) * dat.penalties_var(d) + 
-              blk_diag_var_penalties.slice(k).submat(
-                  start, start, end, end);
-      } else {
-        start = end + 1;
-        end = start + dat.penalties_var(d).n_rows - 1;
-        blk_diag_var_penalties.slice(k).submat(
-            start, start, end, end) =
-              pars.tau2(d, k) * dat.penalties_var(d);
-        
-      }
-      
-      old_index = dat.indices_var(d);
+    blk_diag_var_penalties.slice(k).zeros();
+    for (arma::uword i = 0; i < dat.indices_var.n_elem; i++) {
+      blk_diag_var_penalties.slice(k).submat(
+          dat.basis_dim * dat.seq_along_tau2(i, 0),
+          dat.basis_dim * dat.seq_along_tau2(i, 0),
+          dat.basis_dim * (dat.seq_along_tau2(i, 1) + 1) - 1,
+          dat.basis_dim * (dat.seq_along_tau2(i, 1) + 1) - 1) =
+            pars.tau2(i, k) * dat.penalties_var(i);
     }
   }
 }
+
 void Transformations::build_blk_diag_phi_delta(Data& dat, Parameters& pars) {
   for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
-    delta_cumprod.row(i) = arma::cumprod(pars.delta.row(i));
+    // Rcpp::Rcout << "START: " << dat.seq_along_start_delta(i) << "\n";
+    // Rcpp::Rcout << "END: " << dat.seq_along_end_delta(i) << "\n";
+    
     for (arma::uword k = 0; k < dat.kdim; k++) {
       blk_diag_phi_delta.slice(k).submat(
-          dat.basis_dim * dat.seq_along_start(i), 
-          dat.basis_dim * dat.seq_along_start(i),
-          dat.basis_dim * (dat.seq_along_end(i) + 1) - 1,
-          dat.basis_dim * (dat.seq_along_end(i) + 1) - 1) =
+          dat.basis_dim * dat.seq_along_start_delta(i), 
+          dat.basis_dim * dat.seq_along_start_delta(i),
+          dat.basis_dim * (dat.seq_along_end_delta(i) + 1) - 1,
+          dat.basis_dim * (dat.seq_along_end_delta(i) + 1) - 1) =
             arma::diagmat(arma::vectorise(
-                pars.phi.slice(k).cols(dat.seq_along_start(i),
-                               dat.seq_along_end(i)) * delta_cumprod(i, k)));
+                pars.phi.slice(k).cols(dat.seq_along_start_delta(i),
+                               dat.seq_along_end_delta(i)) * delta_cumprod(i, k)));
     }
   }
   /*

@@ -1,5 +1,6 @@
 library(loo)
 library(BayesianConditionalFPCA)
+library(tidyverse)
 
 k <- commandArgs(trailingOnly = TRUE)
 infile <- paste0("/Users/johnshamshoian/Documents/R_projects/",
