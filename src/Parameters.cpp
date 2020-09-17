@@ -251,9 +251,9 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
   for (arma::uword i = 0; i < dat.n_smooths_var; i++) {
     for (arma::uword k = 0; k < dat.kdim; k++) {
       
-      transf.delta_cumprod.row(i) = delta.row(i);
+      // transf.delta_cumprod.row(i) = delta.row(i);
       transf.delta_cumprod.row(i)(k) = 1;
-      transf.delta_cumprod.row(i) = arma::cumprod(transf.delta_cumprod.row(i));
+      // transf.delta_cumprod.row(i) = transf.delta_cumprod.row(i);
       for (arma::uword kp = 0; kp < k; kp++) {
         transf.delta_cumprod.row(i)(kp) = 0;
       }
@@ -265,8 +265,8 @@ void Parameters::update_delta(Data& dat, Transformations& transf) {
         (dat.seq_along_end_delta(i) - dat.seq_along_start_delta(i) + 1) * 
         (dat.kdim - k) / 2;
       delta(i, k) = R::rgamma(update_a, 1.0 / update_b);
+      transf.delta_cumprod.row(i) = arma::cumprod(delta.row(i));
     }
-    transf.delta_cumprod.row(i) = arma::cumprod(delta.row(i));
   }
   transf.build_blk_diag_phi_delta(dat, *this);
 }
