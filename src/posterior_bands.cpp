@@ -252,12 +252,14 @@ List extract_eigenfn(arma::cube& Lambda,
   arma::eig_sym(eigenval_latent, eigenfn_latent, cov_latent_transformed);
   eigenfn_spline =  B * Psi_sqrt_inv * eigenfn_latent;
   cov_spline = B * cov_latent * B.t();
+  double eval_sum = arma::sum(eigenval_latent);
   for(arma::uword v = 0; v < eigenvals; v++){
     eigenfn_spline_ordered.col(v) = eigenfn_spline.col(dim_latent - v - 1);
     eigenval_spline(v) = eigenval_latent(dim_latent - v - 1);
-    eigenval_pve(v) = eigenval_spline(v) / arma::sum(eigenval_latent);
-    
+    eigenval_pve(v) = eigenval_spline(v) / eval_sum;
   }
+  arma::vec eval_cumsum = arma::cumsum(eigenval_pve);
+  eigenval_pve.elem(arma::find(eval_cumsum > 1)).zeros();
   double magnitude = arma::sum(eigenval_latent);
   return(List::create(Named("eigenfn_spline", eigenfn_spline_ordered),
                       Named("eigenval", eigenval_spline),
@@ -465,6 +467,7 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
     temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
     eval_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);
     eval_pve_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval_pve"]);
+    arma::rowvec cumsum_vec = arma::cumsum(eval_pve_mat.row(counter));
     stats_cov(arma::vectorise(as<arma::vec>(eigen_list["cov_spline"])));
     magnitude(counter) = eigen_list["magnitude"];
     if (counter == 0) stats_vec(arma::vectorise(temp_evec));
@@ -542,7 +545,8 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
                       Named("surface", mean_cov),
                       Named("magnitude", magnitude_interval),
                       Named("raw_magnitude", magnitude),
-                      Named("time", time)));
+                      Named("time", time),
+                      Named("pve_mat", eval_pve_mat)));
 }
 
 // [[Rcpp::export]]

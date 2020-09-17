@@ -14,7 +14,7 @@ sleep_tabulated <- read.csv(paste0("/Users/johnshamshoian/Documents/R_projects/"
             "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:200420
+id_range <- 200001:200600
 
 sleep_tabulated_filtered <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
@@ -38,14 +38,14 @@ age_grid <- sleep_data_filtered %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
   select(age_s1)
-age_df <- ceiling(5 / 100 * (max(age_grid) - min(age_grid)))
+age_df <- ceiling(10 / 100 * (max(age_grid) - min(age_grid)))
 
 epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
 epoch_penalty <- attr(epoch_basis, "S")
 
 # Age adjusted
 if (TRUE) {
-  age_basis <- ps(age_grid$age_s1, df = 5, intercept = FALSE)
+  age_basis <- ps(age_grid$age_s1, df = age_df, intercept = TRUE)
   age_penalty <- attr(age_basis, "S")
   if (!(attr(age_basis, "intercept"))) {
     model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
@@ -60,10 +60,14 @@ if (TRUE) {
     design_var <- cbind(1, age_basis)
     # design_var <- cbind(rep(1, num_subjects))
   } else {
+    model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
+    
     mean_indices <- c(1, 1)
     var_indices <- c(1, 1)
     mean_penalty <- model_penalties
     var_penalty <- model_penalties
+    design_mean <- age_basis
+    design_var <- age_basis
   }
 }
 
@@ -79,10 +83,10 @@ if (FALSE) {
 response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
-k <- 8
-iter <- 10000
+k <- 12
+iter <- 3000
 burnin <- 2500
-thin <- 5
+thin <- 1
 mcmc_results <- run_mcmc(response, design_mean,
                   design_var, epoch_basis,
                   epoch_grid,
@@ -98,9 +102,9 @@ saveRDS(mcmc_results, file = paste0("/Users/johnshamshoian/Documents/R_projects/
 #
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[5,])
-evals <- 8
+evals <- k
 eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[5,])
-subj <- 11:19
+subj <- 21:29
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
@@ -157,11 +161,11 @@ matplot(t(beta_list), type = "l")
 eigvec_list <- matrix(0, nrow = 7500, ncol = 120)
 mycov <- matrix(0, nrow = 120, ncol = 120)
 counter <- 1
-for (i in 2501:10000) {
+for (i in 3000:3000) {
   print(i)
   mycov[] <- 0
   for (this_k in 1:k) {
-    mycov <- mycov + tcrossprod(epoch_basis %*% mcmc_results$samples$lambda[[i]][,,this_k] %*% design_var[4,])
+    mycov <- mycov + tcrossprod(epoch_basis %*% mcmc_results$samples$lambda[[i]][,,this_k] %*% design_var[5,] )
   }
   eigvec_list[counter,] <- eigen(mycov)$vectors[,2]
   counter <- counter + 1
