@@ -59,12 +59,8 @@ void Parameters::update_lambda(Data& dat, Transformations& transf) {
       arma::kron(dat.design_var.t() * arma::diagmat(eta.col(k)) * 
       arma::diagmat(varphi) * 
       (dat.design_var.t() * arma::diagmat(eta.col(k))).t(),
-<<<<<<< HEAD
-      transf.btb) + transf.blk_diag_var_penalties.slice(k);
-=======
       transf.btb) + transf.blk_diag_var_penalties.slice(k) +
         transf.blk_diag_phi_delta.slice(k);
->>>>>>> master
     transf.lambda_g = arma::vectorise((transf.bty - 
       transf.btb * transf.fit_lambda_removed) * arma::diagmat(varphi) *
       arma::diagmat(eta.col(k)) * dat.design_var);
