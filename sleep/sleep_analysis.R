@@ -45,19 +45,20 @@ epoch_penalty <- attr(epoch_basis, "S")
 
 # Age adjusted
 if (TRUE) {
-  age_basis <- ps(age_grid$age_s1, df = age_df, intercept = TRUE)
+  age_basis <- ps(age_grid$age_s1, df = age_df, intercept = FALSE)
   age_penalty <- attr(age_basis, "S")
   if (!(attr(age_basis, "intercept"))) {
     model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
-    mean_indices <- c(1, 2, 2)
-    var_indices <- c(1, 2, 2)
-    var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+    
+    mean_indices <- c(1, 1, 2)
+    var_indices <- c(1, 1, 2)
+    var_penalty <- list(model_penalties[[1]], model_penalties[[2]], epoch_penalty)
     # var_penalty <- list(epoch_penalty)
     # var_penalty <- list(epoch_penalty, diag(180), diag(180))
-    mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+    mean_penalty <- list(model_penalties[[1]], model_penalties[[2]], epoch_penalty)
     # mean_penalty <- list(epoch_penalty, diag(180), diag(180))
-    design_mean <- cbind(1, age_basis)
-    design_var <- cbind(1, age_basis)
+    design_mean <- cbind(age_basis, 1)
+    design_var <- cbind(age_basis, 1)
     # design_var <- cbind(rep(1, num_subjects))
   } else {
     model_penalties <- tensor.prod.penalties(list(age_penalty, epoch_penalty))
@@ -84,7 +85,7 @@ response <- t(matrix(sleep_data_filtered$psd,
                    nrow = num_epochs,
                    ncol = num_subjects))
 k <- 12
-iter <- 3000
+iter <- 10000
 burnin <- 2500
 thin <- 1
 mcmc_results <- run_mcmc(response, design_mean,
