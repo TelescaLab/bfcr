@@ -165,7 +165,7 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, doubl
   arma::uword iterations = control["iterations"];
   arma::uword burnin = control["burnin"];
   arma::uword basis_dim = basis.n_cols;
-  arma::vec m_alpha(iterations);
+  arma::vec m_alpha(iterations - burnin);
   arma::running_stat_vec<arma::vec> stats;
   arma::vec m_beta(basis_dim);
   arma::uword num_time_pts = basis.n_rows;
@@ -188,6 +188,7 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, doubl
   quants.col(0) = stats.mean() - m_star * stats.stddev();
   quants.col(1) = stats.mean();
   quants.col(2) = stats.mean() + m_star * stats.stddev();
+  arma::vec v = stats.stddev();
   return(quants);
 }
 

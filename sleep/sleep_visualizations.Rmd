@@ -1,0 +1,444 @@
+---
+title: "Sleep data visualization"
+output:
+  html_document:
+    df_print: paged
+---
+
+
+```{r, echo = FALSE, message = FALSE}
+library(BayesianConditionalFPCA)
+library(tidyverse)
+library(mgcv)
+library(spam)
+library(plotly)
+library(dlnm)
+library(fdapace)
+
+mcmc_results <- readRDS(
+  paste0("/Users/johnshamshoian/Documents/R_projects/bfcr",
+  "/sleep/mcmc_output/mcmc_results_age.rds")
+)
+
+load(
+  paste0("/Users/johnshamshoian/Documents/R_projects/",
+         "bfcr/sleep/data/",
+         "relative_psd.RData"))
+
+sleep_tabulated <- read.csv(
+  paste0("/Users/johnshamshoian/Documents/R_projects/",
+         "bfcr/sleep/tabulated_data/", 
+         "shhs1-dataset-0.15.0.csv"),
+  stringsAsFactors = FALSE)
+
+num_epochs <- 240
+id_range <- 200001:206000
+covariate <- "age_s1"
+
+sleep_data <- sleep_tabulated %>%
+  filter(EEG1qual == 4) %>%
+  select(nsrrid, !!(sym(covariate))) %>%
+  drop_na()
+
+sleep_data <- inner_join(sleep_data, relative_psd)
+
+sleep_data <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(n() >= num_epochs, epoch <= num_epochs,
+         nsrrid %in% id_range) %>%
+  ungroup()
+
+num_subjects <- as.numeric(summarise(
+  sleep_data, n_distinct(nsrrid)))
+
+epoch_grid <- 1:num_epochs
+epoch_df <- ceiling(20 / 100 * num_epochs)
+covariate_grid <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  select(!!(sym(covariate))) %>%
+  pull()
+covariate_df <- dim(mcmc_results$data$design_mean)[2]
+
+evaluate_spline <- function(smoothCon_list, covariate) {
+  c(1, PredictMat(smoothCon_list[[1]],
+                  data = data.frame(covariate_grid = covariate)))
+}
+
+# Covariate adjusted, using mgcv
+{
+  covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
+                                 k = covariate_df, m = 2),
+                               data = data.frame(covariate_grid),
+                               absorb.cons = TRUE)
+  covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
+  new_covariate <- seq(from = covariate_quantiles[1],
+                       to = covariate_quantiles[2], length.out = 10)
+}
+
+mean_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  xi <- evaluate_spline(covariate_basis, new_covariate_value)
+  mean_bands <- get_posterior_means(
+    mcmc_results, 
+    xi)
+  mean_surface[i,,2] <- mean_bands$mean
+  mean_surface[i,,1] <- mean_bands$lower
+  mean_surface[i,,3] <- mean_bands$upper
+}
+camera <- list(eye = list(x = 1.5, y = 1.5, z = .4))
+
+```
+
+## Age-adjusted mean surface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~mean_surface[,,2], x=~epoch_grid, y=~new_covariate,colors = "Greys" ) %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "Age (years)"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera))
+```
+
+## Age-adjusted eigenfunction
+
+```{r, echo = FALSE, message = FALSE}
+evals <- 3
+eigen_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3, evals))
+pve <- array(0, dim = c(length(new_covariate), 3, evals))
+magnitude <- matrix(0, 3, length(new_covariate))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  zi <- evaluate_spline(covariate_basis, new_covariate_value)
+  eigen_bands <- get_posterior_eigen(mcmc_results, evals, zi)
+  for (k in 1:evals) {
+    eigen_surface[i,,2,k] <- pull(eigen_bands$eigenfunctions %>%
+                                  filter(number == k) %>%
+                                  select(mean))
+    eigen_surface[i,,1,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(lower))
+    eigen_surface[i,,3,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(upper))
+    pve[i,,k] <- eigen_bands$prop_var_explained[,k]
+  }
+  magnitude[,i] <- eigen_bands$magnitude
+}
+```
+
+## Age adjusted eigensurface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~ -eigen_surface[,,2,1], x=~epoch_grid, y=~new_covariate, colors = "Greys") %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "Age (years)"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera)) 
+```
+
+```{r, echo = FALSE, message = FALSE}
+magnitude_tibble <- tibble(covariate = new_covariate,
+                           lower = magnitude[1,],
+                           upper = magnitude[3,],
+                           mean = magnitude[2,])
+```
+
+## Age adjusted total variance
+
+```{r}
+magnitude_tibble %>%
+  ggplot(aes(x = covariate)) +
+  geom_line(aes(y = mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Age", y = "Total variance") +
+  theme_bw()
+```
+
+```{r, echo = FALSE, message = FALSE}
+mcmc_results <- readRDS(
+  paste0("/Users/johnshamshoian/Documents/R_projects/bfcr",
+  "/sleep/mcmc_output/mcmc_results_bmi.rds")
+)
+
+load(
+  paste0("/Users/johnshamshoian/Documents/R_projects/",
+         "bfcr/sleep/data/",
+         "relative_psd.RData"))
+
+sleep_tabulated <- read.csv(
+  paste0("/Users/johnshamshoian/Documents/R_projects/",
+         "bfcr/sleep/tabulated_data/", 
+         "shhs1-dataset-0.15.0.csv"),
+  stringsAsFactors = FALSE)
+
+num_epochs <- 240
+id_range <- 200001:206000
+covariate <- "bmi_s1"
+
+sleep_data <- sleep_tabulated %>%
+  filter(EEG1qual == 4) %>%
+  select(nsrrid, !!(sym(covariate))) %>%
+  drop_na()
+
+sleep_data <- inner_join(sleep_data, relative_psd)
+
+sleep_data <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(n() >= num_epochs, epoch <= num_epochs,
+         nsrrid %in% id_range) %>%
+  ungroup()
+
+num_subjects <- as.numeric(summarise(
+  sleep_data, n_distinct(nsrrid)))
+
+epoch_grid <- 1:num_epochs
+epoch_df <- ceiling(20 / 100 * num_epochs)
+covariate_grid <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  select(!!(sym(covariate))) %>%
+  pull()
+covariate_df <- dim(mcmc_results$data$design_mean)[2]
+
+evaluate_spline <- function(smoothCon_list, covariate) {
+  c(1, PredictMat(smoothCon_list[[1]],
+                  data = data.frame(covariate_grid = covariate)))
+}
+
+# Covariate adjusted, using mgcv
+{
+  covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
+                                 k = covariate_df, m = 2),
+                               data = data.frame(covariate_grid),
+                               absorb.cons = TRUE)
+  covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
+  new_covariate <- seq(from = covariate_quantiles[1],
+                       to = covariate_quantiles[2], length.out = 10)
+}
+
+mean_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  xi <- evaluate_spline(covariate_basis, new_covariate_value)
+  mean_bands <- get_posterior_means(
+    mcmc_results, 
+    xi)
+  mean_surface[i,,2] <- mean_bands$mean
+  mean_surface[i,,1] <- mean_bands$lower
+  mean_surface[i,,3] <- mean_bands$upper
+}
+camera <- list(eye = list(x = 1.5, y = 1.5, z = .4))
+```
+
+## BMI adjusted mean surface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~mean_surface[,,2], x=~epoch_grid, y=~new_covariate,colors = "Greys" ) %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "BMI"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera))
+```
+
+```{r, echo = FALSE, message = FALSE}
+evals <- 3
+eigen_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3, evals))
+pve <- array(0, dim = c(length(new_covariate), 3, evals))
+magnitude <- matrix(0, 3, length(new_covariate))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  zi <- evaluate_spline(covariate_basis, new_covariate_value)
+  eigen_bands <- get_posterior_eigen(mcmc_results, evals, zi)
+  for (k in 1:evals) {
+    eigen_surface[i,,2,k] <- pull(eigen_bands$eigenfunctions %>%
+                                  filter(number == k) %>%
+                                  select(mean))
+    eigen_surface[i,,1,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(lower))
+    eigen_surface[i,,3,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(upper))
+    pve[i,,k] <- eigen_bands$prop_var_explained[,k]
+  }
+  magnitude[,i] <- eigen_bands$magnitude
+}
+```
+
+## BMI adjusted eigensurface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~eigen_surface[,,2,1], x=~epoch_grid, y=~new_covariate, colors = "Greys") %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "BMI"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera)) 
+```
+
+
+```{r, echo = FALSE, message = FALSE}
+magnitude_tibble <- tibble(covariate = new_covariate,
+                           lower = magnitude[1,],
+                           upper = magnitude[3,],
+                           mean = magnitude[2,])
+```
+
+## BMI adjusted total variance
+
+```{r}
+magnitude_tibble %>%
+  ggplot(aes(x = covariate)) +
+  geom_line(aes(y = mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "BMI", y = "Total variance") +
+  theme_bw()
+```
+
+
+```{r, echo = FALSE, message = FALSE}
+
+mcmc_results <- readRDS(
+  paste0("/Users/johnshamshoian/Documents/R_projects/bfcr",
+  "/sleep/mcmc_output/mcmc_results_systbp.rds")
+)
+
+num_epochs <- 240
+id_range <- 200001:206000
+covariate <- "SystBP"
+
+sleep_data <- sleep_tabulated %>%
+  filter(EEG1qual == 4) %>%
+  select(nsrrid, !!(sym(covariate))) %>%
+  drop_na()
+
+sleep_data <- inner_join(sleep_data, relative_psd)
+
+sleep_data <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(n() >= num_epochs, epoch <= num_epochs,
+         nsrrid %in% id_range) %>%
+  ungroup()
+
+num_subjects <- as.numeric(summarise(
+  sleep_data, n_distinct(nsrrid)))
+
+epoch_grid <- 1:num_epochs
+epoch_df <- ceiling(20 / 100 * num_epochs)
+covariate_grid <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  select(!!(sym(covariate))) %>%
+  pull()
+covariate_df <- dim(mcmc_results$data$design_mean)[2]
+
+evaluate_spline <- function(smoothCon_list, covariate) {
+  c(1, PredictMat(smoothCon_list[[1]],
+                  data = data.frame(covariate_grid = covariate)))
+}
+
+# Covariate adjusted, using mgcv
+{
+  covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
+                                 k = covariate_df, m = 2),
+                               data = data.frame(covariate_grid),
+                               absorb.cons = TRUE)
+  new_covariate <- seq(from = 45, to = 80, length.out = 5)
+  covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
+  new_covariate <- seq(from = covariate_quantiles[1],
+                       to = covariate_quantiles[2], length.out = 10)
+}
+
+mean_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  xi <- evaluate_spline(covariate_basis, new_covariate_value)
+  mean_bands <- get_posterior_means(
+    mcmc_results, 
+    xi)
+  mean_surface[i,,2] <- mean_bands$mean
+  mean_surface[i,,1] <- mean_bands$lower
+  mean_surface[i,,3] <- mean_bands$upper
+}
+camera <- list(eye = list(x = 1.5, y = 1.5, z = .4))
+
+```
+
+## Systolic BP adjusted mean surface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~mean_surface[,,2], x=~epoch_grid, y=~new_covariate,colors = "Greys" ) %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "Systolic BP"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera))
+```
+
+```{r, echo = FALSE, message = FALSE}
+evals <- 3
+eigen_surface <- array(0, dim = c(length(new_covariate), num_epochs, 3, evals))
+pve <- array(0, dim = c(length(new_covariate), 3, evals))
+magnitude <- matrix(0, 3, length(new_covariate))
+for (i in seq_along(new_covariate)) {
+  new_covariate_value <- new_covariate[i]
+  zi <- evaluate_spline(covariate_basis, new_covariate_value)
+  eigen_bands <- get_posterior_eigen(mcmc_results, evals, zi)
+  for (k in 1:evals) {
+    eigen_surface[i,,2,k] <- pull(eigen_bands$eigenfunctions %>%
+                                  filter(number == k) %>%
+                                  select(mean))
+    eigen_surface[i,,1,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(lower))
+    eigen_surface[i,,3,k] <- pull(eigen_bands$eigenfunctions %>%
+                                    filter(number == k) %>%
+                                    select(upper))
+    pve[i,,k] <- eigen_bands$prop_var_explained[,k]
+  }
+  magnitude[,i] <- eigen_bands$magnitude
+}
+```
+
+## Systolic BP adjusted eigensurface
+
+```{r}
+plot_ly(showscale = FALSE) %>%
+  add_surface(z=~ eigen_surface[,,2,1], x=~epoch_grid, y=~new_covariate, colors = "Greys") %>%
+  layout(scene = list(
+    xaxis = list(title = "Epoch"),
+    yaxis = list(title = "Systolic BP"),
+    zaxis = list(title = "Normalized Delta Power"),
+    camera = camera)) 
+```
+
+```{r, echo = FALSE, message = FALSE}
+magnitude_tibble <- tibble(covariate = new_covariate,
+                           lower = magnitude[1,],
+                           upper = magnitude[3,],
+                           mean = magnitude[2,])
+```
+
+## Systolic BP adjusted total variance
+
+```{r}
+magnitude_tibble %>%
+  ggplot(aes(x = covariate)) +
+  geom_line(aes(y = mean)) +
+  geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
+  labs(x = "Systolic BP", y = "Total variance") +
+  theme_bw()
+```

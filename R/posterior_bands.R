@@ -58,6 +58,7 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
                         mean = mean_matrix[,2],
                         upper = mean_matrix[,3],
                         time  = mcmc_output$data$time)
+  return(mean_tibble)
 }
 
 #' Posterior inference for covariate-adjusted covariance function
