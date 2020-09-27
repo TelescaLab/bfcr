@@ -14,16 +14,21 @@ sleep_tabulated <- read.csv(
          "bfcr/sleep/tabulated_data/",
          "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
-num_epochs <- 240
+num_epochs <- 120
 id_range <- 200001:206000
-covariate <- "SystBP"
+covariate <- "HTNDerv_s1"
 
 sleep_data <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
   select(nsrrid, !!(sym(covariate))) %>%
   drop_na()
 
+sleep_data <- sleep_tabulated %>%
+  filter(EEG1qual == 4) %>%
+  select(nsrrid, HTNDerv_s1, gender) %>%
+  drop_na()
 sleep_data <- inner_join(sleep_data, relative_psd)
+
 
 sleep_data <- sleep_data %>%
   group_by(nsrrid) %>%
@@ -41,6 +46,13 @@ covariate_grid <- pull(sleep_data %>%
                          filter(row_number() == 1) %>%
                          ungroup() %>%
                          select(!!(sym(covariate))))
+
+covariate_grid <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  select(-nsrrid, -epoch, -psd) %>%
+  as.matrix()
 covariate_df <- 6
 epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
 epoch_penalty <- attr(epoch_basis, "S")
@@ -53,20 +65,27 @@ evaluate_spline <- function(smoothCon_list, covariate) {
 
 # Age adjusted, using mgcv
 if (TRUE) {
-  covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
-                                 k = covariate_df, m = 2),
-                               data = data.frame(covariate_grid),
-                               absorb.cons = TRUE)
-  design_mean <- cbind(1, covariate_basis[[1]]$X)
-  design_var <- cbind(1, covariate_basis[[1]]$X)
-  model_penalties <- tensor.prod.penalties(list(covariate_basis[[1]]$S[[1]], epoch_penalty))
-  mean_indices <- c(1, 2, 2)
-  var_indices <- c(1, 2, 2)
-  mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
-  var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
-  covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
-  new_covariate <- seq(from = covariate_quantiles[1],
-                       to = covariate_quantiles[2], length.out = 10)
+  # covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
+  #                                k = covariate_df, m = 2),
+  #                              data = data.frame(covariate_grid),
+  #                              absorb.cons = TRUE)
+  # design_mean <- cbind(1, covariate_basis[[1]]$X)
+  # design_var <- cbind(1, covariate_basis[[1]]$X)
+  # model_penalties <- tensor.prod.penalties(list(covariate_basis[[1]]$S[[1]], epoch_penalty))
+  # mean_indices <- c(1, 2, 2)
+  # var_indices <- c(1, 2, 2)
+  # mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+  # var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+  # covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
+  # new_covariate <- seq(from = covariate_quantiles[1],
+  #                      to = covariate_quantiles[2], length.out = 10)
+  # 
+  design_mean <- cbind(rep(1, num_subjects), covariate_grid)
+  design_var <- cbind(rep(1, num_subjects), covariate_grid)
+  mean_indices <- c(1, 2, 3)
+  var_indices <- c(1, 2, 3)
+  mean_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
+  var_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
 }
 
 # Not age adjusted
@@ -82,7 +101,7 @@ response <- t(matrix(sleep_data$psd,
                      nrow = num_epochs,
                      ncol = num_subjects))
 
-k <- 12
+k <- 8
 iter <- 5000
 burnin <- 2500
 thin <- 1
@@ -95,10 +114,10 @@ mcmc_results <- run_mcmc(response, design_mean,
                          var = "unequal")
 saveRDS(mcmc_results, file = "mcmc_results_systbp.rds")
 subject_bands <- get_posterior_subject_bands(mcmc_results)
-mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[4,], alpha_level = .05)
+mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[2,], alpha_level = .05)
 evals <- 4
-eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[3,])
-subj <- 21:24
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, c(1,1,1))
+subj <- 31:34
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +
