@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  10 SEP 2020 15:12
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  27 SEP 2020 20:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -291,11 +291,14 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [4]
-
-LaTeX Warning: Reference `eq:mu' on page 5 undefined on input line 125.
-
-
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Overfull \hbox (7.88441pt too wide) in paragraph at lines 122--124
+\OT1/cmr/m/n/12 summarize the ef-fect of $[][]$ across $\OML/cmm/m/it/12  []$\O
+T1/cmr/m/n/12 , $\OML/cmm/m/it/12 j \OT1/cmr/m/n/12 = 1\OML/cmm/m/it/12 ; [] ; 
+k$\OT1/cmr/m/n/12 . Clearly $\OML/cmm/m/it/12 g[]\OT1/cmr/m/n/12 (\OML/cmm/m/it
+/12 t; [][]\OT1/cmr/m/n/12 ) \OMS/cmsy/m/n/12 2 \OT1/cmr/m/n/12 [0\OML/cmm/m/it
+/12 ; \OT1/cmr/m/n/12 1]$ and $[][] \OML/cmm/m/it/12 g[]\OT1/cmr/m/n/12 (\OML/c
+mm/m/it/12 t; [][]\OT1/cmr/m/n/12 ) =
+ []
 
 
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
@@ -303,7 +306,11 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [5]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+
+LaTeX Warning: Reference `eq:mu' on page 6 undefined on input line 130.
+
+
+Underfull \vbox (badness 1097) has occurred while \output is active []
 
 
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
@@ -311,14 +318,14 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [6]
-Overfull \hbox (1.0981pt too wide) in paragraph at lines 147--149
+Overfull \hbox (1.0981pt too wide) in paragraph at lines 152--154
 \OT1/cmr/m/n/12 where we use the `rate' pa-ram-e-ter-i-za-tion of the Gamma dis
 -tri-bu-tion (i.e., if $\OML/cmm/m/it/12 x \OMS/cmsy/m/n/12 ^^X \OML/cmm/m/it/1
 2 Gamma\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 a; b\OT1/cmr/m/n/12 )$,
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 1259) has occurred while \output is active []
 
 
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
@@ -326,15 +333,15 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [7]
-
-LaTeX Warning: Reference `t:one' on page 8 undefined on input line 181.
-
-
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 8
  []
 
-[8] (./BFPCA.bbl
+[8]
+
+LaTeX Warning: Reference `t:one' on page 9 undefined on input line 186.
+
+(./BFPCA.bbl
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 9
  []
@@ -348,23 +355,31 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
  []
 
 [10]) AED endfloat: Processing end Figures and Tables
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 11
  []
 
-[11] (./BFPCA.aux)
+[11]
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 12
+ []
+
+[12] (./BFPCA.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 3209 strings out of 480608
- 40401 string characters out of 5903631
- 291889 words of memory out of 5000000
- 19071 multiletter control sequences out of 15000+600000
+ 3210 strings out of 480608
+ 40430 string characters out of 5903631
+ 291897 words of memory out of 5000000
+ 19072 multiletter control sequences out of 15000+600000
  550527 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 33i,12n,38p,1284b,326s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 33i,13n,38p,1284b,314s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy
 7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10
 .pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.
@@ -383,17 +398,18 @@ ocal/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/loca
 l/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/local/t
 exlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/texl
 ive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texli
-ve/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive
-/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/
-2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/2
-020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/202
-0/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2020
-/texmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/
-2020/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on BFPCA.pdf (12 pages, 284514 bytes).
+ve/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive
+/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/local/texlive/2
+020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texlive/20
+20/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/local/texlive/202
+0/texmf-dist/fonts/type1/public/amsfonts/cm/cmti9.pfb></usr/local/texlive/2020/
+texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2020/t
+exmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/20
+20/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
+Output written on BFPCA.pdf (13 pages, 294627 bytes).
 PDF statistics:
- 144 PDF objects out of 1000 (max. 8388607)
- 103 compressed objects within 2 object streams
+ 152 PDF objects out of 1000 (max. 8388607)
+ 109 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

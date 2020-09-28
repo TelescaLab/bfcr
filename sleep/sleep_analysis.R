@@ -15,8 +15,8 @@ sleep_tabulated <- read.csv(
          "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
 num_epochs <- 120
-id_range <- 200001:206000
-covariate <- "HTNDerv_s1"
+id_range <- 200001:200200
+covariate <- "age_s1"
 
 sleep_data <- sleep_tabulated %>%
   filter(EEG1qual == 4) %>%
@@ -41,11 +41,12 @@ num_subjects <- as.numeric(summarise(
 
 epoch_grid <- 1:num_epochs
 epoch_df <- ceiling(20 / 100 * num_epochs)
-covariate_grid <- pull(sleep_data %>%
-                         group_by(nsrrid) %>%
-                         filter(row_number() == 1) %>%
-                         ungroup() %>%
-                         select(!!(sym(covariate))))
+covariate_grid <- sleep_data %>%
+  group_by(nsrrid) %>%
+  filter(row_number() == 1) %>%
+  ungroup() %>%
+  select(!!(sym(covariate))) %>%
+  pull()
 
 covariate_grid <- sleep_data %>%
   group_by(nsrrid) %>%
@@ -59,37 +60,37 @@ epoch_penalty <- attr(epoch_basis, "S")
 
 # Covariate adjusted
 evaluate_spline <- function(smoothCon_list, covariate) {
-  c(1, PredictMat(smoothCon_list[[1]], data = data.frame(Bmi = bmi)))
+  c(0, PredictMat(smoothCon_list[[1]], data = data.frame(covariate_grid = covariate)))
 }
 
 
 # Age adjusted, using mgcv
 if (TRUE) {
-  # covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
-  #                                k = covariate_df, m = 2),
-  #                              data = data.frame(covariate_grid),
-  #                              absorb.cons = TRUE)
-  # design_mean <- cbind(1, covariate_basis[[1]]$X)
-  # design_var <- cbind(1, covariate_basis[[1]]$X)
-  # model_penalties <- tensor.prod.penalties(list(covariate_basis[[1]]$S[[1]], epoch_penalty))
-  # mean_indices <- c(1, 2, 2)
-  # var_indices <- c(1, 2, 2)
-  # mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
-  # var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
-  # covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
-  # new_covariate <- seq(from = covariate_quantiles[1],
-  #                      to = covariate_quantiles[2], length.out = 10)
-  # 
-  design_mean <- cbind(rep(1, num_subjects), covariate_grid)
-  design_var <- cbind(rep(1, num_subjects), covariate_grid)
-  mean_indices <- c(1, 2, 3)
-  var_indices <- c(1, 2, 3)
-  mean_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
-  var_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
+  covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",
+                                 k = covariate_df, m = 2),
+                               data = data.frame(covariate_grid),
+                               absorb.cons = TRUE)
+  design_mean <- cbind(1, covariate_basis[[1]]$X)
+  design_var <- cbind(1, covariate_basis[[1]]$X)
+  model_penalties <- tensor.prod.penalties(list(covariate_basis[[1]]$S[[1]], epoch_penalty))
+  mean_indices <- c(1, 2, 2)
+  var_indices <- c(1, 2, 2)
+  mean_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+  var_penalty <- list(epoch_penalty, model_penalties[[1]], model_penalties[[2]])
+  covariate_quantiles <- quantile(covariate_grid, c(.1, .9))
+  new_covariate <- seq(from = covariate_quantiles[1],
+                       to = covariate_quantiles[2], length.out = 10)
+
+  # design_mean <- cbind(rep(1, num_subjects), covariate_grid)
+  # design_var <- cbind(rep(1, num_subjects), covariate_grid)
+  # mean_indices <- c(1, 2, 3)
+  # var_indices <- c(1, 2, 3)
+  # mean_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
+  # var_penalty <- list(epoch_penalty, epoch_penalty, epoch_penalty)
 }
 
 # Not age adjusted
-if (FALSE) {
+if (TRUE) {
   design_mean <- cbind(rep(1, num_subjects))
   design_var <- cbind(rep(1, num_subjects))
   mean_indices <- c(1)
@@ -101,7 +102,7 @@ response <- t(matrix(sleep_data$psd,
                      nrow = num_epochs,
                      ncol = num_subjects))
 
-k <- 8
+k <- 12
 iter <- 5000
 burnin <- 2500
 thin <- 1
@@ -116,7 +117,7 @@ saveRDS(mcmc_results, file = "mcmc_results_systbp.rds")
 subject_bands <- get_posterior_subject_bands(mcmc_results)
 mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[2,], alpha_level = .05)
 evals <- 4
-eigen_bands <- get_posterior_eigen(mcmc_results, evals, c(1,1,1))
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[2,])
 subj <- 31:34
 subject_bands %>%
   filter(id %in% subj) %>%
@@ -148,9 +149,12 @@ res <- FPCA(L$y, L$t, list(dataType = "Dense", methodMuCovEst = "smooth"))
 
 plot_ly() %>%
   add_surface(z =~ res$fittedCov)
+plot(res$mu, type = "l")
 mean_bands %>%
   ggplot(mapping = aes(time)) +
   geom_line(aes(y=mean)) +
   geom_ribbon(aes(ymin = lower, ymax = upper), alpha = .3) +
   labs(x = "Epoch", y = "Relative delta power spectral density") +
   theme_bw()
+
+

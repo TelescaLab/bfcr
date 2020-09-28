@@ -6,7 +6,7 @@
 
 \DeclareMathOperator{\E}{\mathbb{E}}
 \newcommand{\vect}{\text{vec}}
-\title[This is an Example of Recto Running Head]{Bayesian Covariate Adjusted Functional Principal Components Analysis}
+\title[This is an Example of Recto Running Head]{Bayesian Functional Covariance Regression}
 
 %  Here are examples of different configurations of author/affiliation
 %  displays.  According to the Biometrics style, in some instances,
@@ -91,35 +91,40 @@ r_{i}(t, \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t, \bmath{x})\eta_{ij}\label{eq:cov
 \label{eq:random}
 \end{gather}
 where $\mu(t, \bmath{x})$ is the conditional mean, $\psi_{j}(t, \bmath{x})$ form conditional latent functional bases, $\eta_{ij} \sim N(0,1)$ are subject-specific scores, and $\epsilon_{i}(t) \sim N(0, \varphi^{2})$ represents measurement error. Using equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) the conditional covariance function $c(t, t', \bmath{x})$ is
-\begin{gather*}
-c(t,t', \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})
-\end{gather*}
+\begin{gather}
+c(t,t', \bmath{x}) = \sum_{j=1}^{k}\psi_{j}(t,\bmath{x})\psi_{j}(t',\bmath{x})\label{eq:covariance_form}
+\end{gather}
 
 Specifying the form of $\mu(\cdot)$ and $\psi_{j}(\cdot)$ is a contentious topic and various approaches can be found in the literature including local polynomial smoothers \citep{Fan1996}, kernel smoothers \citep{Ferraty2006}, Gaussian process methods \citep{Yang2016, Fox2015}, and spline procedures \citep{Ramsay2005}. Each method has its own merit and we will compare our developments to some existing approaches in the context of covariance regression. Lending toward conceptually straight-forward prior specifications, we  build $\mu(\cdot)$ and $\psi_{j}(\cdot)$ as linear combinations of spline bases. Borrowing notation from \citet{Scheipl2015}, $\mu(t, \bmath{x})$ can be written as
 \begin{gather}
 \mu(t, \bmath{x}) = \sum_{r=1}^{R}f_{r}(t, \bmath{x}_{r})
 \end{gather}
-where the set $\{\bmath{x}_{r}\}_{r=1}^{R}$ partitions the set of covariates $\bmath{x}$ into $R$ groups. This grouping framework leads to flexible specification of basis expansions. For example, when $\bmath{x}_{r}$ is a single scalar covariate $f_{r}(t, \bmath{x}_{r})$ could be a functional linear effect $\bmath{x}_{r}f(t)$ or a smooth effect $f(t, \bmath{x}_{r})$. If $\bmath{x}_{r} = (x_{r_{1}}, x_{r_{2}})$ is a vector of covariates, $f_{r}(t, \bmath{x}_{r})$ could be specified as $f_{r}(t, x_{r_{1}}, x_{r_{2}}) = f(t, x_{r_{1}}, x_{r_{2}}), x_{r_{1}}f(t, x_{r_{2}})$, or $x_{r_{1}}x_{r_{2}}f(t)$. These terms are approximated by a set of basis functions with corresponding priors to encourage smooth effects. 
+where the set $\cup\{\bmath{x}_{r}\}_{r=1}^{R} = \mathbf{x}$. This grouping framework leads to flexible specification of basis expansions. For example, when $\bmath{x}_{r}$ is a single scalar covariate $f_{r}(t, x_{r})$ could be a functional linear effect $x_{r}f(t)$ or a smooth effect $f(t, x_{r})$. If $\bmath{x}_{r} = (x_{r_{1}}, x_{r_{2}})$ is a vector of covariates, $f_{r}(t, \bmath{x}_{r})$ could be written as $f_{r}(t, x_{r_{1}}, x_{r_{2}}) = f(t, x_{r_{1}}, x_{r_{2}}), x_{r_{1}}f(t, x_{r_{2}})$, or $x_{r_{1}}x_{r_{2}}f(t)$. These terms are approximated by a set of basis functions with corresponding priors to encourage smooth effects. 
 
-The $f_{r}(t, \bmath{x}_{r})$ terms can be represented using matrix algebra. For example, let \\$\sum_{j=1}^{p}\sum_{m=1}^{p_{r}}b_{j}(t)b^{r}_{m}(x_{r})  \beta_{rjm}$ be a tensor spline expansion for $f(t, x_{r})$ where $\{b_{j}\}_{j=1}^{p}$ is a marginal basis expansion in $t$ and $\{b_{m}^{r}\}_{m=1}^{p_{r}}$ is a marginal basis expansion in $x_{r}$. Let $\bmath{b}(t) = (b_{1}(t), \ldots, b_{p}(t))^{\top}, \bmath{b}^{r}(t) = (b_{1}^{r}(x_{r}), \ldots, b_{p_{r}}^{r}(x_{r}))^{\top}$, and arrange the coefficients into a $p\times p_{r}$ matrix $\beta_{r}$. Then 
+The $f_{r}(t, \bmath{x}_{r})$ terms can be represented by products of matrices and vectors. For example, let $\sum_{j=1}^{p}\sum_{m=1}^{p_{r}}b_{j}(t)b^{r}_{m}(x_{r})  \beta_{rjm}$ be a tensor spline expansion for $f(t, x_{r})$ where $\{b_{j}\}_{j=1}^{p}$ is a marginal basis expansion in $t$ and $\{b_{m}^{r}\}_{m=1}^{p_{r}}$ is a marginal basis expansion in $x_{r}$. Let $\bmath{b}(t) = (b_{1}(t), \ldots, b_{p}(t))^{\top}$, $\bmath{b}^{r}(x_{r}) = (b_{1}^{r}(x_{r}), \ldots, b_{p_{r}}^{r}(x_{r}))^{\top}$, and arrange the coefficients into a $p\times p_{r}$ matrix $\beta_{r}$. For the general case, we maintain that $\bmath{x}_{r}$ could be a vector with basis $\bmath{b}^{r}(\bmath{x}_{r}) = (b_{1}^{r}(\bmath{x}_{r}), \ldots, b_{p_{r}}^{r}(\bmath{x}_{r}))$. Then 
+\begin{align}
+f_{r}(t, x_{r}) &= \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
+\mu(t, \bmath{x}) &= \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})
+\end{align}
+where $\beta = \big(\beta_{1}\,|\cdots|\,\beta_{R}\big)$ and $\bmath{\tilde{X}}(\bmath{x}) = \big(\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\big)^{\top}$. Keeping track of dimensions,  $\beta$ is a $p\times r(d_{1})$ coefficient matrix and  $\bmath{\tilde{X}}(\bmath{x})$ is a $r(d_{1})\times 1$ vector, where $r(d_{1}) = \sum_{r=1}^{p_{r}}$. We place another additive model on $\psi_{j}(t, \bmath{x})$. Namely, 
+\begin{gather}\psi_{j}(t,\bmath{x}) = \sum_{r=1}^{R}l_{jr}(t,\bmath{x}_{r})\label{eq:psi_additivity}
+\end{gather} where $l_{jr}$ are smooth effects in terms of $\bmath{x}_{r}$ for the $j$th conditional latent function basis function. Similar to $f_{r}(t,\bmath{x}_{r})$ and $\mu(t, \bmath{x})$, $l_{jr}(t, \bmath{x}_{r})$ and $\psi_{j}(t, \bmath{x})$ can also be written as products of matrices and vectors:
 \begin{align*}
-f_{r}(t, x_{r}) = \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(x_{r})
-\end{align*}
-Continuing this way, we can write
-\begin{equation}
-\mu(t, \bmath{x}) = \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})
-\end{equation}
-where $\beta = \begin{pmatrix}\beta_{1}\,|\cdots|\,\beta_{R}\end{pmatrix}$ and $\bmath{\tilde{X}}(\bmath{x}) = \begin{pmatrix}\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\end{pmatrix}$.
-Let $r(d_{1}) = \sum_{j=1}^{R}p_{r}$. Then $\beta$ is a $p\times r(d_{1})$ coefficient matrix and $\bmath{\tilde{X}}(\bmath{x})$ is a $1\times r(d_{1})$ vector of spline evaluations. Similarly, $\psi_{j}(t,\bmath{x})$ can be written as
+l_{jr}(t, x_{r}) &= \bmath{b}^{\top}\Lambda_{jr}{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
+\psi_{j}(t, \bmath{x}) &= \bmath{b}(t)^{\top}\,\Lambda_{j}\, \bmath{\tilde{X}}(\bmath{x})
+\end{align*} where $\Lambda_{jr}$ is a $p\times p_{r}$ loading matrix and  $\Lambda_{j} = \big(\Lambda_{j1}\,|\cdots|\,\Lambda_{jR}\big)$. The additivity on $\psi_{j}(t, \bmath{x})$ implies that the covariance function \ref{eq:covariance_form} is 
+\begin{gather*}
+c(t, t', \bmath{x}) = \sum_{j=1}^{k}\bigg(\sum_{j=1}^{R}\sum_{j'=1}^{R}l_{jr}(t,\bmath{x}_{r})l_{jr'}(t',\bmath{x}_{r'})\bigg)
+\end{gather*} 
+This convolution structure makes it difficult to define low dimensional summaries of covariate influence on the covariance function. Instead, we propose a low dimensional summary of covariate influence in terms of the $l_{jr}$ functions directly. Let
+\begin{gather*}
+g_{r}(t, \bmath{x}_{r}) = \sum_{j=1}^{k}l_{jr}(t,\bmath{x}_{r})^{2} \,\,/\,\, \sum_{r=1}^{R}\sum_{j=1}^{k}l_{jr}(t, \bmath{x})^{2}
+\end{gather*}
+summarize the effect of $\bmath{x}_{r}$ across $\psi_{j}$, $j=1,\ldots,k$. Clearly $g_{r}(t, \bmath{x}_{r}) \in [0, 1]$ and $\sum_{r=1}^{R}g_{r}(t, \bmath{x}_{r}) = 1$. If the impact of $\bmath{x}_{r}$ on $\psi_{j}$, $j=1,\ldots,k$ is negligable, then $g_{r}(t, \bmath{x}_{r})$ will be near zero. To the best of our knowledge, this is the first attempt at quantifying the impact of covariates on a covariance function which is possible through the additivity assumption on $\psi_{j}(t, \bmath{x})$ in equation \ref{eq:psi_additivity}.
 
-\begin{equation}
-\psi_{j}(t, \bmath{x}) = \bmath{b}(t)^{\top}\Lambda_{j}\,\bmath{\tilde{X}}(\bmath{x})
-\label{eq:basis}
-\end{equation}
-where $\Lambda_{j}$ is a $p\times r(d_{1})$ loading matrix.
 Unlike previous work on functional covariance regression \citep{Cardot2007, Jiang2010}, equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) specify a generative model for functional covariance regression. Complete with priors detailed in Section \ref{s:priors}, posterior inference is evaluated through Markov-Chain Monte Carlo (MCMC). This is important because empirical methods require resampling to perform inference. However, resampling techniques for functional data come with pitfalls. Any fitted model will have smoothing bias (to regularize rapidly varying functions). A parametric bootstrap would generate data from a biased model, and subsequently cause even more bias by smoothing once again for each bootstrap replicate. Nonparametric bootstrapping causes undersmoothing due to the presence of repeated functions.
 
-Outside of the FDA literature, \citet{Hoff2012} developed a similar model for covariance regression with multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. To overcome this parametric limitation, the authors develop a factor matrix process estimate a time-varying covariance matrix characterizing influenza incidence across the United States. This approach is flexible but each gibbs sample iteration requires a cholesky decomposition of an $n\times n$ matrix where $n$ is the number of subjects. The basis approach taken in equation \ref{eq:basis} would only require a cholesky decomposition of a $p \cdot r(d_{1}) \times p\cdot r(d_{1})$ matrix for each iteration. Therefore the basis transform approach is likely to scale better for large data sets such as the SHHS, provided $r(d_{1})$ is not too large.  
+Outside of the FDA literature, \citet{Hoff2012} developed a similar model for covariance regression with multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. To overcome this parametric limitation, the authors develop a factor matrix process estimate a time-varying covariance matrix characterizing influenza incidence across the United States. This approach is flexible but each gibbs sample iteration requires a cholesky decomposition of an $n\times n$ matrix where $n$ is the number of subjects. The basis transform approach taken here would only require a cholesky decomposition of a $p \cdot r(d_{1}) \times p\cdot r(d_{1})$ matrix for each iteration. Therefore the basis transform approach is likely to scale better for large data sets such as the SHHS, provided $r(d_{1})$ is not too large.  
 \section{Prior Distributions}
 \label{s:priors}
 In this section we place priors on all unknown quantities of interest. We begin by placing prior on $\mu(t, \bmath{x})$. As we have seen in equation \ref{eq:mu}, this amounts to placing a prior on each $\beta_{r}$ submatrix. The rows of $\beta_{r}$ are associated with a $p\times p$ penalty matrix $K$, and the columns of $\beta_{r}$ are associated with a $p_{r}\times p_{r}$ penalty matrix $K_{r}$. These penalties are designed to encourage smoothness and can target magnitude penalization, squared derivative shrinkage, or local changes in $\beta_{r}$ through a differencing penalty. In this paper we penalize the second order difference of $\beta_{r}$ coefficients in both directions, but other penalties could be used as well. A prior for $\beta_{r}$ respecting the tensor structure is constructed as follows \citep{Wood2017}. Let $\tilde{K} = I_{p_{r}\times p_{r}}\otimes K$ and $\tilde{K_{r}} = K_{r} \otimes I_{p\times p}$. The prior for the vectorized form of $\beta_{r}$ is

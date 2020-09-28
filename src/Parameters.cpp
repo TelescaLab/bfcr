@@ -125,6 +125,7 @@ void Parameters::update_tau1(Data& dat, Transformations& transf) {
 
 void Parameters::update_tau2(Data& dat, Transformations& transf) {
   double update_a = 0, update_b = 0;
+  double ub, lb, proposal;
   for(arma::uword i = 0; i < dat.penalties_var.n_elem; i++){
     for (arma::uword k = 0; k < dat.kdim; k++) {
       update_a = .5 * dat.rank_var(i);

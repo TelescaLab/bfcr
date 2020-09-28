@@ -4,6 +4,7 @@
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 
+double sample_gamma_trunc(double shape, double rate, double lb, double ub);
 double get_proposal(double old);
 arma::mat getPenalty(arma::uword n);
 arma::mat getPenalty2(arma::uword n, arma::uword D);

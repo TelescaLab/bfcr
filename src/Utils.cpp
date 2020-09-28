@@ -5,6 +5,20 @@
 // [[Rcpp::plugins(openmp)]]
 using namespace Rcpp;
 
+double sample_gamma_trunc(double shape, double rate, double lb, double ub) {
+  double a = R::pgamma(lb, shape, 1 / rate, 1, 0);
+  double b;
+  if (ub == -1) {
+    b = 1;
+  } else {
+    b = R::pgamma(ub, shape, 1 / rate, 1, 0);
+  }
+  double u = R::runif(a, b);
+  // Rcpp::Rcout << "u = " << u << "\n";
+  double g = R::qgamma(u, shape, 1 / rate, 1, 0);
+  return(g);
+}
+
 // [[Rcpp::export]]
 double get_proposal(double old) {
   double proposal;
