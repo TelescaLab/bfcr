@@ -44,6 +44,15 @@ Transformations::Transformations(Data& dat, Parameters& pars) {
   blk_diag_phi_delta = arma::cube(dat.basis_dim * dat.d2,
                                   dat.basis_dim * dat.d2,
                                   dat.kdim, arma::fill::zeros);
+  psi_mat = arma::mat(dat.basis_dim, dat.basis_dim);
+  for(arma::uword j = 0; j < dat.basis_dim; j++){
+    for(arma::uword i = 0; i < dat.basis_dim; i++){
+      psi_mat(i, j) = 
+        arma::as_scalar(
+          arma::trapz(dat.time, dat.basis.col(i) % dat.basis.col(j)));
+    }
+  }
+  lin_constr = arma::mat(dat.basis_dim * dat.design_var.n_cols, dat.kdim - 1);
 }
 
 void Transformations::build_blk_diag_mean(Data& dat, Parameters& pars) {

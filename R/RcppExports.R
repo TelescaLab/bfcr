@@ -129,6 +129,10 @@ get_posterior_subject_bands_cpp <- function(mcmc_output, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_subject_bands_cpp`, mcmc_output, alpha)
 }
 
+get_prediction_error <- function(mcmc_output, alpha) {
+    .Call(`_BayesianConditionalFPCA_get_prediction_error`, mcmc_output, alpha)
+}
+
 get_posterior_means_cpp_correct <- function(mcmc_results, xi, alpha) {
     .Call(`_BayesianConditionalFPCA_get_posterior_means_cpp_correct`, mcmc_results, xi, alpha)
 }

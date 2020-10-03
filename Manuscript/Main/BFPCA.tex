@@ -106,21 +106,21 @@ The $f_{r}(t, \bmath{x}_{r})$ terms can be represented by products of matrices a
 f_{r}(t, x_{r}) &= \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
 \mu(t, \bmath{x}) &= \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})
 \end{align}
-where $\beta = \big(\beta_{1}\,|\cdots|\,\beta_{R}\big)$ and $\bmath{\tilde{X}}(\bmath{x}) = \big(\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\big)^{\top}$. Keeping track of dimensions,  $\beta$ is a $p\times r(d_{1})$ coefficient matrix and  $\bmath{\tilde{X}}(\bmath{x})$ is a $r(d_{1})\times 1$ vector, where $r(d_{1}) = \sum_{r=1}^{p_{r}}$. We place another additive model on $\psi_{j}(t, \bmath{x})$. Namely, 
+where $\beta = \big(\beta_{1}\,|\cdots|\,\beta_{R}\big)$ and $\bmath{\tilde{X}}(\bmath{x}) = \big(\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\big)^{\top}$. Keeping track of dimensions,  $\beta$ is a $p\times r(d_{1})$ coefficient matrix and  $\bmath{\tilde{X}}(\bmath{x})$ is a $r(d_{1})\times 1$ vector, where $r(d_{1}) = \sum_{r=1}^{R}p_{r}$. We place another additive model on $\psi_{j}(t, \bmath{x})$. Namely, 
 \begin{gather}\psi_{j}(t,\bmath{x}) = \sum_{r=1}^{R}l_{jr}(t,\bmath{x}_{r})\label{eq:psi_additivity}
 \end{gather} where $l_{jr}$ are smooth effects in terms of $\bmath{x}_{r}$ for the $j$th conditional latent function basis function. Similar to $f_{r}(t,\bmath{x}_{r})$ and $\mu(t, \bmath{x})$, $l_{jr}(t, \bmath{x}_{r})$ and $\psi_{j}(t, \bmath{x})$ can also be written as products of matrices and vectors:
 \begin{align*}
-l_{jr}(t, x_{r}) &= \bmath{b}^{\top}\Lambda_{jr}{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
+l_{jr}(t, x_{r}) &= \bmath{b}(t)^{\top}\Lambda_{jr}{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
 \psi_{j}(t, \bmath{x}) &= \bmath{b}(t)^{\top}\,\Lambda_{j}\, \bmath{\tilde{X}}(\bmath{x})
 \end{align*} where $\Lambda_{jr}$ is a $p\times p_{r}$ loading matrix and  $\Lambda_{j} = \big(\Lambda_{j1}\,|\cdots|\,\Lambda_{jR}\big)$. The additivity on $\psi_{j}(t, \bmath{x})$ implies that the covariance function \ref{eq:covariance_form} is 
 \begin{gather*}
-c(t, t', \bmath{x}) = \sum_{j=1}^{k}\bigg(\sum_{j=1}^{R}\sum_{j'=1}^{R}l_{jr}(t,\bmath{x}_{r})l_{jr'}(t',\bmath{x}_{r'})\bigg)
+c(t, t', \bmath{x}) = \sum_{j=1}^{k}\bigg(\sum_{r=1}^{R}\sum_{r'=1}^{R}l_{jr}(t,\bmath{x}_{r})l_{jr'}(t',\bmath{x}_{r'})\bigg)
 \end{gather*} 
-This convolution structure makes it difficult to define low dimensional summaries of covariate influence on the covariance function. Instead, we propose a low dimensional summary of covariate influence in terms of the $l_{jr}$ functions directly. Let
+This convolution structure makes it difficult to define low dimensional summaries of covariate influence on the covariance function. Instead, we propose a low dimensional summary which quantifies the impact of a covariate on the  $l_{jr}$ functions directly. Let
 \begin{gather*}
 g_{r}(t, \bmath{x}_{r}) = \sum_{j=1}^{k}l_{jr}(t,\bmath{x}_{r})^{2} \,\,/\,\, \sum_{r=1}^{R}\sum_{j=1}^{k}l_{jr}(t, \bmath{x})^{2}
 \end{gather*}
-summarize the effect of $\bmath{x}_{r}$ across $\psi_{j}$, $j=1,\ldots,k$. Clearly $g_{r}(t, \bmath{x}_{r}) \in [0, 1]$ and $\sum_{r=1}^{R}g_{r}(t, \bmath{x}_{r}) = 1$. If the impact of $\bmath{x}_{r}$ on $\psi_{j}$, $j=1,\ldots,k$ is negligable, then $g_{r}(t, \bmath{x}_{r})$ will be near zero. To the best of our knowledge, this is the first attempt at quantifying the impact of covariates on a covariance function which is possible through the additivity assumption on $\psi_{j}(t, \bmath{x})$ in equation \ref{eq:psi_additivity}.
+summarize the effect of $\bmath{x}_{r}$ across $\psi_{j}$, $j=1,\ldots,k$. Clearly $g_{r}(t, \bmath{x}_{r}) \in [0, 1]$ and $\sum_{r=1}^{R}g_{r}(t, \bmath{x}_{r}) = 1$. If the impact of $\bmath{x}_{r}$ on $\psi_{j}$, $j=1,\ldots,k$ is negligable, then $g_{r}(t, \bmath{x}_{r})$ will be near zero. Consequently if $g_{r}(t, \bmath{x}_{r})$ is near zero, the $c(t,t', \bmath{x})$ will not be sensitive to changes in $\bmath{x}_{r}$. To the best of our knowledge, this is the first attempt at quantifying the impact of covariates on a covariance function which is possible through the additivity assumption on $\psi_{j}(t, \bmath{x})$ in equation \ref{eq:psi_additivity}.
 
 Unlike previous work on functional covariance regression \citep{Cardot2007, Jiang2010}, equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) specify a generative model for functional covariance regression. Complete with priors detailed in Section \ref{s:priors}, posterior inference is evaluated through Markov-Chain Monte Carlo (MCMC). This is important because empirical methods require resampling to perform inference. However, resampling techniques for functional data come with pitfalls. Any fitted model will have smoothing bias (to regularize rapidly varying functions). A parametric bootstrap would generate data from a biased model, and subsequently cause even more bias by smoothing once again for each bootstrap replicate. Nonparametric bootstrapping causes undersmoothing due to the presence of repeated functions.
 

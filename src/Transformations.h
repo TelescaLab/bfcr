@@ -20,6 +20,8 @@ public:
   arma::mat btb, bty, fit, lambda_tilde;
   arma::mat blk_diag_mean_penalties;
   arma::cube blk_diag_var_penalties;
+  arma::mat psi_mat;
+  arma::mat lin_constr;
   void complete_response(Data&, Parameters&);
   void build_blk_diag_mean(Data&, Parameters&);
   void build_blk_diag_var(Data&, Parameters&);

@@ -456,6 +456,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// get_prediction_error
+arma::vec get_prediction_error(List mcmc_output, double alpha);
+RcppExport SEXP _BayesianConditionalFPCA_get_prediction_error(SEXP mcmc_outputSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< List >::type mcmc_output(mcmc_outputSEXP);
+    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_prediction_error(mcmc_output, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
 // get_posterior_means_cpp_correct
 arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, double alpha);
 RcppExport SEXP _BayesianConditionalFPCA_get_posterior_means_cpp_correct(SEXP mcmc_resultsSEXP, SEXP xiSEXP, SEXP alphaSEXP) {
@@ -576,6 +588,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands, 2},
     {"_BayesianConditionalFPCA_get_posterior_predictive_bands2", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_predictive_bands2, 2},
     {"_BayesianConditionalFPCA_get_posterior_subject_bands_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_subject_bands_cpp, 2},
+    {"_BayesianConditionalFPCA_get_prediction_error", (DL_FUNC) &_BayesianConditionalFPCA_get_prediction_error, 2},
     {"_BayesianConditionalFPCA_get_posterior_means_cpp_correct", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_means_cpp_correct, 3},
     {"_BayesianConditionalFPCA_get_posterior_coefs", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_coefs, 2},
     {"_BayesianConditionalFPCA_arma_cov2cor", (DL_FUNC) &_BayesianConditionalFPCA_arma_cov2cor, 1},

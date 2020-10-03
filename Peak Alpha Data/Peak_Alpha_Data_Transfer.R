@@ -18,12 +18,12 @@ chan_id <- c('Fp1', 'Fp2','F9','F7','F3','Fz','F4','F8','F10','T9','T7',
              'C3','Cz','C4','T8','T10','P9','P7','P3','Pz','P4','P8','P10','O1','O2')
 
 # Demographic Data
-demDat <- read.csv(file='demographic_data.csv', header = TRUE)
+demDat <- read.csv(file='/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/demographic_data.csv', header = TRUE)
 colnames(demDat) <- c("ID", "Gender", "Age", "Group", "VIQ", "NVIQ")
 demDat <- demDat[which(demDat$ID %in% subj_id), ]
 
 # Peak Alpha Data
-load("pa.dat.Rdata")
+load("/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/pa.dat.Rdata")
 # ID: subject ID
 # group: TD(1) or ASD (2)
 # func: frequency domain

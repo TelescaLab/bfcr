@@ -60,7 +60,7 @@ epoch_penalty <- attr(epoch_basis, "S")
 
 # Covariate adjusted
 evaluate_spline <- function(smoothCon_list, covariate) {
-  c(0, PredictMat(smoothCon_list[[1]], data = data.frame(covariate_grid = covariate)))
+  c(1, PredictMat(smoothCon_list[[1]], data = data.frame(covariate_grid = covariate)))
 }
 
 
@@ -115,10 +115,10 @@ mcmc_results <- run_mcmc(response, design_mean,
                          var = "unequal")
 saveRDS(mcmc_results, file = "mcmc_results_systbp.rds")
 subject_bands <- get_posterior_subject_bands(mcmc_results)
-mean_bands <- get_posterior_means(mcmc_results, mcmc_results$data$design_mean[2,], alpha_level = .05)
+mean_bands <- get_posterior_means(mcmc_results, evaluate_spline(covariate_basis, 70), alpha_level = .05)
 evals <- 4
-eigen_bands <- get_posterior_eigen(mcmc_results, evals, mcmc_results$data$design_var[2,])
-subj <- 31:34
+eigen_bands <- get_posterior_eigen(mcmc_results, evals, evaluate_spline(covariate_basis, 50))
+subj <- 54:57
 subject_bands %>%
   filter(id %in% subj) %>%
   ggplot() +

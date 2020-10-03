@@ -23,10 +23,10 @@ void SamplerUnequal::sample_parameters() {
         goto stop;
       }
       pars.update_beta(dat, transf);
-      pars.update_lambda(dat, transf); 
+      pars.update_lambda(dat, transf);
       pars.update_eta(dat, transf);
-      pars.update_tau1(dat, transf);
-      pars.update_tau2(dat, transf);
+      // pars.update_tau1(dat, transf);
+      // pars.update_tau2(dat, transf);
       pars.update_phi(dat, transf);
       pars.update_delta(dat, transf);
       pars.update_psi(dat, transf);

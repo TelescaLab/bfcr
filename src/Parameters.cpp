@@ -12,6 +12,8 @@ Parameters::Parameters(Data& dat) {
   tausq = 1;
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);
   tau2 = arma::mat(dat.penalties_var.n_elem, dat.kdim, arma::fill::ones);
+  tau1.fill(1000);
+  tau2.fill(1000);
   phi = arma::cube(dat.basis_dim, dat.d2, dat.kdim, arma::fill::ones);
   delta = arma::mat(dat.n_smooths_var, dat.kdim, arma::fill::ones);
   a1 = arma::vec(dat.n_smooths_var, arma::fill::ones);
@@ -50,11 +52,16 @@ void Parameters::update_beta(Data& dat, Transformations& transf) {
 }
 
 void Parameters::update_lambda(Data& dat, Transformations& transf) {
-  for (arma::uword k = 0; k < dat.kdim; k++) {
+  arma::vec unif_vec = arma::randu(dat.kdim);
+  arma::uvec sort_indices = arma::sort_index(unif_vec);
+  arma::uword k;
+  for (arma::uword kp = 0; kp < dat.kdim; kp++) {
+    k = sort_indices(kp);
     transf.fit_lambda_removed = transf.fit_beta + 
       transf.fit_lambda - (lambda.slice(k) *
       dat.design_var.t() * arma::diagmat(eta.col(k)));
-
+    
+    
     transf.lambda_precision = 
       arma::kron(dat.design_var.t() * arma::diagmat(eta.col(k)) * 
       arma::diagmat(varphi) * 
@@ -69,7 +76,20 @@ void Parameters::update_lambda(Data& dat, Transformations& transf) {
     }
     transf.lambda_result = 
       transf.lambda_gauss.bayes_reg(transf.lambda_precision, transf.lambda_g);
-    
+    /*
+     * arma::uword counter = 0;
+     for (arma::uword kpp = 0; kpp < dat.kdim; kpp++) {
+     if (kpp != kp) {
+     transf.lin_constr.col(counter).rows(0, dat.basis_dim - 1) = 
+     transf.psi_mat * lambda.slice(kpp).col(0);
+     counter++;
+     }
+     }
+     arma::mat w = arma::solve(arma::trimatl(transf.lambda_gauss.chol), transf.lin_constr);
+     arma::mat mu = arma::solve(trimatu(transf.lambda_gauss.chol.t()), w);
+     transf.lambda_result = transf.lambda_result - mu * arma::solve(transf.lin_constr.t() * mu, transf.lin_constr.t()) * transf.lambda_result;
+     
+     */
     transf.lambda_old = lambda.slice(k);
     lambda.slice(k) = arma::reshape(transf.lambda_result, dat.basis_dim, dat.d2);
     transf.fit_lambda = transf.fit_lambda + 

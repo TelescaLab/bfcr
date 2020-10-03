@@ -116,6 +116,7 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
   
   arma::vec response_vectorized = arma::vectorise(arma::trans(response));
   for (arma::uword iter = burnin; iter < iterations; iter++) {
+    
     current_lower_dim_fit = beta.slice(iter) * design_mean.t();
     for (arma::uword k = 0; k < kdim; k++) {
       current_lower_dim_fit = current_lower_dim_fit + 
@@ -151,10 +152,48 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
     Rcpp::List::create(Rcpp::Named("subject_means", mean_overall),
                        Rcpp::Named("subject_lower", lower),
                        Rcpp::Named("subject_upper", upper),
-                       Rcpp::Named("current_lower_dim_fit", current_lower_dim_fit));
+                       Rcpp::Named("current_lower_dim_fit",
+                                   current_lower_dim_fit));
   return(posterior_bands);
 }
 
+// [[Rcpp::export]]
+arma::vec get_prediction_error(List mcmc_output, double alpha) {
+  Rcpp::List samples = mcmc_output["samples"];
+  Rcpp::List data = mcmc_output["data"];
+  Rcpp::List control = mcmc_output["control"];
+  arma::cube beta = samples["beta"];
+  arma::mat varphi = samples["varphi"];
+  arma::field<arma::cube> lambda = samples["lambda"];
+  arma::cube eta = samples["eta"];
+  arma::uword kdim = data["latent_dimension"];
+  arma::mat basis = data["basis"];
+  arma::mat response = data["response"];
+  arma::mat design_mean = data["design_mean"];
+  arma::mat design_var = data["design_var"];
+  arma::uword iterations = control["iterations"];
+  arma::uword burnin = control["burnin"];
+  arma::uword num_subjects = response.n_rows;
+  arma::vec prediction_error(iterations - burnin);
+  arma::mat current_lower_dim_fit;
+  arma::mat current_fit;
+  arma::uword counter = 0;
+  for (arma::uword iter = burnin; iter < iterations; iter++) {
+    current_lower_dim_fit = beta.slice(iter) * design_mean.t();
+    for (arma::uword k = 0; k < kdim; k++) {
+      current_lower_dim_fit = current_lower_dim_fit + 
+        lambda(iter).slice(k) * design_var.t() * 
+        arma::diagmat(eta.slice(iter).col(k));
+    }
+    current_fit = basis * current_lower_dim_fit;
+    prediction_error(counter) = 
+      arma::accu(arma::square(current_fit - response.t()));
+    counter++;
+  }
+  arma::vec alpha_vec = {1 - alpha};
+  arma::vec alpha_vec_eval = {alpha / 2.0, 0.5, 1 - alpha / 2.0};
+  return(arma::quantile(prediction_error, alpha_vec_eval));
+}
 // [[Rcpp::export]]
 arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, double alpha){
   Rcpp::List data = mcmc_results["data"];
@@ -282,140 +321,6 @@ arma::mat arma_cov2cor(arma::mat V){
   return(arma::symmatl(cor));
 }
 
-/*
-// [[Rcpp::export]]
-List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
-                          arma::uword eigenvals,
-                          arma::vec zi, double alpha = 0.05){
-  Rcpp::List control = mcmc_results["control"];
-  Rcpp::List data = mcmc_results["data"];
-  Rcpp::List samples = mcmc_results["samples"];
-  arma::mat basis = data["basis"];
-  arma::field<arma::cube> lambda = samples["lambda"];
-  arma::cube beta = samples["beta"];
-  arma::vec time = data["time"];
-  arma::uword iterations = control["iterations"];
-  arma::uword burnin = control["burnin"];
-  arma::uword num_post_iter = iterations - burnin;
-  arma::uword basis_dim = basis.n_cols;
-  arma::mat m_alpha(num_post_iter, eigenvals);
-  arma::running_stat_vec<arma::vec> stats_vec;
-  arma::running_stat_vec<arma::vec> stats_val;
-  arma::running_stat_vec<arma::vec> stats_cov;
-  arma::mat psi(basis_dim, basis_dim);
-  arma::mat psi_sqrt;
-  arma::mat psi_sqrt_inv;
-  for(arma::uword j = 0; j < basis_dim; j++){
-    for(arma::uword i = 0; i < basis_dim; i++){
-      psi(i, j) = 
-        arma::as_scalar(arma::trapz(time, basis.col(i) % basis.col(j)));
-    }
-  }
-  psi_sqrt = arma::sqrtmat_sympd(psi);
-  psi_sqrt_inv = arma::inv_sympd(psi_sqrt);
-  
-  arma::mat temp_evec;
-  arma::mat eval_mat(num_post_iter, eigenvals);
-  arma::mat eval_pve_mat(num_post_iter, eigenvals);
-  List eigen_list;
-  arma::vec magnitude(num_post_iter);
-  arma::mat tempcov;
-  arma::uword idx1, idx2;
-  arma::uword counter = 0;
-  for(arma::uword i = burnin; i < iterations; i++){
-    eigen_list = extract_eigenfn(lambda(i),
-                                  psi,
-                                  psi_sqrt,
-                                  psi_sqrt_inv,
-                                  basis,
-                                  eigenvals,
-                                  zi,
-                                  time);
-    temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_latent"]);
-    eval_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);
-    eval_pve_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval_pve"]);
-    stats_cov(arma::vectorise(as<arma::vec>(eigen_list["cov_latent"])));
-    magnitude(counter) = eigen_list["magnitude"];
-    if (counter == 0) stats_vec(arma::vectorise(temp_evec));
-    else {
-      // align eigenvectors
-      
-      for (arma::uword k = 0; k < eigenvals; k++) {
-        idx1 = k * basis_dim;
-        idx2 = (k + 1) * basis_dim - 1;
-        if (arma::sum(arma::square(temp_evec.col(k) + stats_vec.mean().subvec(idx1, idx2))) <
-          arma::sum(arma::square(temp_evec.col(k) - stats_vec.mean().subvec(idx1, idx2)))) {
-          temp_evec.col(k) = -temp_evec.col(k);
-        }
-      }
-      Rcpp::Rcout << "size: " << arma::size(temp_evec) << "\n";
-      stats_vec(arma::vectorise(temp_evec));
-    }
-    counter++;
-  }
-  counter = 0;
-  for (arma::uword i = burnin; i < iterations; i++) {
-    eigen_list = extract_eigenfn(lambda(i),
-                                  psi,
-                                  psi_sqrt,
-                                  psi_sqrt_inv,
-                                  basis,
-                                  eigenvals,
-                                  zi,
-                                  time);
-    temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_latent"]);
-    
-    for (arma::uword k = 0; k < eigenvals; k++) {
-      idx1 = k * basis_dim;
-      idx2 = (k + 1) * basis_dim - 1;
-      if (arma::sum(arma::square(temp_evec.col(k) + stats_vec.mean().subvec(idx1, idx2))) <
-        arma::sum(arma::square(temp_evec.col(k) - stats_vec.mean().subvec(idx1, idx2)))) {
-        temp_evec.col(k) = -temp_evec.col(k);
-      }
-      m_alpha(counter, k) = arma::max((temp_evec.col(k) -
-        stats_vec.mean().subvec(idx1, idx2)) / stats_vec.stddev().subvec(idx1, idx2));
-    }
-    counter++;
-  }
-  
-  arma::vec alpha_vec = {1 - alpha};
-  arma::vec alpha_vec_eval = {alpha / 2.0, 0.5, 1 - alpha / 2.0};
-  double q_alpha;
-  arma::mat lower(time.n_elem, eigenvals);
-  arma::mat mean(time.n_elem, eigenvals);
-  arma::mat upper(time.n_elem, eigenvals);
-  arma::mat eigenbands(time.n_elem, eigenvals * 3);
-  arma::mat eigenval_intervals(3, eigenvals);
-  arma::mat eigenval_pve_intervals(3, eigenvals);
-  arma::vec magnitude_interval(3);
-  for (arma::uword k = 0; k < eigenvals; k++) {
-    idx1 = k * basis_dim;
-    idx2 = (k + 1) * basis_dim - 1;
-    q_alpha = arma::as_scalar(arma::quantile(m_alpha.col(k), alpha_vec));
-    lower.col(k) = basis * (stats_vec.mean().subvec(idx1, idx2) -
-      q_alpha * stats_vec.stddev().subvec(idx1, idx2));
-    mean.col(k) = basis * (stats_vec.mean().subvec(idx1, idx2));
-    upper.col(k) = basis * (stats_vec.mean().subvec(idx1, idx2) + 
-      q_alpha * stats_vec.stddev().subvec(idx1, idx2));
-    eigenval_intervals.col(k) = arma::quantile(eval_mat.col(k), alpha_vec_eval);
-    eigenval_pve_intervals.col(k) = arma::quantile(eval_pve_mat.col(k), alpha_vec_eval);
-  }
-  magnitude_interval = arma::quantile(magnitude, alpha_vec_eval);
-  arma::mat mean_cov = basis * 
-    arma::reshape(stats_cov.mean(), basis_dim, basis_dim) * 
-    basis.t();
-  return(List::create(Named("lower_eigen", lower),
-                      Named("mean_eigen", mean),
-                      Named("upper_eigen", upper),
-                      Named("eigenval_intervals", eigenval_intervals),
-                      Named("eigenval_pve_intervals", eigenval_pve_intervals),
-                      Named("surface", mean_cov),
-                      Named("magnitude", magnitude_interval),
-                      Named("raw_magnitude", magnitude),
-                      Named("time", time)));
-}
-
-*/
 // [[Rcpp::export]]
 List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
                              arma::uword eigenvals,
