@@ -1,0 +1,34 @@
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means.png}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/eigen1.png}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/covariate_effects_parsed.pdf}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png}
+\end{figure}
+\efloatseparator
+ 
+\begin{figure}
+\centering
+\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_effects_parsed.pdf}
+\end{figure}

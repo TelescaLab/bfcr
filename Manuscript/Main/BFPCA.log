@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  1 OCT 2020 12:18
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  15 OCT 2020 11:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -197,6 +197,23 @@ LaTeX Font Info:    Redeclaring math symbol \hbar on input line 98.
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 106.
 )
+(/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 2019/11/30 v1.2a Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2019/11/30 v1.4a Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 2016/01/03 v1.10 sin cos tan (DPC)
+)
+(/usr/local/texlive/2020/texmf-dist/tex/latex/graphics-cfg/graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 105.
+)
+\Gin@req@height=\dimen149
+\Gin@req@width=\dimen150
+)
 (/usr/local/texlive/2020/texmf-dist/tex/latex/l3backend/l3backend-pdfmode.def
 File: l3backend-pdfmode.def 2020-03-12 L3 backend support: PDF mode
 \l__kernel_color_stack_int=\count291
@@ -226,20 +243,29 @@ tables at end
 (/usr/local/texlive/2020/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count292
-\scratchdimen=\dimen149
+\scratchdimen=\dimen151
 \scratchbox=\box51
 \nofMPsegments=\count293
 \nofMParguments=\count294
 \everyMPshowfont=\toks24
 \MPscratchCnt=\count295
-\MPscratchDim=\dimen150
+\MPscratchDim=\dimen152
 \MPnumerator=\count296
 \makeMPintoPDFobject=\count297
 \everyMPtoPDFconversion=\toks25
-)
+) (/usr/local/texlive/2020/texmf-dist/tex/latex/epstopdf-pkg/epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
 LaTeX Font Info:    Trying to load font information for U+eur on input line 69.
 
- (/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/ueur.fd
+
+(/usr/local/texlive/2020/texmf-dist/tex/latex/amsfonts/ueur.fd
 File: ueur.fd 2013/01/14 v3.01 Euler Roman
 )
 LaTeX Font Info:    Trying to load font information for U+msa on input line 69.
@@ -291,23 +317,12 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [4]
-Overfull \hbox (7.88441pt too wide) in paragraph at lines 122--124
-\OT1/cmr/m/n/12 summarize the ef-fect of $[][]$ across $\OML/cmm/m/it/12  []$\O
-T1/cmr/m/n/12 , $\OML/cmm/m/it/12 j \OT1/cmr/m/n/12 = 1\OML/cmm/m/it/12 ; [] ; 
-k$\OT1/cmr/m/n/12 . Clearly $\OML/cmm/m/it/12 g[]\OT1/cmr/m/n/12 (\OML/cmm/m/it
-/12 t; [][]\OT1/cmr/m/n/12 ) \OMS/cmsy/m/n/12 2 \OT1/cmr/m/n/12 [0\OML/cmm/m/it
-/12 ; \OT1/cmr/m/n/12 1]$ and $[][] \OML/cmm/m/it/12 g[]\OT1/cmr/m/n/12 (\OML/c
-mm/m/it/12 t; [][]\OT1/cmr/m/n/12 ) =
- []
-
-
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 5
  []
 
 [5]
-
-LaTeX Warning: Reference `eq:mu' on page 6 undefined on input line 130.
+Underfull \vbox (badness 1097) has occurred while \output is active []
 
 
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
@@ -335,15 +350,14 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [8]
-
-LaTeX Warning: Reference `t:one' on page 9 undefined on input line 186.
-
-(./BFPCA.bbl
 Overfull \hbox (4.62497pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 9
  []
 
 [9]
+\openout3 = `BFPCA.fff'.
+
+ (BFPCA.fff)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -351,32 +365,164 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 10
  []
 
-[10]) AED endfloat: Processing end Figures and Tables
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
-
+[10]
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 11
  []
 
 [11]
+
+LaTeX Warning: Reference `t:one' on page 12 undefined on input line 226.
+
+(./BFPCA.bbl
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 12
  []
 
-[12] (./BFPCA.aux)
+[12]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 13
+ []
+
+[13]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 14
+ []
+
+[14]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 15
+ []
+
+[15]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 16
+ []
+
+[16]) AED endfloat: Processing end Figures and Tables
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 17
+ []
+
+[17] (./BFPCA.fff
+</Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means
+.png, id=85, 820.06375pt x 232.87pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
+means.png Graphic file (type png)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/m
+eans.png>
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak A
+lpha Data/Graphics/means.png  used on input line 3.
+(pdftex.def)             Requested size: 469.75499pt x 133.39818pt.
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 18
+ []
+
+[18 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/m
+eans.png>]
+</Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/eigen
+1.png, id=92, 708.6475pt x 250.9375pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
+eigen1.png Graphic file (type png)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/e
+igen1.png>
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak A
+lpha Data/Graphics/eigen1.png  used on input line 9.
+(pdftex.def)             Requested size: 375.80542pt x 133.07664pt.
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 19
+ []
+
+[19 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/e
+igen1.png>]
+</Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/covar
+iate_effects_parsed.pdf, id=97, 397.485pt x 216.81pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
+covariate_effects_parsed.pdf Graphic file (type pdf)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/c
+ovariate_effects_parsed.pdf>
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak A
+lpha Data/Graphics/covariate_effects_parsed.pdf  used on input line 15.
+(pdftex.def)             Requested size: 281.85585pt x 153.7443pt.
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 20
+ []
+
+[20 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/c
+ovariate_effects_parsed.pdf>]
+</Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf, id=1
+08, 794.97pt x 216.81pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf 
+Graphic file (type pdf)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf>
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/
+Graphics/means.pdf  used on input line 21.
+(pdftex.def)             Requested size: 469.75499pt x 128.11859pt.
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 21
+ []
+
+[21 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf>]
+</Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png, id=
+121, 708.6475pt x 250.9375pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png
+ Graphic file (type png)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png>
+
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/
+Graphics/eigen1.png  used on input line 27.
+(pdftex.def)             Requested size: 375.80542pt x 133.07664pt.
+
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 22
+ []
+
+[22 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png>
+]
+</Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_effec
+ts_parsed.pdf, id=126, 397.485pt x 216.81pt>
+File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_
+effects_parsed.pdf Graphic file (type pdf)
+<use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_e
+ffects_parsed.pdf>
+Package pdftex.def Info: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/
+Graphics/covariate_effects_parsed.pdf  used on input line 33.
+(pdftex.def)             Requested size: 281.85585pt x 153.7443pt.
+)
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 23
+ []
+
+[23 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_e
+ffects_parsed.pdf>] (./BFPCA.aux)
 
 LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 3210 strings out of 480608
- 40430 string characters out of 5903631
- 291897 words of memory out of 5000000
- 19072 multiletter control sequences out of 15000+600000
+ 3597 strings out of 480608
+ 48682 string characters out of 5903631
+ 299218 words of memory out of 5000000
+ 19431 multiletter control sequences out of 15000+600000
  550527 words of font info for 90 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 33i,13n,38p,1284b,314s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 33i,13n,38p,1511b,372s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cmextra/cmbsy
 7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10
 .pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.
@@ -403,10 +549,10 @@ ve/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy6.pfb></usr/local/texlive
 texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12.pfb></usr/local/texlive/2020/t
 exmf-dist/fonts/type1/public/amsfonts/symbols/msam10.pfb></usr/local/texlive/20
 20/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on BFPCA.pdf (13 pages, 294770 bytes).
+Output written on BFPCA.pdf (24 pages, 433776 bytes).
 PDF statistics:
- 152 PDF objects out of 1000 (max. 8388607)
- 109 compressed objects within 2 object streams
+ 218 PDF objects out of 1000 (max. 8388607)
+ 152 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 31 words of extra memory for PDF output out of 10000 (max. 10000000)
 

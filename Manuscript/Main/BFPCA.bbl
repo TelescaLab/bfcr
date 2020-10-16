@@ -1,15 +1,50 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citeauthoryear{Akerstedt, Hume, Minors, and
+  Waterhouse}{Akerstedt et~al.}{1997}]{Akerstedt1997}
+Akerstedt, T., Hume, K., Minors, D., and Waterhouse, J. (1997).
+\newblock Good sleep--its timing and physiological sleep characteristics.
+\newblock {\em Journal of sleep research} {\bf 6,} 221.
+
 \bibitem[\protect\citeauthoryear{Bhattacharya and Dunson}{Bhattacharya and
-  Dunson}{}]{Bhattacharya2011}
-Bhattacharya, A. and Dunson, D.~B.
+  Dunson}{2011}]{Bhattacharya2011}
+Bhattacharya, A. and Dunson, D.~B. (2011).
 \newblock Sparse bayesian infinite factor models.
 \newblock {\em Biometrika} pages 291--306.
+
+\bibitem[\protect\citeauthoryear{Bonnet}{Bonnet}{1987}]{Bonnet1987}
+Bonnet, M.~H. (1987).
+\newblock Sleep restoration as a function of periodic awakening, movement, or
+  electroencephalographic change.
+\newblock {\em Sleep} {\bf 10,} 364--373.
 
 \bibitem[\protect\citeauthoryear{Cardot}{Cardot}{2007}]{Cardot2007}
 Cardot, H. (2007).
 \newblock Conditional functional principal components analysis.
 \newblock {\em Scandinavian journal of statistics} {\bf 34,} 317--335.
+
+\bibitem[\protect\citeauthoryear{Chiang, Rennie, Robinson, Van~Albada, and
+  Kerr}{Chiang et~al.}{2011}]{Chiang2011}
+Chiang, A., Rennie, C., Robinson, P., Van~Albada, S., and Kerr, C. (2011).
+\newblock Age trends and sex differences of alpha rhythms including split alpha
+  peaks.
+\newblock {\em Clinical Neurophysiology} {\bf 122,} 1505--1517.
+
+\bibitem[\protect\citeauthoryear{Cragg, Kovacevic, McIntosh, Poulsen, Martinu,
+  Leonard, and Paus}{Cragg et~al.}{2011}]{Cragg2011}
+Cragg, L., Kovacevic, N., McIntosh, A.~R., Poulsen, C., Martinu, K., Leonard,
+  G., and Paus, T. (2011).
+\newblock Maturation of eeg power spectra in early adolescence: a longitudinal
+  study.
+\newblock {\em Developmental science} {\bf 14,} 935--943.
+
+\bibitem[\protect\citeauthoryear{Crainiceanu, Caffo, Di, and
+  Punjabi}{Crainiceanu et~al.}{2009}]{Crainiceanu2009}
+Crainiceanu, C.~M., Caffo, B.~S., Di, C.-Z., and Punjabi, N.~M. (2009).
+\newblock Nonparametric signal extraction and measurement error in the analysis
+  of electroencephalographic activity during sleep.
+\newblock {\em Journal of the American Statistical Association} {\bf 104,}
+  541--555.
 
 \bibitem[\protect\citeauthoryear{Crainiceanu, Ruppert, Carroll, Joshi, and
   Goodner}{Crainiceanu et~al.}{2007}]{Crainiceanu2007}
@@ -20,12 +55,25 @@ Crainiceanu, C.~M., Ruppert, D., Carroll, R.~J., Joshi, A., and Goodner, B.
 \newblock {\em Journal of Computational and Graphical Statistics} {\bf 16,}
   265--288.
 
+\bibitem[\protect\citeauthoryear{Di, Crainiceanu, Caffo, and Punjabi}{Di
+  et~al.}{2009}]{Di2009}
+Di, C.-Z., Crainiceanu, C.~M., Caffo, B.~S., and Punjabi, N.~M. (2009).
+\newblock Multilevel functional principal component analysis.
+\newblock {\em The annals of applied statistics} {\bf 3,} 458.
+
 \bibitem[\protect\citeauthoryear{Dickinson, DiStefano, Senturk, and
   Jeste}{Dickinson et~al.}{2018}]{Dickinson2017}
 Dickinson, A., DiStefano, C., Senturk, D., and Jeste, S.~S. (2018).
 \newblock Peak alpha frequency is a neural marker of cognitive function across
   the autism spectrum.
 \newblock {\em European Journal of Neuroscience} {\bf 47,} 643--651.
+
+\bibitem[\protect\citeauthoryear{Dustman, Shearer, and Emmerson}{Dustman
+  et~al.}{1999}]{Dustman1999}
+Dustman, R.~E., Shearer, D.~E., and Emmerson, R.~Y. (1999).
+\newblock Life-span changes in eeg spectral amplitude, amplitude variability
+  and mean frequency.
+\newblock {\em Clinical neurophysiology} {\bf 110,} 1399--1409.
 
 \bibitem[\protect\citeauthoryear{Fan and Gijbels}{Fan and
   Gijbels}{1996}]{Fan1996}
@@ -68,6 +116,19 @@ Hoff, P.~D. and Niu, X. (2012).
 \newblock A covariance regression model.
 \newblock {\em Statistica Sinica} pages 729--753.
 
+\bibitem[\protect\citeauthoryear{Jasper}{Jasper}{1958}]{Jasper1958}
+Jasper, H.~H. (1958).
+\newblock The ten-twenty electrode system of the international federation.
+\newblock {\em Electroencephalogr. Clin. Neurophysiol.} {\bf 10,} 370--375.
+
+\bibitem[\protect\citeauthoryear{Javaheri, Zhao, Punjabi, Quan, Gottlieb, and
+  Redline}{Javaheri et~al.}{2018}]{Javaheri2018}
+Javaheri, S., Zhao, Y.~Y., Punjabi, N.~M., Quan, S.~F., Gottlieb, D.~J., and
+  Redline, S. (2018).
+\newblock Slow-wave sleep is associated with incident hypertension: the sleep
+  heart health study.
+\newblock {\em Sleep} {\bf 41,} zsx179.
+
 \bibitem[\protect\citeauthoryear{Jeste, Kirkham, Senturk, Hasenstab, Sugar,
   Kupelian, Baker, Sanders, Shimizu, Norona, et~al\mbox{.}}{Jeste
   et~al.}{2015}]{Jeste2015}
@@ -98,6 +159,20 @@ Li, B., Bruyneel, L., and Lesaffre, E. (2014).
   structure in the mean and covariance part.
 \newblock {\em Statistics in medicine} {\bf 33,} 1877--1899.
 
+\bibitem[\protect\citeauthoryear{Mander, Winer, and Walker}{Mander
+  et~al.}{2017}]{Mander2017}
+Mander, B.~A., Winer, J.~R., and Walker, M.~P. (2017).
+\newblock Sleep and human aging.
+\newblock {\em Neuron} {\bf 94,} 19--36.
+
+\bibitem[\protect\citeauthoryear{Miskovic, Ma, Chou, Fan, Owens, Sayama, and
+  Gibb}{Miskovic et~al.}{2015}]{Miskovic2015}
+Miskovic, V., Ma, X., Chou, C.-A., Fan, M., Owens, M., Sayama, H., and Gibb,
+  B.~E. (2015).
+\newblock Developmental changes in spontaneous electrocortical activity and
+  network organization from early to late childhood.
+\newblock {\em Neuroimage} {\bf 118,} 237--247.
+
 \bibitem[\protect\citeauthoryear{Montagna, Tokdar, Neelon, and Dunson}{Montagna
   et~al.}{2012}]{Montagna2012}
 Montagna, S., Tokdar, S.~T., Neelon, B., and Dunson, D.~B. (2012).
@@ -112,6 +187,22 @@ Morris, J.~S. and Carroll, R.~J. (2006).
 \newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
   Methodology)} {\bf 68,} 179--199.
 
+\bibitem[\protect\citeauthoryear{Perrin, Pernier, Bertrand, and
+  Echallier}{Perrin et~al.}{1989}]{Perrin1989}
+Perrin, F., Pernier, J., Bertrand, O., and Echallier, J. (1989).
+\newblock Spherical splines for scalp potential and current density mapping.
+\newblock {\em Electroencephalography and clinical neurophysiology} {\bf 72,}
+  184--187.
+
+\bibitem[\protect\citeauthoryear{Quan, Howard, Iber, Kiley, Nieto, O'Connor,
+  Rapoport, Redline, Robbins, Samet, et~al\mbox{.}}{Quan
+  et~al.}{1997}]{Quan1997}
+Quan, S.~F., Howard, B.~V., Iber, C., Kiley, J.~P., Nieto, F.~J., O'Connor,
+  G.~T., Rapoport, D.~M., Redline, S., Robbins, J., Samet, J.~M., et~al.
+  (1997).
+\newblock The sleep heart health study: design, rationale, and methods.
+\newblock {\em Sleep} {\bf 20,} 1077--1085.
+
 \bibitem[\protect\citeauthoryear{Quintero and Lesaffre}{Quintero and
   Lesaffre}{2017}]{Quintero2017}
 Quintero, A. and Lesaffre, E. (2017).
@@ -124,12 +215,73 @@ Ramsay, J.~O. (2004).
 \newblock Functional data analysis.
 \newblock {\em Encyclopedia of Statistical Sciences} {\bf 4,}.
 
+\bibitem[\protect\citeauthoryear{Rodr{\'\i}guez-Mart{\'\i}nez,
+  Ruiz-Mart{\'\i}nez, Paulino, and G{\'o}mez}{Rodr{\'\i}guez-Mart{\'\i}nez
+  et~al.}{2017}]{Rodriguez2017}
+Rodr{\'\i}guez-Mart{\'\i}nez, E., Ruiz-Mart{\'\i}nez, F., Paulino, C.~B., and
+  G{\'o}mez, C.~M. (2017).
+\newblock Frequency shift in topography of spontaneous brain rhythms from
+  childhood to adulthood.
+\newblock {\em Cognitive neurodynamics} {\bf 11,} 23--33.
+
+\bibitem[\protect\citeauthoryear{Scheffler, Dickinson, DiStefano, Jeste, and
+  {\c{S}}ent{\"u}rk}{Scheffler et~al.}{2020}]{Scheffler2020}
+Scheffler, A.~W., Dickinson, A., DiStefano, C., Jeste, S., and
+  {\c{S}}ent{\"u}rk, D. (2020).
+\newblock Covariate-adjusted hybrid principal components analysis.
+\newblock In {\em International Conference on Information Processing and
+  Management of Uncertainty in Knowledge-Based Systems}, pages 391--404.
+  Springer.
+
+\bibitem[\protect\citeauthoryear{Scheffler, Telesca, Sugar, Jeste, Dickinson,
+  DiStefano, and {\c{S}}ent{\"u}rk}{Scheffler et~al.}{2019}]{Scheffler2019}
+Scheffler, A.~W., Telesca, D., Sugar, C.~A., Jeste, S., Dickinson, A.,
+  DiStefano, C., and {\c{S}}ent{\"u}rk, D. (2019).
+\newblock Covariate-adjusted region-referenced generalized functional linear
+  model for eeg data.
+\newblock {\em Statistics in Medicine} {\bf 38,} 5587--5602.
+
 \bibitem[\protect\citeauthoryear{Scheipl, Staicu, and Greven}{Scheipl
   et~al.}{2015}]{Scheipl2015}
 Scheipl, F., Staicu, A.-M., and Greven, S. (2015).
 \newblock Functional additive mixed models.
 \newblock {\em Journal of Computational and Graphical Statistics} {\bf 24,}
   477--501.
+
+\bibitem[\protect\citeauthoryear{Segalowitz, Santesso, and Jetha}{Segalowitz
+  et~al.}{2010}]{Segalowitz2010}
+Segalowitz, S.~J., Santesso, D.~L., and Jetha, M.~K. (2010).
+\newblock Electrophysiological changes during adolescence: a review.
+\newblock {\em Brain and cognition} {\bf 72,} 86--100.
+
+\bibitem[\protect\citeauthoryear{Somsen, van't Klooster, van~der Molen, van
+  Leeuwen, and Licht}{Somsen et~al.}{1997}]{Somsen1997}
+Somsen, R.~J., van't Klooster, B.~J., van~der Molen, M.~W., van Leeuwen, H.~M.,
+  and Licht, R. (1997).
+\newblock Growth spurts in brain maturation during middle childhood as indexed
+  by eeg power spectra.
+\newblock {\em Biological psychology} {\bf 44,} 187--209.
+
+\bibitem[\protect\citeauthoryear{Stroganova, Orekhova, and Posikera}{Stroganova
+  et~al.}{1999}]{Stroganova1999}
+Stroganova, T., Orekhova, E., and Posikera, I. (1999).
+\newblock Eeg alpha rhythm in infants.
+\newblock {\em Clinical Neurophysiology} {\bf 110,} 997--1012.
+
+\bibitem[\protect\citeauthoryear{Vald{\'e}s-Hern{\'a}ndez, Ojeda-Gonz{\'a}lez,
+  Mart{\'\i}nez-Montes, Lage-Castellanos, Viru{\'e}s-Alba, Vald{\'e}s-Urrutia,
+  and Valdes-Sosa}{Vald{\'e}s-Hern{\'a}ndez et~al.}{2010}]{Valdes2010}
+Vald{\'e}s-Hern{\'a}ndez, P.~A., Ojeda-Gonz{\'a}lez, A., Mart{\'\i}nez-Montes,
+  E., Lage-Castellanos, A., Viru{\'e}s-Alba, T., Vald{\'e}s-Urrutia, L., and
+  Valdes-Sosa, P.~A. (2010).
+\newblock White matter architecture rather than cortical surface area
+  correlates with the eeg alpha rhythm.
+\newblock {\em Neuroimage} {\bf 49,} 2328--2339.
+
+\bibitem[\protect\citeauthoryear{Walker}{Walker}{2009}]{Walker2009}
+Walker, M.~P. (2009).
+\newblock The role of slow wave sleep in memory processing.
+\newblock {\em Journal of Clinical Sleep Medicine} {\bf 5,} S20--S26.
 
 \bibitem[\protect\citeauthoryear{Wang, Chiou, and Mueller}{Wang
   et~al.}{2015}]{Wang2016}

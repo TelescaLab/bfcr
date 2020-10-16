@@ -14,22 +14,16 @@ sleep_tabulated <- read.csv(
          "bfcr/sleep/tabulated_data/",
          "shhs1-dataset-0.15.0.csv"), stringsAsFactors = FALSE)
 
-num_epochs <- 120
-id_range <- 200001:200200
+num_epochs <- 240
+id_range <- 200001:206000
 covariate <- "age_s1"
 
+
 sleep_data <- sleep_tabulated %>%
-  filter(EEG1qual == 4) %>%
+  filter(EEG1qual >= 3) %>%
   select(nsrrid, !!(sym(covariate))) %>%
   drop_na()
-
-sleep_data <- sleep_tabulated %>%
-  filter(EEG1qual == 4) %>%
-  select(nsrrid, HTNDerv_s1, gender) %>%
-  drop_na()
 sleep_data <- inner_join(sleep_data, relative_psd)
-
-
 sleep_data <- sleep_data %>%
   group_by(nsrrid) %>%
   filter(n() >= num_epochs, epoch <= num_epochs,
@@ -41,29 +35,46 @@ num_subjects <- as.numeric(summarise(
 
 epoch_grid <- 1:num_epochs
 epoch_df <- ceiling(20 / 100 * num_epochs)
-covariate_grid <- sleep_data %>%
-  group_by(nsrrid) %>%
-  filter(row_number() == 1) %>%
-  ungroup() %>%
-  select(!!(sym(covariate))) %>%
-  pull()
+# covariate_grid <- sleep_data %>%
+#   group_by(nsrrid) %>%
+#   filter(row_number() == 1) %>%
+#   ungroup() %>%
+#   select(!!(sym(covariate))) %>%
+#   pull()
 
 covariate_grid <- sleep_data %>%
   group_by(nsrrid) %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
   select(-nsrrid, -epoch, -psd) %>%
-  as.matrix()
+  as.data.frame()
 covariate_df <- 6
 epoch_basis <- ps(epoch_grid, df = epoch_df, intercept = TRUE)
 epoch_penalty <- attr(epoch_basis, "S")
 
 # Covariate adjusted
+# evaluate_spline <- function(smoothCon_list, covariate) {
+  # c(1, PredictMat(smoothCon_list[[1]], data = data.frame(covariate_grid = covariate)))
+# }
 evaluate_spline <- function(smoothCon_list, covariate) {
-  c(1, PredictMat(smoothCon_list[[1]], data = data.frame(covariate_grid = covariate)))
+  marginal_age <- PredictMat(smoothCon_list[[1]],
+                             data.frame(age_s1 = covariate[1]))
+  marginal_bp <- PredictMat(smoothCon_list[[2]],
+                            data.frame(SystBP = covariate[2]))
+  interaction_age_bp <- PredictMat(smoothCon_list[[3]],
+                                   data.frame(age_s1 = covariate[1],
+                                              SystBP = covariate[2]))
+  c(1, marginal_age, marginal_bp, interaction_age_bp)
 }
 
-
+marginal_age <- smoothCon(ti(age_s1, k = 6, bs = "ps",
+                          m = 2), data = covariate_grid)
+marginal_bp <- smoothCon(ti(SystBP, k = 6, bs = "ps",
+                            m = 2), data = covariate_grid)
+interaction_age_bp <- smoothCon(ti(age_s1, SystBP, k = 6, bs = "ps",
+                                   m = 2), covariate_grid)
+smoothCon_list <- list(marginal_age[[1]], marginal_bp[[1]], interaction_age_bp[[1]])
+evaluate_spline(smoothCon_list, c(60, 120))
 # Age adjusted, using mgcv
 if (TRUE) {
   covariate_basis <- smoothCon(s(covariate_grid, bs = "ps",

@@ -4,7 +4,7 @@ library(future.apply)
 library(nsrr)
 library(filesstrings)
 
-setwd("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep")
+setwd("/Users/johnshamshoian/Documents/R_projects/bfcr/sleep")
 rdata <- dir("spectrum")
 done <- as.numeric(substr(rdata, 9, 12))
 to_do <- setdiff(1:5900, done)
@@ -18,9 +18,9 @@ download_shhs_file <- function(x) {
   file.move(edf_file$outfile, new_dir)
   old_name <- str_split(edf_file$outfile, pattern = "/")[[1]][9]
   new_name <- paste0("shhs1-", id, ".edf")
-  old_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep/",
+  old_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/",
                           new_dir, "/", old_name)
-  new_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep/",
+  new_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/",
                           new_dir, "/", new_name)
   file.rename(old_file_name, new_file_name)
   
@@ -30,9 +30,9 @@ download_shhs_file <- function(x) {
   file.move(xml_file$outfile, new_dir)
   old_name <- str_split(xml_file$outfile, pattern = "/")[[1]][9]
   new_name <- paste0("shhs1-", id, "-profusion.xml")
-  old_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep/",
+  old_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/",
                           new_dir, "/", old_name)
-  new_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/BayesianConditionalFPCA/sleep/",
+  new_file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/",
                           new_dir, "/", new_name)
   file.rename(old_file_name, new_file_name)
   
@@ -43,9 +43,9 @@ download_shhs_file <- function(x) {
   leval("MASK all")
   leval("MASK unmask-if=${sleep}")
   leval("FILTER bandpass=0.3,35 ripple=0.02 tw=0.5")
-  leval("ARTIFACTS mask & SIGSTATS epoch mask threshold=3,3,3")
+  leval("ARTIFACTS mask & SIGSTATS epoch mask threshold=2,2")
   leval("RE")
-  k <- leval("PSD epoch-spectrum max=30") 
+  k <- leval("PSD epoch-spectrum") 
   k_tibble <- as_tibble(k$PSD$CH_E_F)
   k_tibble <- k_tibble %>%
     mutate(delta_ind = if_else(F >= .5 & F <= 4, 1, 0))

@@ -3,7 +3,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amsmath}
-
+\usepackage{graphicx}
 \DeclareMathOperator{\E}{\mathbb{E}}
 \newcommand{\vect}{\text{vec}}
 \title[This is an Example of Recto Running Head]{Bayesian Functional Covariance Regression}
@@ -103,8 +103,8 @@ where the set $\cup\{\bmath{x}_{r}\}_{r=1}^{R} = \mathbf{x}$. This grouping fram
 
 The $f_{r}(t, \bmath{x}_{r})$ terms can be represented by products of matrices and vectors. For example, let $\sum_{j=1}^{p}\sum_{m=1}^{p_{r}}b_{j}(t)b^{r}_{m}(x_{r})  \beta_{rjm}$ be a tensor spline expansion for $f(t, x_{r})$ where $\{b_{j}\}_{j=1}^{p}$ is a marginal basis expansion in $t$ and $\{b_{m}^{r}\}_{m=1}^{p_{r}}$ is a marginal basis expansion in $x_{r}$. Let $\bmath{b}(t) = (b_{1}(t), \ldots, b_{p}(t))^{\top}$, $\bmath{b}^{r}(x_{r}) = (b_{1}^{r}(x_{r}), \ldots, b_{p_{r}}^{r}(x_{r}))^{\top}$, and arrange the coefficients into a $p\times p_{r}$ matrix $\beta_{r}$. For the general case, we maintain that $\bmath{x}_{r}$ could be a vector with basis $\bmath{b}^{r}(\bmath{x}_{r}) = (b_{1}^{r}(\bmath{x}_{r}), \ldots, b_{p_{r}}^{r}(\bmath{x}_{r}))$. Then 
 \begin{align}
-f_{r}(t, x_{r}) &= \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
-\mu(t, \bmath{x}) &= \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})
+f_{r}(t, x_{r}) &= \bmath{b}(t)^{\top}\beta_{r} \,\bmath{b}^{r}(\bmath{x}_{r})\label{eq:mu1}\\
+\mu(t, \bmath{x}) &= \bmath{b}(t)^{\top} \beta \, \tilde{\bmath{X}}(\bmath{x})\label{eq:mu2}
 \end{align}
 where $\beta = \big(\beta_{1}\,|\cdots|\,\beta_{R}\big)$ and $\bmath{\tilde{X}}(\bmath{x}) = \big(\bmath{b}^{1}(\bmath{x}_{r})\,|\cdots|\,\bmath{b}^{R}(\bmath{x}_{r})\big)^{\top}$. Keeping track of dimensions,  $\beta$ is a $p\times r(d_{1})$ coefficient matrix and  $\bmath{\tilde{X}}(\bmath{x})$ is a $r(d_{1})\times 1$ vector, where $r(d_{1}) = \sum_{r=1}^{R}p_{r}$. We place another additive model on $\psi_{j}(t, \bmath{x})$. Namely, 
 \begin{gather}\psi_{j}(t,\bmath{x}) = \sum_{r=1}^{R}l_{jr}(t,\bmath{x}_{r})\label{eq:psi_additivity}
@@ -117,17 +117,17 @@ l_{jr}(t, x_{r}) &= \bmath{b}(t)^{\top}\Lambda_{jr}{r} \,\bmath{b}^{r}(\bmath{x}
 c(t, t', \bmath{x}) = \sum_{j=1}^{k}\bigg(\sum_{r=1}^{R}\sum_{r'=1}^{R}l_{jr}(t,\bmath{x}_{r})l_{jr'}(t',\bmath{x}_{r'})\bigg)
 \end{gather*} 
 This convolution structure makes it difficult to define low dimensional summaries of covariate influence on the covariance function. Instead, we propose a low dimensional summary which quantifies the impact of a covariate on the  $l_{jr}$ functions directly. Let
-\begin{gather*}
-g_{r}(t, \bmath{x}_{r}) = \sum_{j=1}^{k}l_{jr}(t,\bmath{x}_{r})^{2} \,\,/\,\, \sum_{r=1}^{R}\sum_{j=1}^{k}l_{jr}(t, \bmath{x})^{2}
-\end{gather*}
-summarize the effect of $\bmath{x}_{r}$ across $\psi_{j}$, $j=1,\ldots,k$. Clearly $g_{r}(t, \bmath{x}_{r}) \in [0, 1]$ and $\sum_{r=1}^{R}g_{r}(t, \bmath{x}_{r}) = 1$. If the impact of $\bmath{x}_{r}$ on $\psi_{j}$, $j=1,\ldots,k$ is negligable, then $g_{r}(t, \bmath{x}_{r})$ will be near zero. Consequently if $g_{r}(t, \bmath{x}_{r})$ is near zero, the $c(t,t', \bmath{x})$ will not be sensitive to changes in $\bmath{x}_{r}$. To the best of our knowledge, this is the first attempt at quantifying the impact of covariates on a covariance function which is possible through the additivity assumption on $\psi_{j}(t, \bmath{x})$ in equation \ref{eq:psi_additivity}.
+\begin{equation}
+g_{r}(t, \bmath{x}_{r}) = \sum_{j=1}^{k}l_{jr}(t,\bmath{x}_{r})^{2} \label{eq:low}
+\end{equation}
+summarize the effect of $\bmath{x}_{r}$ across $\psi_{j}$, $j=1,\ldots,k$. If the impact of $\bmath{x}_{r}$ on $\psi_{j}$, $j=1,\ldots,k$ is negligable, then $g_{r}(t, \bmath{x}_{r})$ will be near zero. Consequently if $g_{r}(t, \bmath{x}_{r})$ is near zero, the $c(t,t', \bmath{x})$ will not be sensitive to changes in $\bmath{x}_{r}$. To the best of our knowledge, this is the first attempt at quantifying the impact of covariates on a covariance function which is only possible through the additivity assumption on $\psi_{j}(t, \bmath{x})$ from equation \ref{eq:psi_additivity}.
 
 Unlike previous work on functional covariance regression \citep{Cardot2007, Jiang2010}, equations (\ref{eq:model}, \ref{eq:covariance}, \ref{eq:random}) specify a generative model for functional covariance regression. Complete with priors detailed in Section \ref{s:priors}, posterior inference is evaluated through Markov-Chain Monte Carlo (MCMC). This is important because empirical methods require resampling to perform inference. However, resampling techniques for functional data come with pitfalls. Any fitted model will have smoothing bias (to regularize rapidly varying functions). A parametric bootstrap would generate data from a biased model, and subsequently cause even more bias by smoothing once again for each bootstrap replicate. Nonparametric bootstrapping causes undersmoothing due to the presence of repeated functions.
 
 Outside of the FDA literature, \citet{Hoff2012} developed a similar model for covariance regression with multivariate data. However, as \citet{Fox2015} note, their mapping from predictors to covariance assumes a parametric form, thus limiting the model's expressivity. To overcome this parametric limitation, the authors develop a factor matrix process estimate a time-varying covariance matrix characterizing influenza incidence across the United States. This approach is flexible but each gibbs sample iteration requires a cholesky decomposition of an $n\times n$ matrix where $n$ is the number of subjects. The basis transform approach taken here would only require a cholesky decomposition of a $p \cdot r(d_{1}) \times p\cdot r(d_{1})$ matrix for each iteration. Therefore the basis transform approach is likely to scale better for large data sets such as the SHHS, provided $r(d_{1})$ is not too large.  
 \section{Prior Distributions}
 \label{s:priors}
-In this section we place priors on all unknown quantities of interest. We begin by placing prior on $\mu(t, \bmath{x})$. As we have seen in equation \ref{eq:mu}, this amounts to placing a prior on each $\beta_{r}$ submatrix. The rows of $\beta_{r}$ are associated with a $p\times p$ penalty matrix $K$, and the columns of $\beta_{r}$ are associated with a $p_{r}\times p_{r}$ penalty matrix $K_{r}$. These penalties are designed to encourage smoothness and can target magnitude penalization, squared derivative shrinkage, or local changes in $\beta_{r}$ through a differencing penalty. In this paper we penalize the second order difference of $\beta_{r}$ coefficients in both directions, but other penalties could be used as well. A prior for $\beta_{r}$ respecting the tensor structure is constructed as follows \citep{Wood2017}. Let $\tilde{K} = I_{p_{r}\times p_{r}}\otimes K$ and $\tilde{K_{r}} = K_{r} \otimes I_{p\times p}$. The prior for the vectorized form of $\beta_{r}$ is
+In this section we place priors on all unknown quantities of interest. We begin by placing prior on $\mu(t, \bmath{x})$. As we have seen in equations \ref{eq:mu1} and \ref{eq:mu2}, this amounts to placing a prior on each $\beta_{r}$ submatrix. The rows of $\beta_{r}$ are associated with a $p\times p$ penalty matrix $K$, and the columns of $\beta_{r}$ are associated with a $p_{r}\times p_{r}$ penalty matrix $K_{r}$. These penalties are designed to encourage smoothness and can target magnitude penalization, squared derivative shrinkage, or local changes in $\beta_{r}$ through a differencing penalty. In this paper we penalize the second order difference of $\beta_{r}$ coefficients in both directions, but other penalties could be used as well. A prior for $\beta_{r}$ respecting the tensor structure is constructed as follows \citep{Wood2017}. Let $\tilde{K} = I_{p_{r}\times p_{r}}\otimes K$ and $\tilde{K_{r}} = K_{r} \otimes I_{p\times p}$. The prior for the vectorized form of $\beta_{r}$ is
 
 \begin{gather*}
 \vect(\beta_{r}) \,|\, \tau_{1xr}, \tau_{1tr} \sim\\ \exp\{-0.5\vect(\beta_{r})^{\top}( \tau_{1xr} \tilde{K}_{r} + \tau_{1tr}\tilde{K})\vect(\beta_{r})\}
@@ -177,7 +177,47 @@ figures, use of \texttt{figure} and \texttt{figure*} is analogous.
 
 
 
-\section{Case Study}
+\section{Case Studies}
+\subsection{Application to ASD study}
+Peak alpha frequency (PAF), the frequency at which oscillations in the alpha range demonstrate maximal power, shows well-characterised increases with chronological age during childhood in typically developing children \citep{Somsen1997, Dustman1999, Stroganova1999, Chiang2011, Cragg2011, Miskovic2015}. PAF has been shown to index neural development in TD children \citep{Valdes2010, Segalowitz2010, Rodriguez2017}. However, a recent study by \citet{Dickinson2017} found that children with ASD did not show the typical increase in PAF with age. In the present study, we investigate the relationship between diagnostic status, age, and alpha spectral density. Treating alpha spectral density as a functional response avoids complicated PAF identification procedures \citet{Dickinson2017} and retains more information as opposed to collapsing the entire alpha spectral band to a single point \citep{Scheffler2019, Scheffler2020}. In this study we wish to characterize functional mean and covariance dependence of alpha spectral density in terms of age and diagnostic status. 
+
+In the \citet{Dickinson2017} study, resting-state EEG was collected on 39 TD children and 58 children with ASD aged 2 to 12 years old.  EEG signals were sampled at 500 Hz for two minutes and interpolated to a 10-20 25 channel montage \citep{Jasper1958, Perrin1989}. Alpha spectral density  $\Omega \in [6 \text{ Hz}, 14 \text{ Hz}]$ were obtained for each electrode. To facilitate comparisons across regions and subjects, alpha spectral density was normalized to unit area. See \cite{Scheffler2019} for more details on data acquisition and pre-processing. The resulting data structure is region-referenced functional data, which induces correlated responses within subjects. Unfortunately, the proposed method can not accommodate correlated functional data. Instead, for demonstration purposes, we only examine one region at a time. We also acknowledge that \citet{Scheffler2020} already successfully applied a covariate-adjusted hybrid principal components analysis, which can accommodate correlated functional responses within subject. While the goals of \citet{Scheffler2020} are similar to the ones posed in this article, we note that this method is (1) based on a Bayesian method, which yields stochastic regularization and straight-forward inference and (2) the low dimensional summary in eq. \ref{eq:low} provides some insight into how the variability of normalized alpha spectral density as a function of age and diagnostic status. 
+
+We treat normalized alpha spectral density from the T8 region as the functional response and adjust the mean and covariance functions by diagnostic status, age, and a diagnostic status by age interaction. This interaction is scientifically motivated because as previously mentioned, PAF increases with age for TD children but not so for children with ASD. For the frequency dimension, we use a p-spline basis with 12 degrees of freedom using a second order differencing penalty. We expand age via p-splines with 6 degrees of freedom, again with a second order difference penalty. We run a markov chain monte carlo algorithm for 200,000 iterations. To save on memory purposes, we only save every 20 iterations. Of the leftover 10,000 iterations, we discard the first 5,000 as burn-in and keep the subsequent 5,000 for inference.  
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means.png}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/eigen1.png}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/covariate_effects_parsed.pdf}
+\end{figure}
+
+\subsection{Application to Sleep Heart Health Study}
+The Sleep Heart Health Study (SHHS) was a prospective cohort study designed to investigate obstructive sleep apnea (OSA) and other sleep-disordered breathing (SDB) as risk factors for the development of cardiovascular disease \citep{Quan1997}. Parent cohort studies and recruitment targets for these cohorts are the following: Atherosclerosis Risk in Communities Study (1,750 participants), Cardiovascular Health Study (1,350 participants), Framingham Heart Study (1,000 participants), Strong Heart Study (600 participants), New York Hy- pertension Cohorts (1,000 participants), and Tucson Epidemiologic Study of Airways Obstructive Diseases and the Health and Environment Study (900 participants). An unattended in-home polysomnography was completed by participants between November 1, 1995 and January 31, 1998. Between January 2001 and June 2003, a second polysomnogram was obtained in 3295 of the participants. The baseline SHHS cohort included 52.9\% women and 47.1\% men. The race distribution was 81\% Caucasians, 9.\% Native-Americans, 8.0\% African-Americans, 1.3\% Asians, and 0.03\% `other' race category. The minimum age of enrollment was 40 years and there was no upper limit. The mean age was 62.9 (SD 11.0) years old. 
+
+The American Academy of Sleep recognizes four sleep stages: stage N1 (light sleep), stage N2 (relaxation), stage N3 (slow-wave sleep), and stage R (rapid-eye movement). Importantly, N3 sleep, or slow-wave sleep (SWS) consists of high amplitude ($\geq$ 75 $\mu$V) and low-frequency  $(0.5-4.0)$ delta waves. SWS is considered to be most restorative sleep stage and to be associated with sleep quality, sleep maintenance, and functions toward memory consolidation \citep{Bonnet1987, Akerstedt1997, Walker2009}. \citet{Mander2017} reports that advancing into the fifth decade of age comes with (1) reduced SWS time and (2) increased time spent in lighter sleep stages (N1, N2). In addition, \citet{Javaheri2018} reports that lower levels of percent SWS sleep are associated of increased odds of incident hypertension in both men and women, independent of confounders such as indices of sleep apnea, age, and sex. Most clinical studies (including the papers referenced above) quantify sleep by classifying time-varying electrical phenoma into discrete sleep stages. Subsequently, amount of SWS is represented by a single number, which is commonly percentage of sleep time in stage N3. However, this approach comes with several limitations \citep{Crainiceanu2009} including low intraclass correlation coefficient, no biological basis, and loss of temporal information. In this paper follow \citet{Crainiceanu2009, Di2009} and use power spectral density estimation to quantify sleep EEG. 
+
+% eeg details, question setup, mcmc control, spline setup
+
+\begin{figure}
+	\centering
+	\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_effects_parsed.pdf}
+\end{figure}
+ Of interest is the C3/A2 EEG channel sampled at 125 Hz. Sleep scoring is usually a visually-based counting process, where every 30-second epoch of sleep is assigned a discrete stage
 \label{s:data}
 
 \section{Discussion}
