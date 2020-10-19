@@ -4,7 +4,13 @@
 \alias{get_posterior_eigen}
 \title{Posterior inference for covariate-adjusted covariance function}
 \usage{
-get_posterior_eigen(mcmc_results, eigenvals, zi, alpha_level = 0.05)
+get_posterior_eigen(
+  mcmc_results,
+  eigenvals,
+  zi,
+  alpha_level = 0.05,
+  mode = "point-wise"
+)
 }
 \arguments{
 \item{mcmc_results}{mcmc object}
@@ -14,6 +20,9 @@ get_posterior_eigen(mcmc_results, eigenvals, zi, alpha_level = 0.05)
 \item{zi}{Covariate vector of interest}
 
 \item{alpha_level}{Type I error rate}
+
+\item{mode}{Type of posterior bands. Default is point-wise. Can specify
+simultaneous for approximate simultaneous coverage}
 }
 \value{
 An R list containing the following elements 

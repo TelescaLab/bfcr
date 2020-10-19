@@ -93,7 +93,8 @@ arma::mat get_posterior_predictive_bands2(List mod, arma::vec quantiles){
 
 // [[Rcpp::export]]
 Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
-                                           double alpha){
+                                           double alpha,
+                                           std::string mode){
   Rcpp::List samples = mcmc_output["samples"];
   Rcpp::List data = mcmc_output["data"];
   Rcpp::List control = mcmc_output["control"];
@@ -111,6 +112,7 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
   arma::uword num_subjects = response.n_rows;
   arma::running_stat_vec<arma::vec> stats;
   arma::mat m_alpha(num_subjects, iterations - burnin);
+  arma::vec m_star(num_subjects);
   arma::mat current_lower_dim_fit;
   arma::mat current_fit;
   
@@ -129,22 +131,26 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
   
   arma::mat subj_mean = arma::reshape(stats.mean(), basis.n_rows, num_subjects);
   arma::mat subj_sd = arma::reshape(stats.stddev(), basis.n_rows, num_subjects);
-  arma::uword counter = 0;
-  for (arma::uword iter = burnin; iter < iterations; iter++) {
-    current_lower_dim_fit = beta.slice(iter) * design_mean.t();
-    for (arma::uword k = 0; k < kdim; k++) {
-      current_lower_dim_fit = current_lower_dim_fit + 
-        lambda(iter).slice(k) * design_var.t() * 
-        arma::diagmat(eta.slice(iter).col(k));
+  m_star.fill(R::qnorm5(1 - alpha / 2, 0, 1, 1, 0));
+  if (mode == "simultaneous") {
+    arma::uword counter = 0;
+    for (arma::uword iter = burnin; iter < iterations; iter++) {
+      current_lower_dim_fit = beta.slice(iter) * design_mean.t();
+      for (arma::uword k = 0; k < kdim; k++) {
+        current_lower_dim_fit = current_lower_dim_fit + 
+          lambda(iter).slice(k) * design_var.t() * 
+          arma::diagmat(eta.slice(iter).col(k));
+      }
+      current_fit = basis * current_lower_dim_fit;
+      m_alpha.col(counter) =
+        arma::max(arma::abs(current_fit - subj_mean) /
+          subj_sd, 0).t();
+      counter++;
     }
-    current_fit = basis * current_lower_dim_fit;
-    m_alpha.col(counter) =
-      arma::max(arma::abs(current_fit - subj_mean) /
-        subj_sd, 0).t();
-    counter++;
+    arma::vec alpha_vec = {1-alpha};
+    m_star = arma::quantile(m_alpha, alpha_vec, 1);
   }
-  arma::vec alpha_vec = {1-alpha};
-  arma::vec m_star = arma::quantile(m_alpha, alpha_vec, 1);
+  
   arma::mat mean_overall = subj_mean;
   arma::mat lower = mean_overall - subj_sd * arma::diagmat(m_star);
   arma::mat upper = mean_overall + subj_sd * arma::diagmat(m_star);
@@ -195,7 +201,9 @@ arma::vec get_prediction_error(List mcmc_output, double alpha) {
   return(arma::quantile(prediction_error, alpha_vec_eval));
 }
 // [[Rcpp::export]]
-arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, double alpha){
+arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi,
+                                          double alpha,
+                                          std::string mode){
   Rcpp::List data = mcmc_results["data"];
   Rcpp::List samples = mcmc_results["samples"];
   Rcpp::List control = mcmc_results["control"];
@@ -214,15 +222,19 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi, doubl
     current_mean = basis * beta.slice(i) * xi;
     stats(current_mean);
   }
-  arma::uword counter = 0;
-  for(arma::uword i = burnin; i < iterations; i++){
-    current_mean = basis * beta.slice(i) * xi;
-    m_alpha(counter) = 
-      arma::max(arma::abs(current_mean - stats.mean()) / stats.stddev());
-    counter++;
+  double m_star = R::qnorm5(1 - alpha / 2, 0, 1, 1, 0);
+  if (mode == "simultaneous") {
+    arma::uword counter = 0;
+    for(arma::uword i = burnin; i < iterations; i++){
+      current_mean = basis * beta.slice(i) * xi;
+      m_alpha(counter) = 
+        arma::max(arma::abs(current_mean - stats.mean()) / stats.stddev());
+      counter++;
+    }
+    arma::vec alpha_vec = {1 - alpha};
+    m_star = arma::as_scalar(arma::quantile(m_alpha, alpha_vec));
+    
   }
-  arma::vec alpha_vec = {1 - alpha};
-  double m_star = arma::as_scalar(arma::quantile(m_alpha, alpha_vec));
   
   quants.col(0) = stats.mean() - m_star * stats.stddev();
   quants.col(1) = stats.mean();
@@ -323,8 +335,9 @@ arma::mat arma_cov2cor(arma::mat V){
 
 // [[Rcpp::export]]
 List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
-                             arma::uword eigenvals,
-                             arma::vec zi, double alpha = 0.05){
+                                     arma::uword eigenvals,
+                                     arma::vec zi, double alpha,
+                                     std::string mode){
   Rcpp::List control = mcmc_results["control"];
   Rcpp::List data = mcmc_results["data"];
   Rcpp::List samples = mcmc_results["samples"];
@@ -343,6 +356,7 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
   arma::mat psi(basis_dim, basis_dim);
   arma::mat psi_sqrt;
   arma::mat psi_sqrt_inv;
+  arma::vec q_alpha(eigenvals);
   for(arma::uword j = 0; j < basis_dim; j++){
     for(arma::uword i = 0; i < basis_dim; i++){
       psi(i, j) = 
@@ -393,34 +407,42 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
     }
     counter++;
   }
-  counter = 0;
-  for (arma::uword i = burnin; i < iterations; i++) {
-    eigen_list = extract_eigenfn(lambda(i),
-                                 psi,
-                                 psi_sqrt,
-                                 psi_sqrt_inv,
-                                 basis,
-                                 eigenvals,
-                                 zi,
-                                 time);
-    temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
-    
-    for (arma::uword k = 0; k < eigenvals; k++) {
-      idx1 = k * basis.n_rows;
-      idx2 = (k + 1) * basis.n_rows - 1;
-      if (arma::sum(arma::square(temp_evec.col(k) + stats_vec.mean().subvec(idx1, idx2))) <
-        arma::sum(arma::square(temp_evec.col(k) - stats_vec.mean().subvec(idx1, idx2)))) {
-        temp_evec.col(k) = -temp_evec.col(k);
+  for (arma::uword k = 0; k < eigenvals; k++) {
+    q_alpha(k) = R::qnorm5(1 - alpha / 2, 0, 1, 1, 0);
+  }
+  if (mode == "simultaneous") {
+    counter = 0;
+    for (arma::uword i = burnin; i < iterations; i++) {
+      eigen_list = extract_eigenfn(lambda(i),
+                                   psi,
+                                   psi_sqrt,
+                                   psi_sqrt_inv,
+                                   basis,
+                                   eigenvals,
+                                   zi,
+                                   time);
+      temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
+      
+      for (arma::uword k = 0; k < eigenvals; k++) {
+        idx1 = k * basis.n_rows;
+        idx2 = (k + 1) * basis.n_rows - 1;
+        if (arma::sum(arma::square(temp_evec.col(k) + stats_vec.mean().subvec(idx1, idx2))) <
+          arma::sum(arma::square(temp_evec.col(k) - stats_vec.mean().subvec(idx1, idx2)))) {
+          temp_evec.col(k) = -temp_evec.col(k);
+        }
+        m_alpha(counter, k) = arma::max((temp_evec.col(k) -
+          stats_vec.mean().subvec(idx1, idx2)) / stats_vec.stddev().subvec(idx1, idx2));
       }
-      m_alpha(counter, k) = arma::max((temp_evec.col(k) -
-        stats_vec.mean().subvec(idx1, idx2)) / stats_vec.stddev().subvec(idx1, idx2));
+      counter++;
     }
-    counter++;
+    arma::vec alpha_vec = {1 - alpha};
+    for (arma::uword k = 0; k < eigenvals; k++) {
+      q_alpha(k) = arma::as_scalar(arma::quantile(m_alpha.col(k), alpha_vec));
+    }
   }
   
-  arma::vec alpha_vec = {1 - alpha};
+  
   arma::vec alpha_vec_eval = {alpha / 2.0, 0.5, 1 - alpha / 2.0};
-  double q_alpha;
   arma::mat lower(time.n_elem, eigenvals);
   arma::mat mean(time.n_elem, eigenvals);
   arma::mat upper(time.n_elem, eigenvals);
@@ -431,12 +453,11 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
   for (arma::uword k = 0; k < eigenvals; k++) {
     idx1 = k * basis.n_rows;
     idx2 = (k + 1) * basis.n_rows - 1;
-    q_alpha = arma::as_scalar(arma::quantile(m_alpha.col(k), alpha_vec));
     lower.col(k) = (stats_vec.mean().subvec(idx1, idx2) -
-      q_alpha * stats_vec.stddev().subvec(idx1, idx2));
+      q_alpha(k) * stats_vec.stddev().subvec(idx1, idx2));
     mean.col(k) = (stats_vec.mean().subvec(idx1, idx2));
     upper.col(k) = (stats_vec.mean().subvec(idx1, idx2) + 
-      q_alpha * stats_vec.stddev().subvec(idx1, idx2));
+      q_alpha(k) * stats_vec.stddev().subvec(idx1, idx2));
     eigenval_intervals.col(k) = arma::quantile(eval_mat.col(k), alpha_vec_eval);
     eigenval_pve_intervals.col(k) = arma::quantile(eval_pve_mat.col(k), alpha_vec_eval);
   }
@@ -482,8 +503,8 @@ List get_variance_effects(List mod, double alpha){
             ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
           }
           /*else {
-            ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
-              temp_lambda.col(dp) * temp_lambda.col(d).t();          
+           ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
+           temp_lambda.col(dp) * temp_lambda.col(d).t();          
           }*/
         }
       }
@@ -498,8 +519,8 @@ List get_variance_effects(List mod, double alpha){
             ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
           }
           /*else {
-            ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
-              temp_lambda.col(dp) * temp_lambda.col(d).t();          
+           ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
+           temp_lambda.col(dp) * temp_lambda.col(d).t();          
           }*/
         }
       }

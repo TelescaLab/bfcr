@@ -4,12 +4,19 @@
 \alias{get_posterior_subject_bands}
 \title{Get means and upper/lower credible bands for each subject}
 \usage{
-get_posterior_subject_bands(mcmc_output, alpha_level = 0.05)
+get_posterior_subject_bands(
+  mcmc_output,
+  alpha_level = 0.05,
+  mode = "point-wise"
+)
 }
 \arguments{
 \item{mcmc_output}{Object returned from run_mcmc()}
 
 \item{alpha_level}{Type I error}
+
+\item{mode}{Type of posterior bands. Default is point-wise. Can specify
+simultaneous for approximate simultaneous coverage}
 }
 \value{
 a tibble with columns subject ID, response, mean, lower limit,

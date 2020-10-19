@@ -5,6 +5,8 @@
 #' 
 #' @param mcmc_output Object returned from run_mcmc()
 #' @param alpha_level Type I error
+#' @param mode Type of posterior bands. Default is point-wise. Can specify
+#' simultaneous for approximate simultaneous coverage
 #' @export get_posterior_subject_bands
 #' @return a tibble with columns subject ID, response, mean, lower limit,
 #' upper limit, and time
@@ -17,9 +19,10 @@
 #'  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
 #'  theme_bw()
 #' p1
-get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05) {
+get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05,
+                                        mode = "point-wise") {
   subject_summaries <- 
-    get_posterior_subject_bands_cpp(mcmc_output, alpha_level)
+    get_posterior_subject_bands_cpp(mcmc_output, alpha_level, mode)
   num_subjects <- dim(mcmc_output$data$response)[1]
   num_time_pts <- dim(mcmc_output$data$response)[2]
   response <- c(t(mcmc_output$data$response))
@@ -46,14 +49,18 @@ get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05) {
 #' @param mcmc_output object returned from run_mcmc
 #' @param xi specified covariate value to obtain mean function
 #' @param alpha_level Type I error 
+#' @param mode Type of posterior bands. Default is point-wise. Can specify
+#' simultaneous for approximate simultaneous coverage
 #' @export get_posterior_means
 #' @return A tibble with columns for lower bound, mean, upper bound, 
 #' and user specified time grid
 #' @examples # Intercept only model
 #' xi <- c(1)
 #' mean_bands <- get_posterior_means(mcmc_output, xi)
-get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
-  mean_matrix <- get_posterior_means_cpp_correct(mcmc_output, xi, alpha_level)
+get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
+                                mode = "point-wise") {
+  mean_matrix <- get_posterior_means_cpp_correct(mcmc_output, xi,
+                                                 alpha_level, mode)
   mean_tibble <- tibble(lower = mean_matrix[,1],
                         mean = mean_matrix[,2],
                         upper = mean_matrix[,3],
@@ -67,6 +74,8 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
 #' @param eigenvals Number of eigenvalues to keep
 #' @param zi Covariate vector of interest
 #' @param alpha_level Type I error rate
+#' @param mode Type of posterior bands. Default is point-wise. Can specify
+#' simultaneous for approximate simultaneous coverage
 #' @details Generates posterior inference for covariate adjusted
 #'  eigenfunctions, surfaces, and magnitudes
 #' @return
@@ -93,8 +102,10 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05) {
 #' 
 #' \code{raw_magnitude} 1-alpha credible interval for total variance
 #' @export get_posterior_eigen
-get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05) {
-  post_eigen <- get_posterior_eigen_cpp_correct(mcmc_results, eigenvals, zi, alpha_level)
+get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05, 
+                                mode = "point-wise") {
+  post_eigen <- get_posterior_eigen_cpp_correct(mcmc_results, eigenvals, zi,
+                                                alpha_level, mode)
   eigenfunctions <- tibble(mean = c(post_eigen$mean_eigen),
                            lower = c(post_eigen$lower_eigen),
                            upper = c(post_eigen$upper_eigen),

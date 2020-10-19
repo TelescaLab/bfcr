@@ -4,7 +4,7 @@
 \alias{get_posterior_means}
 \title{Get posterior mean function}
 \usage{
-get_posterior_means(mcmc_output, xi, alpha_level = 0.05)
+get_posterior_means(mcmc_output, xi, alpha_level = 0.05, mode = "point-wise")
 }
 \arguments{
 \item{mcmc_output}{object returned from run_mcmc}
@@ -12,6 +12,9 @@ get_posterior_means(mcmc_output, xi, alpha_level = 0.05)
 \item{xi}{specified covariate value to obtain mean function}
 
 \item{alpha_level}{Type I error}
+
+\item{mode}{Type of posterior bands. Default is point-wise. Can specify
+simultaneous for approximate simultaneous coverage}
 }
 \value{
 A tibble with columns for lower bound, mean, upper bound, 
