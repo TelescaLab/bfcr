@@ -477,6 +477,34 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
 }
 
 // [[Rcpp::export]]
+Rcpp::List get_posterior_covariance_cpp(Rcpp::List mcmc_results, arma::vec zi) {
+  Rcpp::List control = mcmc_results["control"];
+  Rcpp::List data = mcmc_results["data"];
+  Rcpp::List samples = mcmc_results["samples"];
+  arma::mat basis = data["basis"];
+  arma::field<arma::cube> lambda = samples["lambda"];
+  arma::cube beta = samples["beta"];
+  arma::vec time = data["time"];
+  arma::uword iterations = control["iterations"];
+  arma::uword burnin = control["burnin"];
+  arma::uword kdim = data["latent_dimension"];
+  arma::mat est_cov = arma::mat(basis.n_cols, basis.n_cols);
+  arma::mat est_cov_full;
+  arma::running_stat_vec<arma::vec> stats;
+  for (arma::uword i = burnin; i < iterations; i++) {
+    est_cov.zeros();
+    for (arma::uword k = 0; k < kdim; k++) {
+      est_cov = est_cov + lambda(i).slice(k) * zi * 
+        zi.t() * lambda(i).slice(k).t();
+    }
+    est_cov_full = basis * est_cov * basis.t();
+    stats(arma::vectorise(est_cov_full));
+  }
+  return(Rcpp::List::create(Rcpp::Named("mean", stats.mean()),
+                            Rcpp::Named("sd", stats.stddev())));
+}
+/*
+// [[Rcpp::export]]
 List get_variance_effects(List mod, double alpha){
   arma::mat B = mod["B"];
   arma::field<arma::cube> LambdaF = mod["Lambda"];
@@ -502,10 +530,6 @@ List get_variance_effects(List mod, double alpha){
           if (dp == d) {
             ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
           }
-          /*else {
-           ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
-           temp_lambda.col(dp) * temp_lambda.col(d).t();          
-          }*/
         }
       }
       stats(arma::vectorise(ph));
@@ -518,10 +542,6 @@ List get_variance_effects(List mod, double alpha){
           if (dp == d) {
             ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
           }
-          /*else {
-           ph = ph + temp_lambda.col(d) * temp_lambda.col(dp).t() +
-           temp_lambda.col(dp) * temp_lambda.col(d).t();          
-          }*/
         }
       }
       Malpha(i) = arma::max(arma::abs((arma::vectorise(ph) - stats.mean()) / stats.stddev()));
@@ -542,4 +562,4 @@ List get_variance_effects(List mod, double alpha){
                       Named("lower", lower),
                       Named("upper", upper)));
 }
-
+*/

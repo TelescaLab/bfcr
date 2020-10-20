@@ -2,7 +2,7 @@ library(plotly)
 library(mgcv)
 set.seed(8)
 ### Simulate from model
-n <- 200
+n <- 100
 k <- 4
 df_times <- 10
 df_x <- 6
@@ -46,10 +46,11 @@ for (kp in 1:k) {
   Y <- Y + time_basis[[1]]$X %*% lambda[,,kp] %*% t(X) %*% diag(eta[,kp])
 }
 matplot(Y, type = "l")
-simparam <- list(beta = beta, lambda = lambda, k = k, df_times = df_times,
-                 df_x = df_x, x = x, tau_smooth_time = tau_smooth_time, 
+simparam <- list(beta = beta, lambda = lambda, X = X, k = k, n = n, 
+                 df_times = df_times, df_x = df_x, x = x,
+                 tau_smooth_time = tau_smooth_time, 
                  delta_base = delta_baseline, delta_x = delta_x,
-                 time_basis = time_basis, x_basis = x_basis)
+                 time_basis = time_basis, x_basis = x_basis, times = times)
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
                     "Simulations/simparam.RData")
 save(simparam, file = file_name)

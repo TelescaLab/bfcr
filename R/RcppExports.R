@@ -149,8 +149,8 @@ get_posterior_eigen_cpp_correct <- function(mcmc_results, eigenvals, zi, alpha, 
     .Call(`_BayesianConditionalFPCA_get_posterior_eigen_cpp_correct`, mcmc_results, eigenvals, zi, alpha, mode)
 }
 
-get_variance_effects <- function(mod, alpha) {
-    .Call(`_BayesianConditionalFPCA_get_variance_effects`, mod, alpha)
+get_posterior_covariance_cpp <- function(mcmc_results, zi) {
+    .Call(`_BayesianConditionalFPCA_get_posterior_covariance_cpp`, mcmc_results, zi)
 }
 
 #' Run Markov-Chain Monte-Carlo

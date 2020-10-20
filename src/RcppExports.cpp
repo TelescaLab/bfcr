@@ -521,15 +521,15 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// get_variance_effects
-List get_variance_effects(List mod, double alpha);
-RcppExport SEXP _BayesianConditionalFPCA_get_variance_effects(SEXP modSEXP, SEXP alphaSEXP) {
+// get_posterior_covariance_cpp
+Rcpp::List get_posterior_covariance_cpp(Rcpp::List mcmc_results, arma::vec zi);
+RcppExport SEXP _BayesianConditionalFPCA_get_posterior_covariance_cpp(SEXP mcmc_resultsSEXP, SEXP ziSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< List >::type mod(modSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    rcpp_result_gen = Rcpp::wrap(get_variance_effects(mod, alpha));
+    Rcpp::traits::input_parameter< Rcpp::List >::type mcmc_results(mcmc_resultsSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type zi(ziSEXP);
+    rcpp_result_gen = Rcpp::wrap(get_posterior_covariance_cpp(mcmc_results, zi));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -596,7 +596,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_BayesianConditionalFPCA_get_posterior_coefs", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_coefs, 2},
     {"_BayesianConditionalFPCA_arma_cov2cor", (DL_FUNC) &_BayesianConditionalFPCA_arma_cov2cor, 1},
     {"_BayesianConditionalFPCA_get_posterior_eigen_cpp_correct", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen_cpp_correct, 5},
-    {"_BayesianConditionalFPCA_get_variance_effects", (DL_FUNC) &_BayesianConditionalFPCA_get_variance_effects, 2},
+    {"_BayesianConditionalFPCA_get_posterior_covariance_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_covariance_cpp, 2},
     {"_BayesianConditionalFPCA_run_mcmc", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc, 14},
     {NULL, NULL, 0}
 };
