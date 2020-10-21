@@ -18,6 +18,13 @@ Bonnet, M.~H. (1987).
   electroencephalographic change.
 \newblock {\em Sleep} {\bf 10,} 364--373.
 
+\bibitem[\protect\citeauthoryear{Buckelm{\"u}ller, Landolt, Stassen, and
+  Achermann}{Buckelm{\"u}ller et~al.}{2006}]{Buckelmuller2006}
+Buckelm{\"u}ller, J., Landolt, H.-P., Stassen, H., and Achermann, P. (2006).
+\newblock Trait-like individual differences in the human sleep
+  electroencephalogram.
+\newblock {\em Neuroscience} {\bf 138,} 351--356.
+
 \bibitem[\protect\citeauthoryear{Cardot}{Cardot}{2007}]{Cardot2007}
 Cardot, H. (2007).
 \newblock Conditional functional principal components analysis.
@@ -111,6 +118,12 @@ Guo, W. (2002).
 \newblock Functional mixed effects models.
 \newblock {\em Biometrics} {\bf 58,} 121--128.
 
+\bibitem[\protect\citeauthoryear{Hjorth}{Hjorth}{1970}]{Hjorth1970}
+Hjorth, B. (1970).
+\newblock Eeg analysis based on time domain properties.
+\newblock {\em Electroencephalography and clinical neurophysiology} {\bf 29,}
+  306--310.
+
 \bibitem[\protect\citeauthoryear{Hoff and Niu}{Hoff and Niu}{2012}]{Hoff2012}
 Hoff, P.~D. and Niu, X. (2012).
 \newblock A covariance regression model.
@@ -193,6 +206,11 @@ Perrin, F., Pernier, J., Bertrand, O., and Echallier, J. (1989).
 \newblock Spherical splines for scalp potential and current density mapping.
 \newblock {\em Electroencephalography and clinical neurophysiology} {\bf 72,}
   184--187.
+
+\bibitem[\protect\citeauthoryear{Purcell}{Purcell}{2020}]{Shaun2020}
+Purcell, S. (2020).
+\newblock {\em luna: Analysis of Sleep Signal Data}.
+\newblock https://github.com/remnrem/luna, http://zzz.bwh.harvard.edu/luna.
 
 \bibitem[\protect\citeauthoryear{Quan, Howard, Iber, Kiley, Nieto, O'Connor,
   Rapoport, Redline, Robbins, Samet, et~al\mbox{.}}{Quan
