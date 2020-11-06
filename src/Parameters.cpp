@@ -8,6 +8,8 @@ Parameters::Parameters(Data& dat) {
   psi = arma::vec(dat.n, arma::fill::ones);
   tau_a = -.5;
   tau_b = 0;
+  varphi_a = .0001;
+  varphi_b = .0001;
   alpha = 1;
   tausq = 1;
   tau1 = arma::vec(dat.penalties_mean.n_elem, arma::fill::ones);

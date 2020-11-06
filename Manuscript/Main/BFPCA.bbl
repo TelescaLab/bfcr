@@ -30,6 +30,20 @@ Cardot, H. (2007).
 \newblock Conditional functional principal components analysis.
 \newblock {\em Scandinavian journal of statistics} {\bf 34,} 317--335.
 
+\bibitem[\protect\citeauthoryear{Carroll, Gajardo, Chen, Dai, Fan,
+  Hadjipantelis, Han, Ji, Mueller, and Wang}{Carroll et~al.}{2020}]{fdapace}
+Carroll, C., Gajardo, A., Chen, Y., Dai, X., Fan, J., Hadjipantelis, P.~Z.,
+  Han, K., Ji, H., Mueller, H.-G., and Wang, J.-L. (2020).
+\newblock {\em fdapace: Functional Data Analysis and Empirical Dynamics}.
+\newblock R package version 0.5.5.
+
+\bibitem[\protect\citeauthoryear{Castro, Lawton, and Sylvestre}{Castro
+  et~al.}{1986}]{Castro1986}
+Castro, P.~E., Lawton, W.~H., and Sylvestre, E. (1986).
+\newblock Principal modes of variation for processes with continuous sample
+  curves.
+\newblock {\em Technometrics} {\bf 28,} 329--337.
+
 \bibitem[\protect\citeauthoryear{Chiang, Rennie, Robinson, Van~Albada, and
   Kerr}{Chiang et~al.}{2011}]{Chiang2011}
 Chiang, A., Rennie, C., Robinson, P., Van~Albada, S., and Kerr, C. (2011).
@@ -295,6 +309,13 @@ Vald{\'e}s-Hern{\'a}ndez, P.~A., Ojeda-Gonz{\'a}lez, A., Mart{\'\i}nez-Montes,
 \newblock White matter architecture rather than cortical surface area
   correlates with the eeg alpha rhythm.
 \newblock {\em Neuroimage} {\bf 49,} 2328--2339.
+
+\bibitem[\protect\citeauthoryear{Van~Cauter, Leproult, and Plat}{Van~Cauter
+  et~al.}{2000}]{Van2000}
+Van~Cauter, E., Leproult, R., and Plat, L. (2000).
+\newblock Age-related changes in slow wave sleep and rem sleep and relationship
+  with growth hormone and cortisol levels in healthy men.
+\newblock {\em Jama} {\bf 284,} 861--868.
 
 \bibitem[\protect\citeauthoryear{Walker}{Walker}{2009}]{Walker2009}
 Walker, M.~P. (2009).

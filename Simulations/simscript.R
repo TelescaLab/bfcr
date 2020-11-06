@@ -2,10 +2,11 @@ library(tidyverse)
 library(mgcv)
 library(pracma)
 library(BayesianConditionalFPCA)
+library(future.apply)
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
                     "Simulations/simparam.RData")
 load(file_name)
-n <- 400
+n <- 100
 k <- simparam$k
 times <- simparam$times
 beta <- simparam$beta
@@ -45,6 +46,9 @@ compute_metrics <- function(this_seed) {
       evaluate_basis_var <- function(x_basis, x) {
         c(1, PredictMat(x_basis, data.frame(x)))
       }
+      evaluate_basis_var_truth <- function(x_basis, x) {
+        c(1, PredictMat(x_basis, data.frame(x)))
+      }
       penalties_var <- list(time_penalty, S[[1]], S[[2]])
       indices_var <- c(1, 2, 2)
       str_file <- "ca"
@@ -58,6 +62,9 @@ compute_metrics <- function(this_seed) {
         evaluate_basis_var <- function(x_basis, x) {
           c(1)
         }
+        evaluate_basis_var_truth <- function(x_basis, x) {
+          c(1, PredictMat(x_basis, data.frame(x)))
+        }        
         penalties_var <- list(time_penalty)
         indices_var <- c(1)
         str_file <- "base"
@@ -71,6 +78,9 @@ compute_metrics <- function(this_seed) {
         evaluate_basis_var <- function(x_basis, x) {
           c(1, PredictMat(x_basis, data.frame(x)))
         }
+        evaluate_basis_var_truth <- function(x_basis, x) {
+          c(1)
+        }        
         penalties_var <- list(time_penalty, S[[1]], S[[2]])
         indices_var <- c(1, 2, 2)
         str_file <- "nocov"
@@ -83,6 +93,9 @@ compute_metrics <- function(this_seed) {
       evaluate_basis_var <- function(x_basis, x) {
         c(1)
       }
+      evaluate_basis_var_truth <- function(x_basis, x) {
+        c(1)
+      }        
       penalties_var <- list(time_penalty)
       indices_var <- c(1)
       str_file <- "nocovbase"
@@ -96,7 +109,6 @@ compute_metrics <- function(this_seed) {
     }
     Y_errors <- Y + rnorm(n * length(times), sd = .20) %>% matrix(n, length(times))
     mcmc_results <- run_mcmc(Y_errors, design_mean, design_var, time_basis_fit[[1]]$X, times, penalties_mean, penalties_var, indices_mean, indices_var, k_fit, 10000, 5000, 5, "pooled")
-    
     subject_bands <- get_posterior_subject_bands(mcmc_results)
     subject_bands <- subject_bands %>% mutate(truth = c(t(Y))) %>%
       mutate(in_bounds = (lower < truth) & (upper & truth))
@@ -162,7 +174,7 @@ compute_metrics <- function(this_seed) {
       covariance_tibble$col_num[start:end] <- rep(1:length(times), length(times))
       temp_truth <- numeric(length(times) * length(times))
       for (kp in 1:k) {
-        temp_truth <- temp_truth + c(tcrossprod(time_basis[[1]]$X %*% lambda[,,kp] %*% evaluate_basis(x_basis[[1]], evaluated_points[i])))
+        temp_truth <- temp_truth + c(tcrossprod(time_basis[[1]]$X %*% lambda_truth[,,kp] %*% evaluate_basis_var_truth(x_basis[[1]], evaluated_points[i])))
       }
       covariance_tibble$truth[start:end] <- temp_truth
       covariance_tibble$x[start:end] <- rep(evaluated_points[i],
@@ -196,9 +208,8 @@ compute_metrics <- function(this_seed) {
     save(metrics, file = file_name)
   }
 }
-
-seeds <- 1:300
-lapply(seeds, function(this_seed) compute_metrics(this_seed))  
-
-
-
+plan(multiprocess)
+already_ran <- dir("/Users/johnshamshoian/Documents/R_projects/bfcr/Simulations/Metrics")
+to_run <- which(!paste0("n100_nocovbase_seed", 1:300, ".RData") %in% already_ran)
+seeds <- to_run
+future_lapply(seeds, function(this_seed) compute_metrics(this_seed))  

@@ -36,12 +36,12 @@
 //' @return A List containing 3 lists including data, control, and samples.
 // [[Rcpp::export]]
 Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean,
-               arma::mat design_var, arma::mat basis, arma::vec time,
-               arma::field<arma::mat> penalties_mean,
-               arma::field<arma::mat> penalties_var,
-               arma::uvec indices_mean, arma::uvec indices_var,
-               arma::uword kdim, arma::uword iter, arma::uword burnin,
-               arma::uword thin=1, std::string var="unequal") {
+                    arma::mat design_var, arma::mat basis, arma::vec time,
+                    arma::field<arma::mat> penalties_mean,
+                    arma::field<arma::mat> penalties_var,
+                    arma::uvec indices_mean, arma::uvec indices_var,
+                    arma::uword kdim, arma::uword iter, arma::uword burnin,
+                    arma::uword thin=1, std::string var="unequal") {
   Data dat(response, design_mean,
            design_var, basis, time,
            penalties_mean, penalties_var,

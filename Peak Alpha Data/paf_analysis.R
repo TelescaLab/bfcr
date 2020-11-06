@@ -155,7 +155,10 @@ mean_tibble %>%
   labs(x = expression(omega), y = expression(paste(mu,"(", omega, ", ", x, ")"))) +
   scale_linetype_manual(values = c(1,4), name = "Group", labels = c("TD", "ASD")) +
   scale_fill_manual(values = c("black", "black")) + 
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(vjust = 3))    +
+  theme(axis.title.y = element_text(margin = margin(r = 10, b = 0, l = 0)))
+
 
 N <- 20
 lower_age <- quantile(age_grid, .1)

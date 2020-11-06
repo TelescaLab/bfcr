@@ -4,8 +4,11 @@
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{bbm}
 \DeclareMathOperator{\E}{\mathbb{E}}
 \newcommand{\vect}{\text{vec}}
+
 \title[This is an Example of Recto Running Head]{Bayesian Functional Covariance Regression}
 
 %  Here are examples of different configurations of author/affiliation
@@ -110,7 +113,7 @@ where $\beta = \big(\beta_{1}\,|\cdots|\,\beta_{R}\big)$ and $\bmath{\tilde{X}}(
 \begin{gather}\psi_{j}(t,\bmath{x}) = \sum_{r=1}^{R}l_{jr}(t,\bmath{x}_{r})\label{eq:psi_additivity}
 \end{gather} where $l_{jr}$ are smooth effects in terms of $\bmath{x}_{r}$ for the $j$th conditional latent function basis function. Similar to $f_{r}(t,\bmath{x}_{r})$ and $\mu(t, \bmath{x})$, $l_{jr}(t, \bmath{x}_{r})$ and $\psi_{j}(t, \bmath{x})$ can also be written as products of matrices and vectors:
 \begin{align*}
-l_{jr}(t, x_{r}) &= \bmath{b}(t)^{\top}\Lambda_{jr}{r} \,\bmath{b}^{r}(\bmath{x}_{r})\\
+l_{jr}(t, x_{r}) &= \bmath{b}(t)^{\top}\Lambda_{jr} \,\bmath{b}^{r}(\bmath{x}_{r})\\
 \psi_{j}(t, \bmath{x}) &= \bmath{b}(t)^{\top}\,\Lambda_{j}\, \bmath{\tilde{X}}(\bmath{x})
 \end{align*} where $\Lambda_{jr}$ is a $p\times p_{r}$ loading matrix and  $\Lambda_{j} = \big(\Lambda_{j1}\,|\cdots|\,\Lambda_{jR}\big)$. The additivity on $\psi_{j}(t, \bmath{x})$ implies that the covariance function \ref{eq:covariance_form} is 
 \begin{gather*}
@@ -134,7 +137,7 @@ In this section we place priors on all unknown quantities of interest. We begin 
 \end{gather*} 
 where $\tau_{1xr}, \tau_{1tr}$ are smoothing parameters. If $p_{r} = 1$ then $\beta_{r}$ is a $p\times 1$ vector and $\tilde{K}_{r} = 0$. In this case the prior simplifies to 
 \begin{align*}
-\beta_{r} \,|\tau_{1tr}\sim \exp\{-0.5\tau_{1tr}\beta_{r}^{\top}\tilde{K}\beta_{r}\}
+\beta_{r} \,|\tau_{1tr}\sim \exp\{-0.5\tau_{1tr}\beta_{r}^{\top}K\beta_{r}\}
 \end{align*}
 This prior is improper but provided that proper priors are set for $\tau_{1tr}, \tau_{1xr}$, the posterior of $\beta_{r}$ will be proper \citep{Lang2004}. Priors for $\psi_{j}(t, \bmath{x})$. However, $\psi_{j}(t,\bmath{x})$ for larger $j$ should also contribute less to the fit than earlier terms. Therefore the prior for $\psi_{j}(t,\bmath{x})$ should encourage smoothing and shrinkage aspects. Let $\Lambda_{rj}$ be the analogous component to $\beta_{r}$. Re-using the same penalty matrices as above, the prior for $\Lambda_{rj}$ is 
 \begin{gather*}
@@ -151,33 +154,74 @@ similar to the case when $\beta_{rj}$ is a column vector. In summary, these prio
 \tau_{2jxr}, \tau_{2jtr} \sim \text{Gamma}(a_{\tau}, b_{\tau})
 \end{gather*}
 where we use the `rate' parameterization of the Gamma distribution (i.e., if $x \sim Gamma(a, b)$, then $\E[x] = a/b$). In addition we use ideas from the Gamma Multiplicative Process Prior (GMPP) \citep{Bhattacharya2011, Montagna2012} to assign priors to $\tau^{*}_{rj}$ and $\phi_{rj}$. The prior for $\tau^{*}_{rj}$ is
-\begin{align*}
-\tau^{*}_{rj} &= \prod_{l=1}^{r}\delta_{lr}\\
-\delta_{r1} &\sim \text{Gamma}(a_{r0}, 1)\\
- \delta_{rl} &\sim \text{Gamma}(a_{r1}, 1),\,\, l > 1\\
- a_{r0}, a_{r1} &\sim \text{Gamma}(2,1)
-\end{align*}
+\begin{align}
+\label{eq:shrink1}\tau^{*}_{rj} &= \prod_{l=1}^{r}\delta_{lr}\\
+\label{eq:shrink2}\delta_{r1} &\sim \text{Gamma}(a_{r0}, 1)\\
+\label{eq:shrink3}\delta_{rl} &\sim \text{Gamma}(a_{r1}, 1),\,\, l > 1\\
+\label{eq:shrink4}a_{r0}, a_{r1} &\sim \text{Gamma}(2,1)
+\end{align}
 so that the $\tau_{rj}$ are stochastically increasing in $j$. This shrinkage is data-adaptive so that later entries of $\Lambda_{rj}$ may or may not be shrunk toward zero depending on the model fit. In particular, specifying a conservative choice of $k$ (number of latent functional factors) should not change results too much compared to setting $k$ to some ``optimal'' choice. 
 
 \section{Simulations}
 \subsection{Markov-Chain Monte-Carlo and Posterior Distributions}
 \label{s:posteriors}
-Analytic posterior distributions are intractable, so we rely on Markov-Chain Monte-Carlo techniques to draw samples from all relevant posterior distributions. Since all full conditionals of blocks of parameters are available in closed form, a simple Gibbs sampler updates each parameter block sequentially. See Web Appendix A for all block parameter updating steps.
+\iffalse Analytic posterior distributions are intractable, so we rely on Markov-Chain Monte-Carlo techniques to draw samples from all relevant posterior distributions. Since all full conditionals of blocks of parameters are available in closed form, a simple Gibbs sampler updates each parameter block sequentially. See Web Appendix A for all block parameter updating steps.
 
-When the target of inference is a function $f$, as opposed to a single point, we adopt methodology from \citet{Crainiceanu2007} to form simultaneous credible bands. Suppose the domain of $f$ is $[t_{1}, t_{N}]$ and let $t_{1} < \ldots < t_{N}$ be a fine grid of points on this interval. Let $\mathbb{E}\{f(t_{j})\}$ and $\text{SD}\{f(t_{j})\}$ be the pointwise posterior mean and standard deviation of $f(t_{j})$ respectively. Let $\alpha^{*}$ be the $(1-\alpha)$ sample quantile of $\max_{1\leq j \leq N} |f(t_{j}) - \mathbb{E}\{f(t_{j})\}|/\text{SD}\{f(t_{j})\}$. Then $\mathbb{E}\{f(t_{j})\} \pm \alpha^{*} \text{SD}\{f(t_{j})\}, 1\leq j\leq N$ constitute $(1-\alpha)$ simultaneous credible intervals. This simultaneous credible band will be used to evaluate uncertainty in the mean and aspects of the covariance in Section~\ref{s:data}.
+%When the target of inference is a function $f$, as opposed to a single point, we adopt methodology from \citet{Crainiceanu2007} to form simultaneous credible bands. Suppose the domain of $f$ is $[t_{1}, t_{N}]$ and let $t_{1} < \ldots < t_{N}$ be a fine grid of points on this interval. Let $\mathbb{E}\{f(t_{j})\}$ and $\text{SD}\{f(t_{j})\}$ be the pointwise posterior mean and standard deviation of $f(t_{j})$ respectively. Let $\alpha^{*}$ be the $(1-\alpha)$ sample quantile of $\max_{1\leq j \leq N} |f(t_{j}) - \mathbb{E}\{f(t_{j})\}|/\text{SD}\{f(t_{j})\}$. Then $\mathbb{E}\{f(t_{j})\} \pm \alpha^{*} \text{SD}\{f(t_{j})\}, 1\leq j\leq N$ constitute $(1-\alpha)$ simultaneous credible intervals. This simultaneous credible band will be used to evaluate uncertainty in the mean and aspects of the covariance in Section~\ref{s:data}.
+
+\fi 
+We assess the performance of the proposed method in terms of mean, covariance, and latent response point estimation and coverage. We generate data under two scenarios. The first scenario has heteroscedasticity depending on a covariate $x$ scaled within the unit interval, and the second scenario imposes no such relationship between heteroscedasticity and covariates. Both scenarios include a covariate-dependent mean surface. We fit data generated in both scenarios by (1) the proposed method, adjusting for covariate-dependent heteroscedasticity and (2) foregoing this adjustment and assuming the covariate only impacts the mean structure. We generate data in both scenarios by simulating from the model. We generate 300 datasets per scenario and true model parameters are kept fixed over each dataset. We include two sample sizes $N=100$ and $N=400$ to numerically verify mean and covariance point estimation convergence. 
+
+We begin by using a p-spline of dimension 10 to expand the functional arguement $t$ and a p-spline of dimension 5 (not including an intercept) to expand the covariate argument $x$. According to notation from section \ref{s:model}, $\bmath{b}(t) = (b_{1}(t), \ldots, b_{10}(t))^{\top}$, $\bmath{b}^{2}(x) = (b_{1}^{2}(t),\ldots,b_{5}^{2}(t))^{\top}$,  and $\mu(t, x) = f_{1}(t) + f_{2}(t, x) = \bmath{b}(t)\,\beta_{1} + \bmath{b}(t)\,\beta_{2}\,\bmath{b}^{2}(x)$. The model parameters $\beta_{1}$ and $\vect(\beta_{2})$ have prior mean zero and precision $\Omega_{1} + \epsilon\cdot I_{10\times10}$ and $\Omega_{2} + \epsilon\cdot I_{50\times50}$ respectively. The nugget term $\epsilon\cdot I$ is used to simulate from a full-rank multivariate normal and in our experiments we set $\epsilon = .1$. To ensure smoothness of the resulting response functions $y_{i}(t)$, we set $\Omega_{1} = \tau_{1t1}K$ and $\Omega_{2} = \tau_{1x2}(K_{2}\otimes I_{10\times 10}) + \tau_{1t2}(I_{6\times 6}\otimes K)$, where $K$ and $K_{2}$ are second order discrete penalty matrices associated with p-splines. We use $k = 4$ latent functional factors for the random component $r_{i}(t, x)$, so $r_{i}(t, x) = \sum_{j=1}^{4}\psi_{j}(t, x)$. Under data-generating scenario 1, we set $\psi_{j}(t, x) = l_{j1}(t) + l_{j2}(t, x)$. Under data-generating scenario 2, we set $\psi_{j}(t, x) = l_{j1}(t)$. Expanding out the terms, $l_{j1}(t) = \bmath{b}(t)^{\top}\,\Lambda_{j1}$ and $l_{j2}(t, x) = \bmath{b}(t)\,\Lambda_{j2}\,\bmath{b}^{2}(x)$. The model parameters $\Lambda_{j1}$ and $\Lambda_{j2}$ prior mean zero and prior precision $\Gamma_{j1}$ and $\Gamma_{j2}$ respectively. We set $\Gamma_{j1} = \tau_{2t1}K + \tau^{*}_{1j}$ and $\Gamma_{j2} = \tau_{2x2}(K_{2}\otimes I_{10\times 10}) + \tau_{2t2}(I_{6\times 6}\otimes K) + \tau_{2j}^{*}$. Smoothing and shrinkage parameters are  $\tau_{1t1} = \tau_{1t2} = \tau_{2t1} = \tau_{2t2} = 10$, $\tau_{1x2} = \tau_{2x2} = 100$, $\tau^{*}_{1j} = 2^{j}$, and $\tau^{*}_{2j} = 4^{j}$. Measurement error is $\varphi^{2} = .20^{2}$ and functional data $y_{i}(t)$ is generated according to equation \ref{eq:model}. The functional argument $t$ is evaluated at 100 equally spaced locations within the unit interval and $x_{i}$ is equal to $(i - 1) / (N-1)$. 
+
+It will be convenient to divide data-generating scenarios and fitting procedures into four separate cases. Case 1 has data generated from scenario 1, fit with a model that adjusts for heteroscedasticity due to the covariate. Case 2 has data generated from scenario 2, fit with a model that does not adjust for heteroscedasticity due to the covariate. Case 3 has data generated from scenario 2, fit with a model that adjusts for heteroscedasticity due to the covariate. Case 4 has data generated from scenario 2, fit with a model that does not adjust for heteroscedasticity due to the covariate. We fit each dataset with with $k = 6$ latent functional factors and expand the functional argument into a p-spline basis of dimension 10. We expand the covariate argument into a p-spline basis of dimension 7. In doing so, we simply enlarge the model space and test its ability to regularize unnecessary latent dimensions and basis expansions. We place uniform priors on all smoothing parameters, We fit each model with 50,000 samples, discarding 25,000 as burn-in and keeping every 5th observation to save computer memory. We keep track of averaged coverage, average credible interval width, and relative integrated squared error (RISE). The coverage performance assess a model's calibration and goodness of fit, whereas RISE assesses a model's performance in terms of point estimation. Let $t_{1}, \ldots, t_{100}$ be 100 uniformly placed points along the domain of the functional argument and let $x_{1},\ldots,x_{N}$ be $N$ uniformly points along the domain of the covariate argument. Then the average coverage of $\mu(t, x)$ is $\frac{1}{N\times 100}\sum_{i=1}^{N}\sum_{m=1}^{100}\mathbbm{1}(\mu(t_{m}, x_{i}) \in \widehat{I}_{mi})$
 
 \section{Operative Characteristics}
 \label{s:simulation}
 
-Please see the file \texttt{biomsample.tex} for fancy examples of making
-tables.  Here is a very simple one.  Use \texttt{table} for tables
-that are narrow enough to fit in one column of the typeset journl; use
-\texttt{table*} for tables that need to span two columns.  For
-figures, use of \texttt{figure} and \texttt{figure*} is analogous. 
 
-
+\begin{table}
+	\caption{This is a simple table.}
+	\label{t:one}
+	\begin{center}
+		\begin{tabular}{lllccc}
+			\Hline
+			 & &Case & Coverage&  Error &  Interval width\\ \hline
+			\multirow{12}{*}{$N=100$} & \multirow{4}{*}{$\mu(t,x)$}  & 1 &  .98&  .84& .30 \\
+			&& 2 & .98& .91& .32 \\
+			&& 3 & .98& .78& .30\\
+			&& 4 & .98& .79& .30\\
+			\cline{2-6}
+			&\multirow{4}{*}{$c(t,t',x)$} & 1 & .89& 7.00& .14\\
+			&& 2 &.72&9.76&.11\\
+			&& 3 &.98&4.31&.13\\
+			&& 4 &.97&3.29&.11\\
+			\cline{2-6}
+			&\multirow{4}{*}{$y_{i}(t)$} & 1 & .97& .25& .17\\
+			&& 2 &.97&.29&.19\\
+			&& 3 &.98&.21&.17\\
+			&& 4 &.98&.20&.16\\
+			\hline
+			\multirow{12}{*}{$N=400$} & \multirow{4}{*}{$\mu(t,x)$}  & 1 &.99 & .19& .18 \\
+			&& 2 & .98& .21& .19 \\
+			&& 3 &.99 & .18& .18 \\
+			&& 4 &.98 & .18& .18\\
+			\cline{2-6}
+			&\multirow{4}{*}{$c(t,t',x)$} & 1 & .88 & 3.10& .09\\
+			&& 2 & .46&7.23&.06\\
+			&& 3 &.98&1.01&.06\\
+			&& 4 &.97&.84&.05\\
+			\cline{2-6}
+			&\multirow{4}{*}{$y_{i}(t)$} & 1 &.97 & .13 &.16 \\
+			&& 2 &.97&.18&.18\\
+			&& 3 &.98&.12&.16\\
+			&& 4 &.98&.12&.16\\
+		\end{tabular}
+	\end{center}
+\end{table}
 
 \section{Case Studies}
+\label{s:data}
 \subsection{Application to ASD study}
 Peak alpha frequency (PAF), the frequency at which oscillations in the alpha range demonstrate maximal power, shows well-characterised increases with chronological age during childhood in typically developing children \citep{Somsen1997, Dustman1999, Stroganova1999, Chiang2011, Cragg2011, Miskovic2015}. PAF has been shown to index neural development in TD children \citep{Valdes2010, Segalowitz2010, Rodriguez2017}. However, a recent study by \citet{Dickinson2017} found that children with ASD did not show the typical increase in PAF with age. In the present study, we investigate the relationship between diagnostic status, age, and alpha spectral density. Treating alpha spectral density as a functional response avoids complicated PAF identification procedures \citet{Dickinson2017} and retains more information as opposed to collapsing the entire alpha spectral band to a single point \citep{Scheffler2019, Scheffler2020}. In this study we wish to characterize functional mean and covariance dependence of alpha spectral density in terms of age and diagnostic status. 
 
@@ -185,17 +229,26 @@ In the \citet{Dickinson2017} study, resting-state EEG was collected on 39 TD chi
 
 We treat normalized alpha spectral density from the T8 region as the functional response and adjust the mean and covariance functions by diagnostic status, age, and a diagnostic status by age interaction. This interaction is scientifically motivated because as previously mentioned, PAF increases with age for TD children but not so for children with ASD. For the frequency dimension, we use a p-spline basis with 12 degrees of freedom using a second order differencing penalty. We expand age via p-splines with 6 degrees of freedom, again with a second order difference penalty. We run a markov chain monte carlo algorithm for 200,000 iterations. To save on memory purposes, we only save every 20 iterations. Of the leftover 10,000 iterations, we discard the first 5,000 as burn-in and keep the subsequent 5,000 for inference.  
 
+Figure \ref{fig:asd_means} plots normalized alpha spectral density over several ages of child and diagnostic group with associated 95\% point-wise credible bands. The means curves drift apart as the cross-sectional age increases, which supports the notion that differences in alpha spectral band dynamics between ASD and TD children at similar ages can successfully predict diagnostic status \cite{Scheffler2019}. 
+
+Furthermore, we explore age and group adjusted patterns of variability. Figure \ref{fig:asd_eigen1} displays the leading age and group adjusted eigenfunction. The general shape for a particular age is a unimodal curve peaked around 8-10 Hz. Notice that the peak of this curve tends to shift from lower to higher frequencies as age increases for the TD group, whereas the peak frequency is relatively constant over age for the ASD group. This finding was previously discovered by \cite{Scheffler2020} who estimate covariate-adjusted eigenfunctions in a similar to the proposed method but also account for the regional dimension. On the other hand, posterior summaries $g(t, \mathbf{x})$ in Figure \ref{fig:asd_g} indicate that most variability is due to group as opposed age.
+
 \begin{figure}
 	\centering
-	\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means.png}
+	\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means.pdf}
+	\label{fig:asd_means}
+	\caption{Posterior mean alpha spectral power for ASD and TD groups at age 50, 70, 90, and 110 months.}
 \end{figure}
 \begin{figure}
 	\centering
 	\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/eigen1.png}
+	\label{fig:asd_eigen1}
+	\caption{Posterior mean of first leading covariate-adjusted eigensurfaces.}
 \end{figure}
 \begin{figure}
 	\centering
 	\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/covariate_effects_parsed.pdf}
+	\label{fig:asd_g}
 \end{figure}
 
 \subsection{Application to Sleep Heart Health Study}
@@ -203,15 +256,20 @@ The Sleep Heart Health Study (SHHS) was a prospective cohort study designed to i
 
 The American Academy of Sleep recognizes four sleep stages: stage N1 (light sleep), stage N2 (relaxation), stage N3 (slow-wave sleep), and stage R (rapid-eye movement). Importantly, N3 sleep, or slow-wave sleep (SWS) consists of high amplitude ($\geq$ 75 $\mu$V) and low-frequency  $(0.5-4.0)$ delta waves. SWS is considered to be most restorative sleep stage and to be associated with sleep quality, sleep maintenance, and functions toward memory consolidation \citep{Bonnet1987, Akerstedt1997, Walker2009}. \citet{Mander2017} reports that advancing into the fifth decade of age comes with (1) reduced SWS time and (2) increased time spent in lighter sleep stages (N1, N2). In addition, \citet{Javaheri2018} reports that lower levels of percent SWS sleep are associated with increased odds of incident hypertension in both men and women, independent of confounders such as sleep apnea, age, and sex. Most clinical studies (including the papers referenced above) quantify sleep by classifying time-varying electrical phenoma into discrete sleep stages. Subsequently, amount of SWS is represented by a single number, which is commonly percentage of sleep time in stage N3. However, this approach comes with several limitations \citep{Crainiceanu2009} including low intraclass correlation coefficient, no biological basis, and loss of temporal information. In this paper follow \citet{Crainiceanu2009, Di2009} and use power spectral density analysis to quantify sleep EEG. Our present goal is to characterize age-related changes in sleep between hypertension and non-hypertension groups. 
 
-We use the discrete fast Fourier transform to analyze the sleep EEG data in the frequency domain. The entire night of sleep is broken into 30-second adjacent sleep epochs to account for temporal effects. These 30-second windows are processed using Welch's method of 50\% overlapping windows (4 second windows with 2 seconds overlap), where the intervals are windowed using a tapered Tukey window. The epoch-level power spectral density estimate is the average of the windowed power spectra. We use a band-pass filter to attenuate signals less than .3 Hz and greater than 35 Hz with a .5 Hz transition width. We mask epochs where artifacts detected using the method described in \citet{Buckelmuller2006}. We also mask epochs that are statistical outliers using (2, 2) Hjorth parameters \citet{Hjorth1970}. We compute delta spectral power by summing power spectra from 0.5 Hz to 4.0 Hz in .25 Hz increments on an epoch-by-epoch basis. To facilitate comparisons across participants, we compute epoch-level relative delta power spectral density by dividing this power density by a summation of spectral density from .5 Hz to 35 Hz in .25 Hz increments. All filtering and power spectral density computations were performed in Luna \citep{Shaun2020}, which is an open-source software package for manipulating and analyzing polysomnographic readings.
+We use the discrete fast Fourier transform to analyze the sleep EEG data in the frequency domain. The entire night of sleep is broken into 30-second adjacent sleep epochs to account for temporal effects. These 30-second windows are processed using Welch's method of 50\% overlapping windows (4 second windows with 2 seconds overlap), where the intervals are windowed using a tapered Tukey window. The epoch-level power spectral density estimate is the average of the windowed power spectra. We use a band-pass filter to attenuate signals less than .3 Hz and greater than 35 Hz with a .5 Hz transition width. We mask epochs where artifacts detected using the method described in \citet{Buckelmuller2006}. We also mask epochs that are statistical outliers using (2, 2) Hjorth parameters \citet{Hjorth1970}. We compute delta spectral power by summing power spectra from 0.5 Hz to 4.0 Hz in .25 Hz increments on an epoch-by-epoch basis. To facilitate comparisons across participants, we compute epoch-level relative delta power spectral density (RDPSD) by dividing this power density by a summation of spectral density from .5 Hz to 35 Hz in .25 Hz increments. All filtering and power spectral density computations were performed in Luna \citep{Shaun2020}, which is an open-source software package for manipulating and analyzing polysomnographic readings.
 
-We restrict our attention to EEG data collected on the first visit. We also filter participants to only include those who scored at least four hours of artifact-free signal. We analyze the first two hours of sleep, resulting in a dense grid of length 240 epochs for each participant. The 10th and 90th percentiles of age are 47 and 77 years-old, respectively. There are 2177 participants with hypertension and 3081 participants without hypertension.
-% eeg details, question setup, mcmc control, spline setup
+We restrict our attention to EEG data collected on the first visit. We also filter participants to only include those who scored at least four hours of artifact-free signal. We analyze the first two hours of sleep, resulting in a dense grid of length 240 epochs for each participant. The 10th and 90th percentiles of age are 47 and 77 years-old, respectively. There are 2177 participants with hypertension and 3081 participants without hypertension. We use a p-spline of dimension 24 for the marginal basis for epoch and a p-spline of dimension 8 for the marginal basis for age. Each basis is associated with a second order differencing penalty matrix. We also include a hypertension dummy variable and a hypertension-age interaction. Exploratory analysis from \citet{Castro1986, fdapace} shows 9 principal components are needed to explain 99\% of variability (unadjusted for age and hypertension group). We fit our model with $k = 12$ latent factors since unneeded latent factors will be set close to zero due to the prior shrinkage process in equations \ref{eq:shrink1}-\ref{eq:shrink4}. We ran the MCMC algorithm described in the supplement for 200,000 iterations with a burn-in of 100,000, saving every 20th iteration for memory requirements.   
+
+Figure \ref{fig:sleep_mean} displays mean RDPSD with associated 95\% point-wise credible intervals for ages 50, 60, 70, and years old for both hyertension and non-hypertension groups. Relative power spectral density decreases in N3 (around epoch 60) with age for both groups. The seemingly little decrease of SWS from midlife to late life is supported by \cite{Van2000}, who found that percent SWS predominantly decreases from early adulthood to midlife, with no further decrease into late life. Their study included 149 healthy men aged 16 to 83 years. Our methods support their finding after considering a much richer metric than percent SWS in the context of a much larger observational study. There is considerable overlap in the credible intervals between the hypertension and non-hypertension RDPSD, which does not support the hypothesis that hypertension is associated with increased levels of RDPSD. 
+
 
 \begin{figure}
 	\centering
 	\includegraphics[width=1\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf}
+	\label{fig:sleep_mean}
 \end{figure}
+We conducted an eigen-analysis on the model-based covariance surfaces. The estimated leading eigenfunction for a 50 year old with no hypertension accounts for 31\% of total variability and is positive over the entire epoch grid, suggesting that this component represents an overall RDPSD size construct. This eigenfunction, nor subsequent eigenfunctions vary much over age or group. The intercept effect is of $g(t, \bmath{x}_{r})$ is very large compared to age, group, and interaction effects, which means that between-subject heteroscedasticity does not depend much on these covariates. RDPSD is a heteroscedastic-stable metric when accounting for age and hypertension.
+
 \begin{figure}
 	\centering
 	\includegraphics[width = .8\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png}
@@ -220,8 +278,6 @@ We restrict our attention to EEG data collected on the first visit. We also filt
 	\centering
 	\includegraphics[width = .6\textwidth]{/Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_effects_parsed.pdf}
 \end{figure}
- Of interest is the C3/A2 EEG channel sampled at 125 Hz. Sleep scoring is usually a visually-based counting process, where every 30-second epoch of sleep is assigned a discrete stage
-\label{s:data}
 
 \section{Discussion}
 \label{s:discussion}

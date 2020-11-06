@@ -126,7 +126,9 @@ mean_tibble %>%
   labs(x = "30 second epoch", y = expression(paste(mu,"(t, x)"))) +
   scale_linetype_manual(values = c(1,4), name = "Group", labels = c("No hypertension", "Hypertension")) +
   scale_fill_manual(values = c("black", "black")) +
-  theme_bw()
+  theme_bw() +
+  theme(axis.text.x = element_text(vjust = 3))    +
+  theme(axis.title.y = element_text(margin = margin(r = 10, b = 0, l = 0)))
 
 N <- 20
 lower_age <- quantile(covariate_grid$age_s1, .1)
@@ -169,11 +171,11 @@ eigen_surface_yes <- matrix(0, N, num_epochs)
 for (i in 1:N) {
   print(i)
   zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 0)
-  eigen_bands <- get_posterior_eigen(mcmc_results, 3, zi)
-  eigen_surface_no[i,] <- eigen_bands$eigenfunctions  %>% filter(number == 3) %>% select(mean) %>% pull()
+  eigen_bands <- get_posterior_eigen(mcmc_results, 1, zi)
+  eigen_surface_no[i,] <- eigen_bands$eigenfunctions  %>% filter(number == 1) %>% select(mean) %>% pull()
   zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 1)
-  eigen_bands <- get_posterior_eigen(mcmc_results, 3, zi)
-  eigen_surface_yes[i,] <- eigen_bands$eigenfunctions %>% filter(number == 3) %>% select(mean) %>% pull()
+  eigen_bands <- get_posterior_eigen(mcmc_results, 1, zi)
+  eigen_surface_yes[i,] <- eigen_bands$eigenfunctions %>% filter(number == 1) %>% select(mean) %>% pull()
   if (eigen_surface_no[i, 150] < 0) {
     eigen_surface_no[i,] <- -1 * eigen_surface_no[i,]
   }
