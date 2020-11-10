@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  5 NOV 2020 12:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.21 (TeX Live 2020) (preloaded format=pdflatex 2020.4.7)  10 NOV 2020 13:48
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -364,11 +364,6 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [8]
-LaTeX Font Info:    Trying to load font information for U+bbm on input line 177
-.
- (/usr/local/texlive/2020/texmf-dist/tex/latex/bbm-macros/ubbm.fd
-File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
-)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -377,9 +372,31 @@ Overfull \hbox (4.62497pt too wide) has occurred while \output is active
  []
 
 [9]
+LaTeX Font Info:    Trying to load font information for U+bbm on input line 179
+.
+ (/usr/local/texlive/2020/texmf-dist/tex/latex/bbm-macros/ubbm.fd
+File: ubbm.fd 1999/03/15 V 1.2 Font definition for bbm font - TH
+)
+Overfull \hbox (59.8391pt too wide) in paragraph at lines 179--180
+[] [][] [][] \U/bbm/m/n/12 1\OMS/cmsy/m/n/12 f\OML/cmm/m/it/12 ^^V\OT1/cmr/m/n/
+12 (\OML/cmm/m/it/12 t[]; x[]\OT1/cmr/m/n/12 ) \OMS/cmsy/m/n/12 2 []g$\OT1/cmr/
+m/n/12 , the cov-er-age of $\OML/cmm/m/it/12 c\OT1/cmr/m/n/12 (\OML/cmm/m/it/12
+ t; t[]; x\OT1/cmr/m/n/12 )$ is $[] [][] [][] [][] \U/bbm/m/n/12 1\OMS/cmsy/m/n
+/12 f\OML/cmm/m/it/12 c\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 t[]; t[]; x[]\OT1/cmr/
+m/n/12 ) \OMS/cmsy/m/n/12 2
+ []
+
+
+Overfull \hbox (14.44394pt too wide) in paragraph at lines 179--180
+\OML/cmm/m/it/12 ^^V\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 t; x\OT1/cmr/m/n/12 )$ is
+ $100 \OMS/cmsy/m/n/12 ^^A []$\OT1/cmr/m/n/12 , the RISE of $\OML/cmm/m/it/12 c
+\OT1/cmr/m/n/12 (\OML/cmm/m/it/12 t; t[]; x\OT1/cmr/m/n/12 )$ is $100 \OMS/cmsy
+/m/n/12 ^^A []$\OT1/cmr/m/n/12 ,
+ []
+
 \openout4 = `BFPCA.ttt'.
 
- (BFPCA.ttt)
+(BFPCA.ttt)
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 10
  []
@@ -393,9 +410,6 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
  []
 
 [11]
-\openout3 = `BFPCA.fff'.
-
- (BFPCA.fff)
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
@@ -404,9 +418,9 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
  []
 
 [12]
-Underfull \vbox (badness 10000) has occurred while \output is active []
+\openout3 = `BFPCA.fff'.
 
-
+ (BFPCA.fff)
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 13
  []
@@ -420,7 +434,7 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
  []
 
 [14]
-Underfull \vbox (badness 3118) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
@@ -465,13 +479,21 @@ Overfull \hbox (9.24994pt too wide) has occurred while \output is active
  []
 
 [20]) AED endfloat: Processing end Figures and Tables
+Underfull \vbox (badness 2142) has occurred while \output is active []
+
+
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 21
  []
 
-[21] (./BFPCA.fff
+[21]
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 22
+ []
+
+[22] (./BFPCA.fff
 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/means
-.pdf, id=99, 722.7pt x 216.81pt>
+.pdf, id=103, 722.7pt x 216.81pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
 means.pdf Graphic file (type pdf)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/m
@@ -481,13 +503,13 @@ lpha Data/Graphics/means.pdf  used on input line 3.
 (pdftex.def)             Requested size: 469.75499pt x 140.92813pt.
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 22
+\OT1/cmr/m/n/9 23
  []
 
-[22 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/m
+[23 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/m
 eans.pdf>]
 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/eigen
-1.png, id=112, 708.6475pt x 250.9375pt>
+1.png, id=116, 708.6475pt x 250.9375pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
 eigen1.png Graphic file (type png)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/e
@@ -497,13 +519,13 @@ lpha Data/Graphics/eigen1.png  used on input line 11.
 (pdftex.def)             Requested size: 375.80542pt x 133.07664pt.
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 23
+\OT1/cmr/m/n/9 24
  []
 
-[23 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/e
+[24 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/e
 igen1.png>]
 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/covar
-iate_effects_parsed.pdf, id=118, 397.485pt x 216.81pt>
+iate_effects_parsed.pdf, id=123, 397.485pt x 216.81pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/
 covariate_effects_parsed.pdf Graphic file (type pdf)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/c
@@ -513,13 +535,13 @@ lpha Data/Graphics/covariate_effects_parsed.pdf  used on input line 19.
 (pdftex.def)             Requested size: 281.85585pt x 153.7443pt.
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 24
+\OT1/cmr/m/n/9 25
  []
 
-[24 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/c
+[25 </Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Graphics/c
 ovariate_effects_parsed.pdf>]
 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf, id=1
-30, 794.97pt x 216.81pt>
+34, 794.97pt x 216.81pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf 
 Graphic file (type pdf)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf>
@@ -528,12 +550,12 @@ Graphics/means.pdf  used on input line 26.
 (pdftex.def)             Requested size: 469.75499pt x 128.11859pt.
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 25
+\OT1/cmr/m/n/9 26
  []
 
-[25 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf>]
+[26 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/means.pdf>]
 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png, id=
-143, 708.6475pt x 250.9375pt>
+147, 708.6475pt x 250.9375pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png
  Graphic file (type png)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png>
@@ -543,13 +565,13 @@ Graphics/eigen1.png  used on input line 33.
 (pdftex.def)             Requested size: 375.80542pt x 133.07664pt.
 
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 26
+\OT1/cmr/m/n/9 27
  []
 
-[26 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png>
+[27 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/eigen1.png>
 ]
 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_effec
-ts_parsed.pdf, id=148, 397.485pt x 216.81pt>
+ts_parsed.pdf, id=152, 397.485pt x 216.81pt>
 File: /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_
 effects_parsed.pdf Graphic file (type pdf)
 <use /Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_e
@@ -559,16 +581,16 @@ Graphics/covariate_effects_parsed.pdf  used on input line 39.
 (pdftex.def)             Requested size: 281.85585pt x 153.7443pt.
 )
 Overfull \hbox (9.24994pt too wide) has occurred while \output is active
-\OT1/cmr/m/n/9 27
- []
-
-[27 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_e
-ffects_parsed.pdf>] (./BFPCA.ttt)
-Overfull \hbox (9.24994pt too wide) has occurred while \output is active
 \OT1/cmr/m/n/9 28
  []
 
-[28] (./BFPCA.aux) ) 
+[28 </Users/johnshamshoian/Documents/R_projects/bfcr/sleep/Graphics/covariate_e
+ffects_parsed.pdf>] (./BFPCA.ttt)
+Overfull \hbox (9.24994pt too wide) has occurred while \output is active
+\OT1/cmr/m/n/9 29
+ []
+
+[29] (./BFPCA.aux) ) 
 Here is how much of TeX's memory you used:
  3724 strings out of 480608
  50992 string characters out of 5903631
@@ -586,30 +608,31 @@ type1/public/amsfonts/cm/cmbx7.pfb></usr/local/texlive/2020/texmf-dist/fonts/ty
 pe1/public/amsfonts/cm/cmbx9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmcsc10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type
 1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1
-/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/publ
-ic/amsfonts/cmextra/cmmib7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/publ
-ic/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmr9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cm
-ti10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
-i12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmti
-9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt12
-.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols/ms
-am10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbol
-s/msbm10.pfb>
-Output written on BFPCA.pdf (29 pages, 446067 bytes).
+/public/amsfonts/cmextra/cmex8.pfb></usr/local/texlive/2020/texmf-dist/fonts/ty
+pe1/public/amsfonts/cm/cmmi12.pfb></usr/local/texlive/2020/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmmi6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmmi8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmmib10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/p
+ublic/amsfonts/cmextra/cmmib7.pfb></usr/local/texlive/2020/texmf-dist/fonts/typ
+e1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmr6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmr7.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmr9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmsy10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmsy6.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/
+cm/cmsy8.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm
+/cmti10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/
+cmti12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/c
+mti9.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/cm/cmt
+t12.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/symbols
+/msam10.pfb></usr/local/texlive/2020/texmf-dist/fonts/type1/public/amsfonts/sym
+bols/msbm10.pfb>
+Output written on BFPCA.pdf (30 pages, 459014 bytes).
 PDF statistics:
- 251 PDF objects out of 1000 (max. 8388607)
- 178 compressed objects within 2 object streams
+ 258 PDF objects out of 1000 (max. 8388607)
+ 183 compressed objects within 2 object streams
  0 named destinations out of 1000 (max. 500000)
  31 words of extra memory for PDF output out of 10000 (max. 10000000)
 

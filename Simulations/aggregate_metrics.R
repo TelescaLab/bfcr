@@ -22,20 +22,21 @@ for (n in 1:2) {
 }
 
 round(apply(metrics_agg[,,,2], c(1,2), median), 2)
-
-ts_data <- read.csv("/Users/johnshamshoian/Documents/Lucid-Circuit/October/ts_all.csv", header = FALSE)
+ts_all <- NULL
+ts_data <- read.csv("/Users/johnshamshoian/Documents/Lucid-Circuit/November/ts_all.csv", header = FALSE)
 ts_data <- as.matrix(ts_data)
-plot(seq(from = 1, to = 60, length.out = 18000), ts_data[,9], type = "l")
-
+ts_all <- rbind(ts_all, ts_data)
+plot(ts_all[,1], type = "l")
+abline(v = 120)
 library(tidyverse)
-ts_data_tibble <- tibble(node = rep(1:4, each = 18000 * 3),
-                  channel = rep(rep(c("Power", "Compute", "Temperature"), each = 18000), 4),
+ts_data_tibble <- tibble(node = rep(1:2, each = 60 * 3),
+                  channel = rep(rep(c("Power", "Compute", "Temperature"), each = 60), 2),
                   Value = c(ts_data),
-                  time = rep(seq(from = 0, to = 300, length.out = 18000), 12))
+                  time = rep(seq(from = 0, to = 60, length.out = 60), 6))
 ts_data_tibble %>%
   ggplot() +
   geom_line(aes(time, Value)) +
-  facet_wrap(~channel + node, scales = "free") +
+  facet_grid(channel ~ node, scales = "free") +
   labs(x = "Time (seconds)", title = "Telemetry view from a single node") +
   theme_bw()
 
