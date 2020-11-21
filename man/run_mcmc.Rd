@@ -58,6 +58,6 @@ errors or "pooled" to estimate a pooled measurement error variance}
 A List containing 3 lists including data, control, and samples.
 }
 \description{
-Generate samples from the posterior distribution. This 
+Generate samples from the posterior distribution. This
 algorithm pre-dominantly uses Gibbs sampling
 }

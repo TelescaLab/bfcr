@@ -1,10 +1,10 @@
 \begin{table}
 \caption{This is a simple table.}
-\label{t:one}
+\label{t:simulation}
 \begin{center}
 \begin{tabular}{lllccc}
 \Hline
- & &Case & Coverage&  Error &  Interval width\\ \hline
+ Sample size & Quantity &Case & Coverage&  Error &  Interval width\\ \hline
 \multirow{12}{*}{$N=100$} & \multirow{4}{*}{$\mu(t,x)$}  & 1 &  .98&  .84& .30 \\
 && 2 & .98& .91& .32 \\
 && 3 & .98& .78& .30\\

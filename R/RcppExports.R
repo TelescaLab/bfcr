@@ -154,8 +154,8 @@ get_posterior_covariance_cpp <- function(mcmc_results, zi) {
 }
 
 #' Run Markov-Chain Monte-Carlo
-#' 
-#' Generate samples from the posterior distribution. This 
+#'
+#' Generate samples from the posterior distribution. This
 #' algorithm pre-dominantly uses Gibbs sampling
 #' @param response N x T response matrix, where N is number of subjects and T is number
 #' of time points. Values can be NA if there's missing data

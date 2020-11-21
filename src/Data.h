@@ -28,5 +28,5 @@ public:
   arma::umat seq_along_tau1;
   arma::umat seq_along_tau2;
 };
-
+//
 #endif
