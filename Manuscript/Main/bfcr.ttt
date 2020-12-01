@@ -1,5 +1,5 @@
 \begin{table}
-\caption{Simulation results over 300 data sets for each sample size and case combination. Coverage, error (RISE), and interval width are calculated as explained in Section \ref{s:simulation}}
+\caption{Simulation results over 300 data sets for each sample size and case combination. Coverage, error (RISE), and interval width are averaged over all data sets. Refer to Section \ref{s:simulation} for details on how coverage, error, and interval width are calculated.}
 \label{t:simulation}
 \begin{center}
 \begin{tabular}{lllccc}

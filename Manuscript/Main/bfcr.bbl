@@ -1,10 +1,26 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citeauthoryear{Aguilera and Aguilera-Morillo}{Aguilera and
+  Aguilera-Morillo}{2013}]{Aguilera2013}
+Aguilera, A. and Aguilera-Morillo, M. (2013).
+\newblock Penalized pca approaches for b-spline expansions of smooth functional
+  data.
+\newblock {\em Applied Mathematics and Computation} {\bf 219,} 7805 -- 7819.
+
 \bibitem[\protect\citeauthoryear{Akerstedt, Hume, Minors, and
   Waterhouse}{Akerstedt et~al.}{1997}]{Akerstedt1997}
 Akerstedt, T., Hume, K., Minors, D., and Waterhouse, J. (1997).
 \newblock Good sleep--its timing and physiological sleep characteristics.
 \newblock {\em Journal of sleep research} {\bf 6,} 221.
+
+\bibitem[\protect\citeauthoryear{Baladandayuthapani, Mallick, Young~Hong,
+  Lupton, Turner, and Carroll}{Baladandayuthapani
+  et~al.}{2008}]{Baladandayuthapani2008}
+Baladandayuthapani, V., Mallick, B.~K., Young~Hong, M., Lupton, J.~R., Turner,
+  N.~D., and Carroll, R.~J. (2008).
+\newblock Bayesian hierarchical spatially correlated functional data analysis
+  with application to colon carcinogenesis.
+\newblock {\em Biometrics} {\bf 64,} 64--73.
 
 \bibitem[\protect\citeauthoryear{Bhattacharya and Dunson}{Bhattacharya and
   Dunson}{2011}]{Bhattacharya2011}
@@ -67,6 +83,13 @@ Crainiceanu, C.~M., Caffo, B.~S., Di, C.-Z., and Punjabi, N.~M. (2009).
 \newblock {\em Journal of the American Statistical Association} {\bf 104,}
   541--555.
 
+\bibitem[\protect\citeauthoryear{Cuevas, Febrero, and Fraiman}{Cuevas
+  et~al.}{2006}]{Cuevas2006}
+Cuevas, A., Febrero, M., and Fraiman, R. (2006).
+\newblock On the use of the bootstrap for estimating functions with functional
+  data.
+\newblock {\em Computational statistics \& data analysis} {\bf 51,} 1063--1074.
+
 \bibitem[\protect\citeauthoryear{Di, Crainiceanu, Caffo, and Punjabi}{Di
   et~al.}{2009}]{Di2009}
 Di, C.-Z., Crainiceanu, C.~M., Caffo, B.~S., and Punjabi, N.~M. (2009).
@@ -118,10 +141,11 @@ Franks, A.~M. and Hoff, P. (2019).
 \newblock Shared subspace models for multi-group covariance estimation.
 \newblock {\em Journal of Machine Learning Research} {\bf 20,} 1--37.
 
-\bibitem[\protect\citeauthoryear{Guo}{Guo}{2002}]{Guo2002}
-Guo, W. (2002).
-\newblock Functional mixed effects models.
-\newblock {\em Biometrics} {\bf 58,} 121--128.
+\bibitem[\protect\citeauthoryear{Greven, Crainiceanu, Caffo, and Reich}{Greven
+  et~al.}{2010}]{Greven2010}
+Greven, S., Crainiceanu, C., Caffo, B., and Reich, D. (2010).
+\newblock Longitudinal functional principal component analysis.
+\newblock {\em Electronic journal of statistics} {\bf 4,} 1022--1054.
 
 \bibitem[\protect\citeauthoryear{Hjorth}{Hjorth}{1970}]{Hjorth1970}
 Hjorth, B. (1970).
@@ -198,12 +222,11 @@ Montagna, S., Tokdar, S.~T., Neelon, B., and Dunson, D.~B. (2012).
   data.
 \newblock {\em Biometrics} {\bf 68,} 1064--1073.
 
-\bibitem[\protect\citeauthoryear{Morris and Carroll}{Morris and
-  Carroll}{2006}]{Morris2006}
-Morris, J.~S. and Carroll, R.~J. (2006).
-\newblock Wavelet-based functional mixed models.
-\newblock {\em Journal of the Royal Statistical Society: Series B (Statistical
-  Methodology)} {\bf 68,} 179--199.
+\bibitem[\protect\citeauthoryear{Park and Staicu}{Park and
+  Staicu}{2015}]{Park2015}
+Park, S.~Y. and Staicu, A.-M. (2015).
+\newblock Longitudinal functional data analysis.
+\newblock {\em Stat} {\bf 4,} 212--226.
 
 \bibitem[\protect\citeauthoryear{Perrin, Pernier, Bertrand, and
   Echallier}{Perrin et~al.}{1989}]{Perrin1989}
@@ -285,6 +308,12 @@ Somsen, R.~J., van't Klooster, B.~J., van~der Molen, M.~W., van Leeuwen, H.~M.,
   by eeg power spectra.
 \newblock {\em Biological psychology} {\bf 44,} 187--209.
 
+\bibitem[\protect\citeauthoryear{Staicu, Crainiceanu, and Carroll}{Staicu
+  et~al.}{2010}]{Staicu2010}
+Staicu, A.-M., Crainiceanu, C.~M., and Carroll, R.~J. (2010).
+\newblock Fast methods for spatially correlated multilevel functional data.
+\newblock {\em Biostatistics} {\bf 11,} 177--194.
+
 \bibitem[\protect\citeauthoryear{Stroganova, Orekhova, and Posikera}{Stroganova
   et~al.}{1999}]{Stroganova1999}
 Stroganova, T., Orekhova, E., and Posikera, I. (1999).
@@ -313,16 +342,32 @@ Walker, M.~P. (2009).
 \newblock The role of slow wave sleep in memory processing.
 \newblock {\em Journal of Clinical Sleep Medicine} {\bf 5,} S20--S26.
 
-\bibitem[\protect\citeauthoryear{Wang, Chiou, and Mueller}{Wang
-  et~al.}{2015}]{Wang2016}
-Wang, J.-L., Chiou, J.-M., and Mueller, H.-G. (2015).
-\newblock Review of functional data analysis.
-\newblock {\em arXiv preprint arXiv:1507.05135} .
+\bibitem[\protect\citeauthoryear{Wang, Chiou, and M{\"u}ller}{Wang
+  et~al.}{2016}]{Wang2016}
+Wang, J.-L., Chiou, J.-M., and M{\"u}ller, H.-G. (2016).
+\newblock Functional data analysis.
+\newblock {\em Annual Review of Statistics and Its Application} {\bf 3,}
+  257--295.
 
 \bibitem[\protect\citeauthoryear{Wood}{Wood}{2017}]{Wood2017}
 Wood, S.~N. (2017).
 \newblock {\em Generalized additive models: an introduction with R}.
 \newblock CRC press.
+
+\bibitem[\protect\citeauthoryear{Xiao, Huang, Schrack, Ferrucci, Zipunnikov,
+  and Crainiceanu}{Xiao et~al.}{2015}]{Xiao2015}
+Xiao, L., Huang, L., Schrack, J.~A., Ferrucci, L., Zipunnikov, V., and
+  Crainiceanu, C.~M. (2015).
+\newblock Quantifying the lifetime circadian rhythm of physical activity: a
+  covariate-dependent functional approach.
+\newblock {\em Biostatistics} {\bf 16,} 352--367.
+
+\bibitem[\protect\citeauthoryear{Xiao, Li, and Ruppert}{Xiao
+  et~al.}{2013}]{Xiao2013}
+Xiao, L., Li, Y., and Ruppert, D. (2013).
+\newblock Fast bivariate p-splines: the sandwich smoother.
+\newblock {\em Journal of the Royal Statistical Society: SERIES B: Statistical
+  Methodology} pages 577--599.
 
 \bibitem[\protect\citeauthoryear{Yang, Zhu, Choi, Cox, et~al\mbox{.}}{Yang
   et~al.}{2016}]{Yang2016}
@@ -330,5 +375,21 @@ Yang, J., Zhu, H., Choi, T., Cox, D.~D., et~al. (2016).
 \newblock Smoothing and mean--covariance estimation of functional data with a
   bayesian hierarchical model.
 \newblock {\em Bayesian Analysis} {\bf 11,} 649--670.
+
+\bibitem[\protect\citeauthoryear{Yao, M{\"u}ller, and Wang}{Yao
+  et~al.}{2005}]{Yao2005}
+Yao, F., M{\"u}ller, H.-G., and Wang, J.-L. (2005).
+\newblock Functional data analysis for sparse longitudinal data.
+\newblock {\em Journal of the American statistical association} {\bf 100,}
+  577--590.
+
+\bibitem[\protect\citeauthoryear{Zipunnikov, Caffo, Yousem, Davatzikos,
+  Schwartz, and Crainiceanu}{Zipunnikov et~al.}{2011}]{Zipunnikov2011}
+Zipunnikov, V., Caffo, B., Yousem, D.~M., Davatzikos, C., Schwartz, B.~S., and
+  Crainiceanu, C. (2011).
+\newblock Multilevel functional principal component analysis for
+  high-dimensional data.
+\newblock {\em Journal of Computational and Graphical Statistics} {\bf 20,}
+  852--873.
 
 \end{thebibliography}
