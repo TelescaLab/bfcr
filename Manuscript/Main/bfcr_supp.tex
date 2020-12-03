@@ -53,9 +53,9 @@
 \maketitle
 
 
-\section{Web Appendix A: Markov-Chain Monte Carlo Sampling Algorithm}
+\section{Web Appendix A: Markov-chain monte carlo sampling algorithm}
 \label{s:mcmc}
-In this section we give a detailed Markov-Chain Monte Carlo (MCMC) algorithm to sample from the posterior. Let $N$ be the number of independent functional responses and assume all response functions are observed on a common grid $T = \{t_{1}, \ldots, t_{n}\}$. Let $B$ be an $n\times p$ matrix with $B_{ij} = b_{j}(t_{i})$. Let $X$ be an $N\times r(d_{1})$ matrix with row $i$ equal to $\tilde{\bmath{X}}(\bmath{x}_{i})$. Let $Y$ be an $N\times n$ matrix with $Y_{ij} = y_{i}(t_{j})$, so that each row represents one discretized functional response. Let $\Gamma_{j}$ be an $N\times N$ diagonal matrix with $r$th diagonal element equal to $\eta_{rj}$ for $j = 1,\ldots,k$. 
+In this section we give a detailed Markov-Chain Monte Carlo (MCMC) algorithm to sample from the posterior. Let $N$ be the number of independent functional responses and assume all response functions are observed on a common grid $T = \{t_{1}, \ldots, t_{n}\}$. Let $B$ be an $n\times p$ matrix with $B_{ij} = b_{j}(t_{i})$. Let $X$ be an $N\times r(d_{1})$ matrix with row $i$ equal to $\bmath{b}^{x}(\bmath{x}_{i})$. Let $Y$ be an $N\times n$ matrix with $Y_{ij} = y_{i}(t_{j})$, so that each row represents one discretized functional response. Let $\Gamma_{j}$ be an $N\times N$ diagonal matrix with $r$th diagonal element equal to $\eta_{rj}$ for $j = 1,\ldots,k$. 
 \begin{enumerate}
 	\item Update $\beta$:\\
 	Let $\Omega_{r} = \tau_{1xr}\tilde{K}_{r} + \tau_{1tr}\tilde{K}$ if $p_{r} > 1$. Otherwise set $\Omega_{r} = \tau_{1tr}K$. Construct\\ $\Omega = \text{blkdiag}(\Omega_{1}, \ldots, \Omega_{R})$.\\
@@ -70,16 +70,86 @@ In this section we give a detailed Markov-Chain Monte Carlo (MCMC) algorithm to 
 	Let $A = \sigma^{-2}\vect[\{B^{\top}Y^{\top}-B^{\top}B(\beta + \sum_{j'\neq j}\Lambda_{j'}X^{\top}\Gamma_{j'})\}\Gamma_{j}X]$\\
 	Sample $\Lambda_{j} \sim N(C^{-1}A, C^{-1})$
 	
-	\item Update $\eta_{ij}$, $j=1,\ldots,k$:\\
+	\item Update $\eta_{ij}$:\\
 	Let $\bmath{\eta}_{i} = (\eta_{i1}, \ldots, \eta_{ik})$.\\
-	Let $\ddot{X}_{i}$ be a $p\times k$ matrix with column $j$ equal to $\Lambda_{j}\tilde{\bmath{X}}(\bmath{x}_{i})$.\\
+	Let $\ddot{X}_{i}$ be a $p\times k$ matrix with column $j$ equal to $\Lambda_{j}\bmath{b}^{x}(\bmath{x}_{i})$.\\
 	Let $C = \sigma^{-2}\ddot{X}_{i}^{\top}B^{\top}B\ddot{X}_{i} + I_{k}$, where $I_{k}$ is the $k\times k$ identity matrix.\\
-	Let $A = \sigma^{-2}\ddot{X}_{i}^{\top} \{B^{\top}Y_{i\cdot} - B^{\top}B\beta \tilde{\bmath{X}}(\bmath{x}_{i})\}$\\
+	Let $A = \sigma^{-2}\ddot{X}_{i}^{\top} \{B^{\top}Y_{i\cdot} - B^{\top}B\beta \bmath{b}^{x}(\bmath{x}_{i})\}$\\
 	Sample $\bmath{\eta}_{i} \sim N(C^{-1}A, C^{-1})$
 	
 	\item Update $\sigma^{2}$:\\
+	Let $A =Y^{\top} - B\beta X^{\top} + \sum_{j=1}^{k}B\Lambda_{j}X^{\top}\Gamma_{j}$\\
+	Sample $\sigma^{-2} \sim \text{Gamma}(Nn/2+a_{\epsilon}, A \odot A/2 +b_{\epsilon})$, where $\odot$ denotes element-wise multiplication.
 	
+	\item Update $\tau_{1tr}$, $\tau_{1xr}$, $\tau_{2tr}$, $\tau_{2xr}$:\\
+	Sample $\tau_{1tr} \sim \text{Gamma}\{\text{rank}(\tilde{K})/2 - 0.5, \vect(\beta_{r})^{\top}\tilde{K}\vect(\beta_{r})/2\}$\\
+	Sample $\tau_{1xr} \sim \text{Gamma}\{\text{rank}(\tilde{K}_{r})/2 - 0.5, \vect(\beta_{r}^{\top})\tilde{K}_{r}\vect(\beta_{r})/2\}$ (if $p_{r} > 1$)\\
+	Sample $\tau_{2trj} \sim \text{Gamma}\{\text{rank}(\tilde{K})/2 - 0.5, \vect(\Lambda_{rj})^{\top}\tilde{K}\vect(\Lambda_{rj})/2\}$\\
+	Sample $\tau_{2xrj} \sim \text{Gamma}\{\text{rank}(\tilde{K}_{r})/2 - 0.5, \vect(\Lambda_{rj}^{\top})\tilde{K}_{r}\vect(\Lambda_{rj})/2\}$ (if $p_{r} > 1$)
+	
+	\item Update $\phi_{rj}$:\\
+	Let $\phi_{irj}$ denote the $i$th diagonal element of $\phi_{rj}$. \\
+	Let $\lambda_{irj}$ be the $i$th element of $\vect(\Lambda_{rj})$.\\
+	Sample $\phi_{irj} \sim \text{Gamma}(a_{\phi} + 0.5, \tau^{*}_{rj}\lambda_{irj}^{2}/2 + b_{\phi})$
+	
+	\item Update $\delta_{r1}$:\\
+	Let $A = \vect(\Lambda_{r1}^{\top})\phi_{r1}\vect(\Lambda_{r1})$\\
+	Let $B = \sum_{j=2}^{k}\tau^{*}_{rj} \vect(\Lambda_{rj})^{\top}\phi_{rj}\vect(\Lambda_{rj})$\\
+	Sample $\delta_{r1} \sim \text{Gamma}\{k p_{r} p/2 + a_{r0}, (A + B)/2+ 1\}$
+	
+	\item Update $\delta_{rj}$: \\
+	Let $A = \sum_{j'=1}^{k}\tau^{*(j)}_{rj'}\vect(\Lambda_{rj'})^{\top}\phi_{rj'}\vect(\Lambda_{rj})$, where $\tau^{*(j)}_{rj'} = \tau^{*}_{rj'}$ if $j\neq j'$ and 1 otherwise.\\
+	Sample $\delta_{rj'} \sim \text{Gamma}\{p_{r}p(k-j'+1)/2 + a_{r1}, A/2 + 1\}$
+	
+	\item Update $a_{r0}$:\\
+	Let $\text{Gamma}^{*}(x,a,b)$ denote the Gamma density evaluated at $x$ with shape $a$ and rate $b$.\\
+	Let $\phi(x)$ denote the standard normal cumulative distribution function evaluated at $x$.
+	Sample candidate $a_{r0}^{*}\sim N(a_{r0}, 1)$ until $a_{r0}^{*} > 0$.\\
+	Compute $A = \displaystyle\frac{\text{Gamma}^{*}(\delta_{r1}, a_{r0}^{*}, 1)\cdot\text{Gamma}^{*}(a^{*}_{r0}, 2, 1)\cdot \phi(a_{r0})}{\text{Gamma}^{*}(\delta_{r1}, a_{r0}, 1)\cdot\text{Gamma}^{*}(a_{r0}, 2, 1)\cdot \phi(a_{r0}^{*})}$\\
+	Sample $U \sim \text{Unif}(0, 1)$\\
+	If $U\leq A$, accept candidate $a_{r0}^{*}$. 
+	
+	\item Update $a_{r1}$:\\
+	Let $\delta_{r2}^{*} = \prod_{j=2}^{k}\delta_{rj}$\\
+	Let $\text{Gamma}^{*}(x,a,b)$ denote the Gamma density evaluated at $x$ with shape $a$ and rate $b$.\\
+	Let $\phi(x)$ denote the standard normal cumulative distribution function evaluated at $x$.
+	Sample candidate $a_{r1}^{*}\sim N(a_{r1}, 1)$ until $a_{r1}^{*} > 0$.\\
+	Compute $A = \displaystyle\frac{\text{Gamma}^{*}(\delta_{r2}^{*}, a_{r1}^{*}, 1)\cdot\text{Gamma}^{*}(a^{*}_{r1}, 2, 1)\cdot \phi(a_{r1})}{\text{Gamma}^{*}(\delta_{r2}^{*}, a_{r1}, 1)\cdot\text{Gamma}^{*}(a_{r1}, 2, 1)\cdot \phi(a_{r1}^{*})}$\\
+	Sample $U \sim \text{Unif}(0, 1)$\\
+	If $U\leq A$, accept candidate $a_{r1}^{*}$. 
+	
+	\item Update missing values of $Y$:\\
+	Suppose $y_{i}(t_{j})$ is missing.\\
+	Let $\mu = \bmath{b}(t_{j})\beta\bmath{b}^{x}(\bmath{x}_{i}) + \sum_{j=1}^{k}\bmath{b}(t_{j})\Lambda_{j}\bmath{b}^{x}(\bmath{x}_{i})\eta_{ij}$\\
+	Sample $y_{i}(t_{j}) \sim N(\mu, \sigma^{2})$
 \end{enumerate}
+For convenience, Table contains notation used in the main article and this document of supporting information.
+
+\begin{table}
+	\caption{Notation used in the main article and document of supporting information.}
+	\label{t:notation}
+	\begin{center}
+		\begin{tabular}{lll}
+			Name & Description & Dimension\\
+			\hline
+			$\bmath{x}_{i}$ & Covariate vector for the $i$th functional response & $d_{1}\times 1$ \\
+			$\bmath{x}_{ir}$ & $r$th group of covariates associated with the $i$th functional response&\\
+			$\bmath{b}^{r}(\bmath{x}_{ir})$ & $r$th group of covariates expanded into basis functions evaluated at $\bmath{x}_{ir}$&$p_{r}\times 1$\\
+			$\bmath{b}^{x}(\bmath{x}_{i})$ & Concatenated $\bmath{b}^{r}(\bmath{x}_{ir})$, $r=1,\ldots,R$ & $r(d_{1})\times 1$\\
+			$p_{r}$ & \# of basis functions for $r$th covariate group expansion&\\
+			$r(d_{1})$ & Total number of covariate basis functions used equal to $\sum_{r=1}^{R}p_{r}$&\\
+			$\bmath{b}(t)$ & Basis functions for functional dimension evaluated at $t$ & $p\times 1$\\
+			$\mu(t, \bmath{x}_{i})$ & Covariate-adjusted functional mean equal to $\bmath{b}(t)^{\top}\beta\bmath{b}^{x}(\bmath{x}_{i})$ &\\
+			$\beta$ & Fixed effect parameter matrix equal to &
+			%$\beta_{r}$ & Fixed effect &\\
+			%$R$ & Number of 
+		\end{tabular}
+	\end{center}
+\end{table}
+\section{Web Appendix B: Additional details on posterior inference}
+\section{Web Appendix C: Setting hyperparameters}
+\section{Web Appendix D: Extended simulation results}
+\section{Web Appendix E: Additional details on case studies}
 %\cite{Aguilera2013}
 %\bibliographystyle{biom}  
 %\bibliography{mybiblio}
