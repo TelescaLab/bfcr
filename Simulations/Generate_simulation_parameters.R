@@ -1,7 +1,8 @@
+# This script is used to generate data generating parameters used in the 
+# simulation study.
 library(plotly)
 library(mgcv)
 set.seed(8)
-### Simulate from model
 n <- 100
 k <- 4
 df_times <- 10
@@ -41,10 +42,14 @@ for (kp in 1:k) {
 eta <- rnorm(n * k) %>% array(dim = c(n, k))
 X <- cbind(1, x_basis[[1]]$X)
 Y <- time_basis[[1]]$X %*% beta %*% t(X)
+
+# Plot mean curves
 matplot(Y, type = "l")
 for (kp in 1:k) {
   Y <- Y + time_basis[[1]]$X %*% lambda[,,kp] %*% t(X) %*% diag(eta[,kp])
 }
+
+# Plot mean + random deviations from mean
 matplot(Y, type = "l")
 simparam <- list(beta = beta, lambda = lambda, X = X, k = k, n = n, 
                  df_times = df_times, df_x = df_x, x = x,
@@ -52,7 +57,7 @@ simparam <- list(beta = beta, lambda = lambda, X = X, k = k, n = n,
                  delta_base = delta_baseline, delta_x = delta_x,
                  time_basis = time_basis, x_basis = x_basis, times = times)
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
-                    "Simulations/simparam.RData")
+                    "Simulations/Simulation_parameters.RData")
 save(simparam, file = file_name)
 covfs <- array(0, dim = c(length(times), length(times), n))
 for (i in 1:n) {
@@ -64,30 +69,27 @@ covmat <- matrix(0, n, 10)
 for (xx in 1:10) {
   covmat[,xx] <- covfs[xx * 10, xx* 10,]
 } 
+
+# Plot several elements of within-subject covariance matrix, as a function of
+# a covariate
 matplot(covmat, type = "l")
-plot_ly() %>% add_surface(z =~ covfs[,,20])
+
+# Plot low dimensional g summaries for the intercept and covariate effect
 intercept_effect <- numeric(length(times))
 x_effect <- numeric(length(times))
 for (kp in 1:k) {
-  intercept_effect <- intercept_effect + (time_basis[[1]]$X %*% lambda[,1,kp])^2
+  intercept_effect <- intercept_effect + 
+    (time_basis[[1]]$X %*% lambda[,1,kp])^2
 }
 for (kp in 1:k) {
   for (i in 1:10) {
-    x_effect <- x_effect + (time_basis[[1]]$X %*% lambda[,-1,kp] %*% x_basis[[1]]$X[i,])^2
+    x_effect <- x_effect + 
+      (time_basis[[1]]$X %*% lambda[,-1,kp] %*% x_basis[[1]]$X[i,])^2
   }
 }
 x_effect <- x_effect / 10
-plot(intercept_effect, type = "l", ylim = c(0, .5))
+plot(intercept_effect, type = "l", ylim = c(0, max(intercept_effect + .1)))
 lines(x_effect, type = "l")
 
-cov_base <- matrix(0, nrow = length(times), ncol = length(times))
-for (kp in 1:k) {
-  cov_base <- cov_base + tcrossprod(time_basis[[1]]$X %*% lambda[,1,kp])
-}
-plot(cov_base[1,], type = "l")
-plot_ly()%>%add_surface(z=~cov_base)
-
-plot(time_basis[[1]]$X %*% lambda[,1,1], type = "l")
-lines(time_basis[[1]]$X %*% lambda[,-1,1] %*% x_basis[[1]]$X[10,])
 
 

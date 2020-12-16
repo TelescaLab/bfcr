@@ -6,7 +6,7 @@ library(BayesianConditionalFPCA)
 setwd("/Users/johnshamshoian/Documents/R_projects/bfcr")
 devtools::document()
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
-                    "Simulations/simparam.RData")
+                    "Simulations/Simulation_parameters.RData")
 
 load(file_name)
 n <- 100

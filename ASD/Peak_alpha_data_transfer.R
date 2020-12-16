@@ -1,6 +1,6 @@
 ### Peak alpha data for John
 library(pracma)
-
+library(ggplot2)
 # Subject ID
 subj_id <- sort(c(10,	11,	13,	14,	15,	23,	26,	30,	31,	35,	48,	49,	50,	
                   53,	54,	55,	161,165,	184,	188,	189,	195,	201,	
@@ -18,12 +18,12 @@ chan_id <- c('Fp1', 'Fp2','F9','F7','F3','Fz','F4','F8','F10','T9','T7',
              'C3','Cz','C4','T8','T10','P9','P7','P3','Pz','P4','P8','P10','O1','O2')
 
 # Demographic Data
-demDat <- read.csv(file='/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/demographic_data.csv', header = TRUE)
+demDat <- read.csv(file='/Users/johnshamshoian/Documents/R_projects/bfcr/ASD/demographic_data.csv', header = TRUE)
 colnames(demDat) <- c("ID", "Gender", "Age", "Group", "VIQ", "NVIQ")
 demDat <- demDat[which(demDat$ID %in% subj_id), ]
 
 # Peak Alpha Data
-load("/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/pa.dat.Rdata")
+load("/Users/johnshamshoian/Documents/R_projects/bfcr/ASD/pa.dat.Rdata")
 # ID: subject ID
 # group: TD(1) or ASD (2)
 # func: frequency domain
@@ -32,7 +32,12 @@ load("/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/pa.dat.Rda
 # y: alpha spectra density
 out1 <- unique(pa.dat$func)
 out3 <- unique(pa.dat$reg)
-matplot(matrix(pa.dat$y, nrow = length(out1)), type = "l") # data
+pa.dat %>%
+  filter(reg == 15) %>%
+  ggplot(aes(func, y, group = ID)) +
+  geom_line() +
+  labs(x = "Frequency", y = "Alpha spectral power") +
+  theme_bw()
 trapz(out1, pa.dat$y[1:33]) # all functional observations integrate to 1 (normalized across electordes, subjects)
 
 

@@ -3,7 +3,7 @@ library(mgcv)
 library(tidyverse)
 library(fdapace)
 library(plotly)
-source("/Users/johnshamshoian/Documents/R_projects/bfcr/Peak Alpha Data/Peak_Alpha_Data_Transfer.R")
+source("/Users/johnshamshoian/Documents/R_projects/bfcr/ASD/Peak_Alpha_Data_Transfer.R")
 num_subjects <- pa.dat %>%
   summarise(n_distinct(ID)) %>%
   pull()

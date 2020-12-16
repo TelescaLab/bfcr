@@ -1,1 +1,11 @@
-Bayesian Functional Covariance Regression
+DESCRIPTION
+The 
+
+CONTENTS OF THIS REPOSITORY
+
+DEVELOP ENVIRONMENT AND INSTALLATION
+
+This repository implements all 
+This repository 
+1. Code used for posterior updates shown in the Supporting Information document.
+2. All code used to analyze the resting state EEG data from the SHHS sleep waveform data.
