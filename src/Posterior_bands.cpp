@@ -1,95 +1,6 @@
 #include <RcppArmadillo.h>
 #include "Utils.h"
-
 // [[Rcpp::depends(RcppArmadillo)]]
-
-//[[Rcpp::export]]
-arma::mat get_posterior_predictive_bands(List mod, arma::vec quantiles){
-  arma::field<arma::cube> BetaF = mod["Beta"];
-  arma::field<arma::cube> ThetaF = mod["Theta"];
-  arma::field<arma::mat> PrecF = mod["Prec"];
-  arma::mat Ymat = mod["Y"];
-  arma::mat B = mod["B"];
-  arma::vec Yvec = arma::vectorise(arma::trans(Ymat));
-  arma::uword nchains = arma::size(ThetaF)(0);
-  arma::uword iter = ThetaF(0).n_slices;
-  arma::uword subjects = ThetaF(0).n_rows;
-  arma::uword time_points = B.n_rows;
-  arma::vec ID(subjects * time_points);
-  arma::vec time(subjects * time_points);
-  arma::mat predictions(subjects * time_points, iter * nchains);
-  arma::mat means(subjects * time_points, iter * nchains);
-  arma::mat predictions_quant(subjects * time_points, arma::size(quantiles)(0));
-  arma::mat means_quant(subjects * time_points, arma::size(quantiles)(0));
-  for(arma::uword u = 0; u < nchains; u++){
-    for(arma::uword i = 0; i < iter; i++){
-      for(arma::uword s = 0; s < subjects; s++){
-        means.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) = B * ThetaF(u).slice(i).row(s).t();
-        predictions.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) = 
-          means.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) + arma::randn<arma::vec>(time_points) * std::pow(PrecF(u)(s, i), -1.0 / 2.0);
-      }
-    }
-  }
-  for(arma::uword s = 0; s < subjects; s++){
-    for(arma::uword t = 0; t < time_points; t++){
-      means_quant.row(s * time_points + t) = arma::quantile(means.row(s * time_points + t), quantiles);
-      predictions_quant.row(s * time_points + t) = arma::quantile(predictions.row(s * time_points + t), quantiles);
-      time(s * time_points + t) = t;
-      ID(s * time_points + t) = s;
-    }
-  }
-  
-  return(arma::join_rows(arma::join_rows(ID, time), Yvec, predictions_quant, means_quant));
-}
-
-// [[Rcpp::export]]
-arma::mat get_posterior_predictive_bands2(List mod, arma::vec quantiles){
-  arma::field<arma::cube> BetaF = mod["Beta"];
-  arma::field<arma::mat> PrecF = mod["Prec"];
-  arma::field<arma::cube> LambdaF = mod["Lambda"];
-  arma::field<arma::cube> EtaF = mod["Eta"];
-  arma::mat Ymat = mod["Y"];
-  arma::mat B = mod["B"];
-  arma::mat X = mod["X"];
-  arma::mat Z = mod["Z"];
-  arma::vec Yvec = arma::vectorise(arma::trans(Ymat));
-  arma::uword nchains = arma::size(BetaF)(0);
-  arma::uword iter = BetaF(0).n_slices;
-  arma::uword subjects = Ymat.n_rows;
-  arma::uword time_points = B.n_rows;
-  arma::vec ID(subjects * time_points);
-  arma::vec time(subjects * time_points);
-  arma::mat predictions(subjects * time_points, iter * nchains);
-  arma::mat means(subjects * time_points, iter * nchains);
-  arma::mat predictions_quant(subjects * time_points, arma::size(quantiles)(0));
-  arma::mat means_quant(subjects * time_points, arma::size(quantiles)(0));
-  arma::mat fit;
-  
-  for(arma::uword u = 0; u < nchains; u++){
-    for(arma::uword i = 0; i < iter; i++){
-      fit = X * BetaF(u, 0, 0).slice(i).t() * B.t();
-      for(arma::uword k = 0; k < LambdaF(0, 0, 0).n_slices; k++){
-        fit = fit + arma::diagmat(EtaF(u, 0, 0).slice(i).col(k)) * Z * LambdaF(u * iter + i, 0, 0).slice(k).t() * B.t();
-      }
-      means.col(u * iter + i) = arma::vectorise(fit.t());
-      for(arma::uword s = 0; s < subjects; s++){
-        
-        predictions.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) = 
-          means.col(u * iter + i).subvec(s * time_points, (s + 1) * time_points - 1) + arma::randn<arma::vec>(time_points) * std::pow(PrecF(u,0,0)(s, i), -1.0 / 2.0);
-      }
-    }
-  }
-  for(arma::uword s = 0; s < subjects; s++){
-    for(arma::uword t = 0; t < time_points; t++){
-      means_quant.row(s * time_points + t) = arma::quantile(means.row(s * time_points + t), quantiles);
-      predictions_quant.row(s * time_points + t) = arma::quantile(predictions.row(s * time_points + t), quantiles);
-      time(s * time_points + t) = t;
-      ID(s * time_points + t) = s;
-    }
-  }
-  
-  return(arma::join_rows(arma::join_rows(ID, time), Yvec, predictions_quant, means_quant));
-}
 
 // [[Rcpp::export]]
 Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
@@ -164,44 +75,7 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
 }
 
 // [[Rcpp::export]]
-arma::vec get_prediction_error(List mcmc_output, double alpha) {
-  Rcpp::List samples = mcmc_output["samples"];
-  Rcpp::List data = mcmc_output["data"];
-  Rcpp::List control = mcmc_output["control"];
-  arma::cube beta = samples["beta"];
-  arma::mat varphi = samples["varphi"];
-  arma::field<arma::cube> lambda = samples["lambda"];
-  arma::cube eta = samples["eta"];
-  arma::uword kdim = data["latent_dimension"];
-  arma::mat basis = data["basis"];
-  arma::mat response = data["response"];
-  arma::mat design_mean = data["design_mean"];
-  arma::mat design_var = data["design_var"];
-  arma::uword iterations = control["iterations"];
-  arma::uword burnin = control["burnin"];
-  arma::uword num_subjects = response.n_rows;
-  arma::vec prediction_error(iterations - burnin);
-  arma::mat current_lower_dim_fit;
-  arma::mat current_fit;
-  arma::uword counter = 0;
-  for (arma::uword iter = burnin; iter < iterations; iter++) {
-    current_lower_dim_fit = beta.slice(iter) * design_mean.t();
-    for (arma::uword k = 0; k < kdim; k++) {
-      current_lower_dim_fit = current_lower_dim_fit + 
-        lambda(iter).slice(k) * design_var.t() * 
-        arma::diagmat(eta.slice(iter).col(k));
-    }
-    current_fit = basis * current_lower_dim_fit;
-    prediction_error(counter) = 
-      arma::accu(arma::square(current_fit - response.t()));
-    counter++;
-  }
-  arma::vec alpha_vec = {1 - alpha};
-  arma::vec alpha_vec_eval = {alpha / 2.0, 0.5, 1 - alpha / 2.0};
-  return(arma::quantile(prediction_error, alpha_vec_eval));
-}
-// [[Rcpp::export]]
-arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi,
+arma::mat get_posterior_means_cpp(List mcmc_results, arma::vec xi,
                                           double alpha,
                                           std::string mode){
   Rcpp::List data = mcmc_results["data"];
@@ -244,97 +118,7 @@ arma::mat get_posterior_means_cpp_correct(List mcmc_results, arma::vec xi,
 }
 
 // [[Rcpp::export]]
-List get_posterior_coefs(List mod, double alpha) {
-  arma::field<arma::cube> BetaF = mod["Beta"];
-  arma::mat B = mod["B"];
-  arma::uword D1 = arma::size(BetaF(0,0,0))(1);
-  arma::uword nchains = arma::size(BetaF)(0);
-  arma::uword iter = BetaF(0).n_slices;
-  arma::vec alpha_vec = {1 - alpha};
-  arma::vec Malpha(iter * nchains);
-  arma::mat lower(B.n_rows, D1);
-  arma::mat mean(B.n_rows, D1);
-  arma::mat upper(B.n_rows, D1);
-  for (arma::uword d = 0; d < D1; d++) {
-    arma::running_stat_vec<arma::vec> stats;
-    for (arma::uword u = 0; u < nchains; u++) {
-      for(arma::uword i = 0; i < iter; i++) {
-        stats(BetaF(u, 0, 0).slice(i).col(d));
-      }
-    }
-    
-    for (arma::uword u = 0; u < nchains; u++) {
-      for (arma::uword i = 0; i < iter; i++) {
-        Malpha(u * iter + i) = arma::max(arma::abs(BetaF(u, 0, 0).slice(i).col(d) - stats.mean()) / stats.stddev());
-      }
-    }
-    
-    double q_alpha = arma::as_scalar(arma::quantile(Malpha, alpha_vec));
-    lower.col(d) = B * stats.mean() - q_alpha * B * stats.stddev();
-    mean.col(d) = B * stats.mean();
-    upper.col(d) = B * stats.mean() + q_alpha * B * stats.stddev();
-    
-  }
-  return(List::create(Named("lower", lower),
-                      Named("mean", mean),
-                      Named("upper", upper)));
-}
-
-
-List extract_eigenfn(arma::cube& Lambda,
-                     arma::mat& Psi, arma::mat& Psi_sqrt,
-                     arma::mat& Psi_sqrt_inv, arma::mat& B,
-                     arma::uword eigenvals, arma::vec z,
-                     arma::vec time){
-  arma::uword dim_latent = Lambda.n_rows;
-  arma::uword dim_spline = B.n_rows;
-  arma::mat eigenfn_latent(dim_latent, dim_latent);
-  arma::mat eigenfn_spline(dim_spline, dim_latent);
-  arma::mat eigenfn_spline_ordered(dim_spline, eigenvals);
-  arma::vec eigenval_latent(dim_latent);
-  arma::mat eigenfn_latent_ordered(dim_latent, eigenvals);
-  arma::vec eigenval_spline(eigenvals);
-  arma::vec eigenval_pve(eigenvals);
-  arma::mat cov_latent = arma::zeros<arma::mat>(dim_latent, dim_latent);
-  arma::mat cov_spline;
-  for(arma::uword k = 0; k < Lambda.n_slices; k++){
-    cov_latent = cov_latent + Lambda.slice(k) * z * z.t() * Lambda.slice(k).t();
-  }
-  arma::mat cov_latent_transformed = Psi_sqrt * cov_latent * Psi_sqrt;
-  arma::eig_sym(eigenval_latent, eigenfn_latent, cov_latent_transformed);
-  eigenfn_spline =  B * Psi_sqrt_inv * eigenfn_latent;
-  cov_spline = B * cov_latent * B.t();
-  double eval_sum = arma::sum(eigenval_latent);
-  for(arma::uword v = 0; v < eigenvals; v++){
-    eigenfn_spline_ordered.col(v) = eigenfn_spline.col(dim_latent - v - 1);
-    eigenval_spline(v) = eigenval_latent(dim_latent - v - 1);
-    eigenval_pve(v) = eigenval_spline(v) / eval_sum;
-  }
-  arma::vec eval_cumsum = arma::cumsum(eigenval_pve);
-  eigenval_pve.elem(arma::find(eval_cumsum > 1)).zeros();
-  double magnitude = arma::sum(eigenval_latent);
-  return(List::create(Named("eigenfn_spline", eigenfn_spline_ordered),
-                      Named("eigenval", eigenval_spline),
-                      Named("eigenval_pve", eigenval_pve),
-                      Named("cov_spline", cov_spline),
-                      Named("magnitude", magnitude)));
-}
-
-
-// [[Rcpp::export]]
-arma::mat arma_cov2cor(arma::mat V){
-  arma::mat cor(V.n_rows, V.n_rows);
-  cor.diag() = arma::ones<arma::vec>(V.n_rows);
-  for(arma::uword i = 0; i < V.n_rows - 1; i++){
-    for(arma::uword j = i + 1; j < V.n_rows; j++){
-      cor(j, i) = V(j, i) * std::pow(V(i, i) * V(j,j), -.5);
-    }
-  }
-  return(arma::symmatl(cor));
-}
-
-// [[Rcpp::export]]
-List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
+List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
                                      arma::uword eigenvals,
                                      arma::vec zi, double alpha,
                                      std::string mode){
@@ -375,14 +159,8 @@ List get_posterior_eigen_cpp_correct(Rcpp::List mcmc_results,
   arma::uword idx1, idx2;
   arma::uword counter = 0;
   for(arma::uword i = burnin; i < iterations; i++){
-    eigen_list = extract_eigenfn(lambda(i),
-                                 psi,
-                                 psi_sqrt,
-                                 psi_sqrt_inv,
-                                 basis,
-                                 eigenvals,
-                                 zi,
-                                 time);
+    eigen_list = extract_eigenfn(lambda(i), psi, psi_sqrt, psi_sqrt_inv,
+                                 basis, eigenvals, zi, time);
     
     temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
     eval_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);

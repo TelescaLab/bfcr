@@ -17,6 +17,7 @@ sleep_tabulated <- read.csv(
 num_epochs <- 240
 id_range <- 200001:206000
 
+# Filter sleep delta power spectral density waveforms
 sleep_data <- sleep_tabulated %>%
   filter(EEG1qual >= 3) %>%
   select(nsrrid, age_s1, HTNDerv_s1) %>%
@@ -31,8 +32,9 @@ sleep_data <- sleep_data %>%
 
 num_subjects <- as.numeric(summarise(
   sleep_data, n_distinct(nsrrid)))
-
 epoch_grid <- 1:num_epochs
+
+# Use one basis function every ten epochs
 epoch_df <- ceiling(10 / 100 * num_epochs)
 
 covariate_grid <- sleep_data %>%
@@ -48,6 +50,7 @@ epoch_basis <- epoch_smooth[[1]]$X
 epoch_penalty <- epoch_smooth[[1]]$S[[1]] * epoch_smooth[[1]]$S.scale
 
 {
+  # Set up smoothing p-splines over age, by hypertension diagnostic status
   age_basis_obj <- smoothCon(s(age_s1, k = 8, bs = "ps", m = 2,
                                by = as.factor(HTNDerv_s1)),
                              data = covariate_grid,
@@ -60,6 +63,8 @@ epoch_penalty <- epoch_smooth[[1]]$S[[1]] * epoch_smooth[[1]]$S.scale
   penalties <- list(epoch_penalty, epoch_penalty,
                        model_penalties[[1]], model_penalties[[2]],
                        model_penalties[[1]], model_penalties[[2]])
+  
+  # Set up smoothing parameters over epochs and age
   indices <- c(1, 2, 3, 3, 4, 4)
   evaluate_basis <- function(obj, age, group) {
     spline_part1 <- 
@@ -75,7 +80,8 @@ epoch_penalty <- epoch_smooth[[1]]$S[[1]] * epoch_smooth[[1]]$S.scale
 response <- t(matrix(sleep_data$psd,
                      nrow = num_epochs,
                      ncol = num_subjects))
-### Need 9 components to explain 99% variability, unadjusted
+
+### Need 9 components to explain 99% variability, not adjusting for age
 k <- 12
 iter <- 10000
 burnin <- 5000
@@ -130,15 +136,14 @@ mean_tibble %>%
   theme(axis.text.x = element_text(vjust = 3))    +
   theme(axis.title.y = element_text(margin = margin(r = 10, b = 0, l = 0)))
 
+# Can look at heatmaps of delta spectral power. Not included in paper.
 N <- 20
 lower_age <- quantile(covariate_grid$age_s1, .1)
 upper_age <- quantile(covariate_grid$age_s1, .9)
 new_age_grid <- seq(from = lower_age, to = upper_age, length.out = N)
-
 mean_surface_no <- matrix(0, N, num_epochs)
 mean_surface_yes <- matrix(0, N, num_epochs)
 for (i in 1:N) {
-  print(i)
   xi <- evaluate_basis(age_basis_obj, new_age_grid[i], 0)
   mean_bands <- get_posterior_means(mcmc_results, xi)
   mean_surface_no[i,] <- mean_bands$mean
@@ -146,7 +151,6 @@ for (i in 1:N) {
   mean_bands <- get_posterior_means(mcmc_results, xi)
   mean_surface_yes[i,] <- mean_bands$mean
 }
-
 x <- epoch_grid
 y <- new_age_grid
 data <- expand.grid(X=x, Y=y, G = factor(c(0, 1)))

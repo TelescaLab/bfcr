@@ -59,7 +59,7 @@ get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05,
 #' mean_bands <- get_posterior_means(mcmc_output, xi)
 get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
                                 mode = "point-wise") {
-  mean_matrix <- get_posterior_means_cpp_correct(mcmc_output, xi,
+  mean_matrix <- get_posterior_means_cpp(mcmc_output, xi,
                                                  alpha_level, mode)
   mean_tibble <- tibble(lower = mean_matrix[,1],
                         mean = mean_matrix[,2],
@@ -104,7 +104,7 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
 #' @export get_posterior_eigen
 get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05, 
                                 mode = "point-wise") {
-  post_eigen <- get_posterior_eigen_cpp_correct(mcmc_results, eigenvals, zi,
+  post_eigen <- get_posterior_eigen_cpp(mcmc_results, eigenvals, zi,
                                                 alpha_level, mode)
   eigenfunctions <- tibble(mean = c(post_eigen$mean_eigen),
                            lower = c(post_eigen$lower_eigen),

@@ -78,20 +78,7 @@ void Parameters::update_lambda(Data& dat, Transformations& transf) {
     }
     transf.lambda_result = 
       transf.lambda_gauss.bayes_reg(transf.lambda_precision, transf.lambda_g);
-    /*
-     * arma::uword counter = 0;
-     for (arma::uword kpp = 0; kpp < dat.kdim; kpp++) {
-     if (kpp != kp) {
-     transf.lin_constr.col(counter).rows(0, dat.basis_dim - 1) = 
-     transf.psi_mat * lambda.slice(kpp).col(0);
-     counter++;
-     }
-     }
-     arma::mat w = arma::solve(arma::trimatl(transf.lambda_gauss.chol), transf.lin_constr);
-     arma::mat mu = arma::solve(trimatu(transf.lambda_gauss.chol.t()), w);
-     transf.lambda_result = transf.lambda_result - mu * arma::solve(transf.lin_constr.t() * mu, transf.lin_constr.t()) * transf.lambda_result;
-     
-     */
+
     transf.lambda_old = lambda.slice(k);
     lambda.slice(k) = arma::reshape(transf.lambda_result, dat.basis_dim, dat.d2);
     transf.fit_lambda = transf.fit_lambda + 
@@ -147,7 +134,6 @@ void Parameters::update_tau1(Data& dat, Transformations& transf) {
 
 void Parameters::update_tau2(Data& dat, Transformations& transf) {
   double update_a = 0, update_b = 0;
-  double ub, lb, proposal;
   for(arma::uword i = 0; i < dat.penalties_var.n_elem; i++){
     for (arma::uword k = 0; k < dat.kdim; k++) {
       update_a = .5 * dat.rank_var(i);

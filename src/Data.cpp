@@ -22,7 +22,7 @@ Rcpp::List Data::write_data() {
 Data::Data(arma::mat& response, arma::mat& design_mean,
            arma::mat& design_var, arma::mat& basis,
            arma::vec& time,
-           arma::field<arma::mat>& penalties_mean, 
+           arma::field<arma::mat>& penalties_mean,
            arma::field<arma::mat>& penalties_var,
            arma::uvec& indices_mean, arma::uvec& indices_var,
            arma::uword kdim, arma::uword iter,
@@ -47,7 +47,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   this->burnin = burnin;
   this->thin = thin;
   missing = arma::find_nonfinite(response);
-  missing_sub = armadillo_modulus3(missing, response.n_rows);
+  missing_sub = armadillo_modulus(missing, response.n_rows);
   missing_time = arma::floor(missing / response.n_rows);
   this->response.elem(missing).fill(0);
   seq_along_start_delta = arma::uvec(n_smooths_var);
@@ -56,7 +56,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
                                                 indices_mean);
   seq_along_tau2 = get_seq_along_tau(penalties_var,
                                                 indices_var);
-  
+
   seq_along_elongated = get_seq_along_elongated(basis_dim,
                                                 penalties_var,
                                                 indices_var,
@@ -69,7 +69,7 @@ Data::Data(arma::mat& response, arma::mat& design_mean,
   seq_along_end_delta(0) = end;
   rank_mean = get_rank(penalties_mean);
   rank_var = get_rank(penalties_var);
-  
+
   for (arma::uword i = 0; i < penalties_var.n_elem; i++) {
     if (indices_var(i) != old_index) {
       end = end + penalties_var(i).n_rows / basis_dim;
@@ -100,7 +100,7 @@ arma::umat Data::get_seq_along_tau(arma::field<arma::mat>& penalties,
   }
   return seq_along_tau;
 }
-arma::uvec get_seq_along_elongated(int basis_dim, 
+arma::uvec get_seq_along_elongated(int basis_dim,
                                arma::field<arma::mat>& penalties,
                                arma::uvec& indices,
                                arma::mat& design_var) {
@@ -112,7 +112,7 @@ arma::uvec get_seq_along_elongated(int basis_dim,
   for (arma::uword i = 0; i < penalties.n_elem; i++) {
     if (old_index != indices(i)) {
       end = end + penalties(i).n_rows / basis_dim;
-      elongated.rows(start, end) = counter * 
+      elongated.rows(start, end) = counter *
         arma::ones<arma::uvec>(end - start + 1);
       start = end + 1;
       counter++;
