@@ -1,20 +1,20 @@
-\name{BayesianConditionalFPCA-package}
-\alias{BayesianConditionalFPCA-package}
-\alias{BayesianConditionalFPCA}
+\name{bfcr-package}
+\alias{bfcr-package}
+\alias{bfcr}
 \docType{package}
-\title{\packageTitle{BayesianConditionalFPCA}}
-\description{\packageDescription{BayesianConditionalFPCA}}
+\title{\packageTitle{bfcr}}
+\description{\packageDescription{bfcr}}
 \details{
-  The DESCRIPTION file: \packageDESCRIPTION{BayesianConditionalFPCA}
-  \packageIndices{BayesianConditionalFPCA}
+  The DESCRIPTION file: \packageDESCRIPTION{bfcr}
+  \packageIndices{bfcr}
 
   This section should provide a more detailed overview of how to use the
   package, including the most important functions.
 }
 \author{
-  \packageAuthor{BayesianConditionalFPCA}
+  \packageAuthor{bfcr}
   
-  Maintainer: \packageMaintainer{BayesianConditionalFPCA}
+  Maintainer: \packageMaintainer{bfcr}
 }
 \references{
   This optional section can contain literature or other references for

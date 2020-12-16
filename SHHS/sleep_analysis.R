@@ -229,7 +229,6 @@ for (iter in 5001:10000) {
   }
 }
 for (i in seq_along(new_age_grid)) {
-  print(i)
   age_zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 0)
   age_zi[1] <- 0
   interaction_zi <- c(rep(0, 9), age_zi[3:9])
@@ -261,28 +260,3 @@ var_effects %>%
   scale_linetype_manual(labels = c("Baseline", "Age effect", "Hypertension effect", "Interaction effect"), values = c(1,3,5,6)) +
   theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
                      panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
-subj <- 2
-plot(response[subj,])
-for (iter in 5001:10000) {
-  mymean <- mcmc_results$samples$beta[,,iter] %*% mcmc_results$data$design_mean[subj,]
-  subj_spec <- numeric(24)
-  for (kp in 1:k) {
-    subj_spec <- subj_spec +  mcmc_results$samples$lambda[[iter]][,,kp] %*% mcmc_results$data$design_var[subj,] * mcmc_results$samples$eta[subj,kp,iter]
-  }
-  subj_spec <- epoch_basis %*% (subj_spec + mymean)
-  lines(subj_spec)
-}
-
-subj <- 96
-mymean <- epoch_basis %*% mcmc_results$samples$beta[,,iter] %*% mcmc_results$data$design_mean[subj,]
-plot(mymean, type = "l")
-for (iter in 5001:10000) {
-  mymean <- epoch_basis %*% mcmc_results$samples$beta[,,iter] %*% mcmc_results$data$design_mean[subj,]
-  lines(mymean)
-}
-newx <- evaluate_basis(age_basis_obj, 60, 1)
-mean_bands <- get_posterior_means(mcmc_results, newx)
-plot(mean_bands$mean, type = "l")
-lines(mean_bands$lower)
-lines(mean_bands$upper)

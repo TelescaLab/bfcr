@@ -8,7 +8,7 @@ using namespace Rcpp;
 
 // get_posterior_subject_bands_cpp
 Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output, double alpha, std::string mode);
-RcppExport SEXP _BayesianConditionalFPCA_get_posterior_subject_bands_cpp(SEXP mcmc_outputSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
+RcppExport SEXP _bfcr_get_posterior_subject_bands_cpp(SEXP mcmc_outputSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,7 +21,7 @@ END_RCPP
 }
 // get_posterior_means_cpp
 arma::mat get_posterior_means_cpp(List mcmc_results, arma::vec xi, double alpha, std::string mode);
-RcppExport SEXP _BayesianConditionalFPCA_get_posterior_means_cpp(SEXP mcmc_resultsSEXP, SEXP xiSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
+RcppExport SEXP _bfcr_get_posterior_means_cpp(SEXP mcmc_resultsSEXP, SEXP xiSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -35,7 +35,7 @@ END_RCPP
 }
 // get_posterior_eigen_cpp
 List get_posterior_eigen_cpp(Rcpp::List mcmc_results, arma::uword eigenvals, arma::vec zi, double alpha, std::string mode);
-RcppExport SEXP _BayesianConditionalFPCA_get_posterior_eigen_cpp(SEXP mcmc_resultsSEXP, SEXP eigenvalsSEXP, SEXP ziSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
+RcppExport SEXP _bfcr_get_posterior_eigen_cpp(SEXP mcmc_resultsSEXP, SEXP eigenvalsSEXP, SEXP ziSEXP, SEXP alphaSEXP, SEXP modeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,7 +50,7 @@ END_RCPP
 }
 // get_posterior_covariance_cpp
 Rcpp::List get_posterior_covariance_cpp(Rcpp::List mcmc_results, arma::vec zi);
-RcppExport SEXP _BayesianConditionalFPCA_get_posterior_covariance_cpp(SEXP mcmc_resultsSEXP, SEXP ziSEXP) {
+RcppExport SEXP _bfcr_get_posterior_covariance_cpp(SEXP mcmc_resultsSEXP, SEXP ziSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -62,7 +62,7 @@ END_RCPP
 }
 // run_mcmc
 Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean, arma::mat design_var, arma::mat basis, arma::vec time, arma::field<arma::mat> penalties_mean, arma::field<arma::mat> penalties_var, arma::uvec indices_mean, arma::uvec indices_var, arma::uword kdim, arma::uword iter, arma::uword burnin, arma::uword thin, std::string var);
-RcppExport SEXP _BayesianConditionalFPCA_run_mcmc(SEXP responseSEXP, SEXP design_meanSEXP, SEXP design_varSEXP, SEXP basisSEXP, SEXP timeSEXP, SEXP penalties_meanSEXP, SEXP penalties_varSEXP, SEXP indices_meanSEXP, SEXP indices_varSEXP, SEXP kdimSEXP, SEXP iterSEXP, SEXP burninSEXP, SEXP thinSEXP, SEXP varSEXP) {
+RcppExport SEXP _bfcr_run_mcmc(SEXP responseSEXP, SEXP design_meanSEXP, SEXP design_varSEXP, SEXP basisSEXP, SEXP timeSEXP, SEXP penalties_meanSEXP, SEXP penalties_varSEXP, SEXP indices_meanSEXP, SEXP indices_varSEXP, SEXP kdimSEXP, SEXP iterSEXP, SEXP burninSEXP, SEXP thinSEXP, SEXP varSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -86,7 +86,7 @@ END_RCPP
 }
 // get_proposal
 double get_proposal(double old);
-RcppExport SEXP _BayesianConditionalFPCA_get_proposal(SEXP oldSEXP) {
+RcppExport SEXP _bfcr_get_proposal(SEXP oldSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -97,7 +97,7 @@ END_RCPP
 }
 // armadillo_modulus
 arma::uvec armadillo_modulus(arma::uvec indicies, arma::uword n);
-RcppExport SEXP _BayesianConditionalFPCA_armadillo_modulus(SEXP indiciesSEXP, SEXP nSEXP) {
+RcppExport SEXP _bfcr_armadillo_modulus(SEXP indiciesSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -109,17 +109,17 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_BayesianConditionalFPCA_get_posterior_subject_bands_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_subject_bands_cpp, 3},
-    {"_BayesianConditionalFPCA_get_posterior_means_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_means_cpp, 4},
-    {"_BayesianConditionalFPCA_get_posterior_eigen_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_eigen_cpp, 5},
-    {"_BayesianConditionalFPCA_get_posterior_covariance_cpp", (DL_FUNC) &_BayesianConditionalFPCA_get_posterior_covariance_cpp, 2},
-    {"_BayesianConditionalFPCA_run_mcmc", (DL_FUNC) &_BayesianConditionalFPCA_run_mcmc, 14},
-    {"_BayesianConditionalFPCA_get_proposal", (DL_FUNC) &_BayesianConditionalFPCA_get_proposal, 1},
-    {"_BayesianConditionalFPCA_armadillo_modulus", (DL_FUNC) &_BayesianConditionalFPCA_armadillo_modulus, 2},
+    {"_bfcr_get_posterior_subject_bands_cpp", (DL_FUNC) &_bfcr_get_posterior_subject_bands_cpp, 3},
+    {"_bfcr_get_posterior_means_cpp", (DL_FUNC) &_bfcr_get_posterior_means_cpp, 4},
+    {"_bfcr_get_posterior_eigen_cpp", (DL_FUNC) &_bfcr_get_posterior_eigen_cpp, 5},
+    {"_bfcr_get_posterior_covariance_cpp", (DL_FUNC) &_bfcr_get_posterior_covariance_cpp, 2},
+    {"_bfcr_run_mcmc", (DL_FUNC) &_bfcr_run_mcmc, 14},
+    {"_bfcr_get_proposal", (DL_FUNC) &_bfcr_get_proposal, 1},
+    {"_bfcr_armadillo_modulus", (DL_FUNC) &_bfcr_armadillo_modulus, 2},
     {NULL, NULL, 0}
 };
 
-RcppExport void R_init_BayesianConditionalFPCA(DllInfo *dll) {
+RcppExport void R_init_bfcr(DllInfo *dll) {
     R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
     R_useDynamicSymbols(dll, FALSE);
 }

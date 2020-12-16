@@ -1,13 +1,15 @@
-Package: BayesianConditionalFPCA
+Package: bfcr
 Type: Package
-Title: What the Package Does Using Title Case
+Title: Bayesian Covariance Functional Regression
 Version: 1.0
-Date: 2019-05-14
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: More details about what the package does. See
-           <http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file> for
-           details on how to write this part.
+Date: 2020-12-16
+Authors@R: c(person("John", "Shamshoian", email = "jshamsho@gmail.com",
+                    role = c("aut", "cre")),
+             person("Damla", "Senturk", role = c("aut")),
+             person("Shafali", "Jeste", role = c("aut")),
+             person("Donatello", "Telesca", role = c("aut")))
+Maintainer: John Shamshoian <jshamsho@gmail.com>
+Description: Implements Bayesian covariance functional regression as described in the Manuscript "Bayesian covariance functional regression" by Shamshoian et al. (2021). The core of this package provides nonparametric inference of covariate-adjusted patterns of covariation with functional response data. This package contains efficient C++ functions for full posterior sampling and inferential summaries.
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.16)
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress

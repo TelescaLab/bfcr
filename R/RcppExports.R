@@ -2,19 +2,19 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 get_posterior_subject_bands_cpp <- function(mcmc_output, alpha, mode) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_subject_bands_cpp`, mcmc_output, alpha, mode)
+    .Call(`_bfcr_get_posterior_subject_bands_cpp`, mcmc_output, alpha, mode)
 }
 
 get_posterior_means_cpp <- function(mcmc_results, xi, alpha, mode) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_means_cpp`, mcmc_results, xi, alpha, mode)
+    .Call(`_bfcr_get_posterior_means_cpp`, mcmc_results, xi, alpha, mode)
 }
 
 get_posterior_eigen_cpp <- function(mcmc_results, eigenvals, zi, alpha, mode) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_eigen_cpp`, mcmc_results, eigenvals, zi, alpha, mode)
+    .Call(`_bfcr_get_posterior_eigen_cpp`, mcmc_results, eigenvals, zi, alpha, mode)
 }
 
 get_posterior_covariance_cpp <- function(mcmc_results, zi) {
-    .Call(`_BayesianConditionalFPCA_get_posterior_covariance_cpp`, mcmc_results, zi)
+    .Call(`_bfcr_get_posterior_covariance_cpp`, mcmc_results, zi)
 }
 
 #' Run Markov-Chain Monte-Carlo
@@ -42,14 +42,14 @@ get_posterior_covariance_cpp <- function(mcmc_results, zi) {
 #' @export run_mcmc
 #' @return A List containing 3 lists including data, control, and samples.
 run_mcmc <- function(response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin = 1L, var = "unequal") {
-    .Call(`_BayesianConditionalFPCA_run_mcmc`, response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin, var)
+    .Call(`_bfcr_run_mcmc`, response, design_mean, design_var, basis, time, penalties_mean, penalties_var, indices_mean, indices_var, kdim, iter, burnin, thin, var)
 }
 
 get_proposal <- function(old) {
-    .Call(`_BayesianConditionalFPCA_get_proposal`, old)
+    .Call(`_bfcr_get_proposal`, old)
 }
 
 armadillo_modulus <- function(indicies, n) {
-    .Call(`_BayesianConditionalFPCA_armadillo_modulus`, indicies, n)
+    .Call(`_bfcr_armadillo_modulus`, indicies, n)
 }
 
