@@ -3,7 +3,6 @@ library(mgcv)
 library(future.apply)
 library(bfcr)
 setwd("/Users/johnshamshoian/Documents/R_projects/bfcr")
-devtools::document()
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
                     "Simulations/Simulation_parameters.RData")
 
@@ -107,10 +106,11 @@ j <- 1
     eta <- rnorm(n * k) %>% array(dim = c(n, k))
     Y <- time_basis[[1]]$X %*% beta %*% t(design_mean_truth) %>% t()
     for (kp in 1:k) {
-      Y <- Y + time_basis[[1]]$X %*% lambda_truth[,,kp] %*% t(design_var_truth) %*% diag(eta[,kp]) %>% t()
+      Y <- Y + time_basis[[1]]$X %*% lambda_truth[,,kp] %*%
+        t(design_var_truth) %*% diag(eta[,kp]) %>% t()
     }
     Y_errors <- Y + rnorm(n * length(times), sd = .20) %>% matrix(n, length(times))
-    mcmc_results <- run_mcmc(Y_errors, design_mean, design_var, time_basis_fit[[1]]$X, times, penalties_mean, penalties_var, indices_mean, indices_var, k_fit, 10000, 5000, 5)
+    mcmc_results <- bfcr::run_mcmc(Y_errors, design_mean, design_var, time_basis_fit[[1]]$X, times, penalties_mean, penalties_var, indices_mean, indices_var, k_fit, 1000, 500, 1)
     # mcmc_results <- run_mcmc(Y_errors)
     subject_bands <- get_posterior_subject_bands(mcmc_results)
     subject_bands <- subject_bands %>% mutate(truth = c(t(Y))) %>%
