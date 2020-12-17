@@ -1,8 +1,7 @@
 library(tidyverse)
 library(mgcv)
-library(pracma)
 library(future.apply)
-library(BayesianConditionalFPCA)
+library(bfcr)
 setwd("/Users/johnshamshoian/Documents/R_projects/bfcr")
 devtools::document()
 file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
