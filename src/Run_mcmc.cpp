@@ -42,7 +42,6 @@ Rcpp::List run_mcmc(arma::mat response, arma::mat design_mean,
                     arma::uvec indices_mean, arma::uvec indices_var,
                     arma::uword kdim, arma::uword iter, arma::uword burnin,
                     arma::uword thin=1, std::string var="unequal") {
-  Rcpp::Rcout << "print me\n";
   Data dat(response, design_mean,
            design_var, basis, time,
            penalties_mean, penalties_var,

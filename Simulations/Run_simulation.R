@@ -110,7 +110,7 @@ j <- 1
         t(design_var_truth) %*% diag(eta[,kp]) %>% t()
     }
     Y_errors <- Y + rnorm(n * length(times), sd = .20) %>% matrix(n, length(times))
-    mcmc_results <- bfcr::run_mcmc(Y_errors, design_mean, design_var, time_basis_fit[[1]]$X, times, penalties_mean, penalties_var, indices_mean, indices_var, k_fit, 1000, 500, 1)
+    mcmc_results <- run_mcmc(Y_errors, design_mean, design_var, time_basis_fit[[1]]$X, times, penalties_mean, penalties_var, indices_mean, indices_var, k_fit, 1000, 500, 1)
     # mcmc_results <- run_mcmc(Y_errors)
     subject_bands <- get_posterior_subject_bands(mcmc_results)
     subject_bands <- subject_bands %>% mutate(truth = c(t(Y))) %>%

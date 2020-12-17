@@ -26,20 +26,20 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
   arma::vec m_star(num_subjects);
   arma::mat current_lower_dim_fit;
   arma::mat current_fit;
-  
+
   arma::vec response_vectorized = arma::vectorise(arma::trans(response));
   for (arma::uword iter = burnin; iter < iterations; iter++) {
-    
+
     current_lower_dim_fit = beta.slice(iter) * design_mean.t();
     for (arma::uword k = 0; k < kdim; k++) {
-      current_lower_dim_fit = current_lower_dim_fit + 
-        lambda(iter).slice(k) * design_var.t() * 
+      current_lower_dim_fit = current_lower_dim_fit +
+        lambda(iter).slice(k) * design_var.t() *
         arma::diagmat(eta.slice(iter).col(k));
     }
     current_fit = basis * current_lower_dim_fit;
     stats(arma::vectorise(current_fit));
   }
-  
+
   arma::mat subj_mean = arma::reshape(stats.mean(), basis.n_rows, num_subjects);
   arma::mat subj_sd = arma::reshape(stats.stddev(), basis.n_rows, num_subjects);
   m_star.fill(R::qnorm5(1 - alpha / 2, 0, 1, 1, 0));
@@ -48,8 +48,8 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
     for (arma::uword iter = burnin; iter < iterations; iter++) {
       current_lower_dim_fit = beta.slice(iter) * design_mean.t();
       for (arma::uword k = 0; k < kdim; k++) {
-        current_lower_dim_fit = current_lower_dim_fit + 
-          lambda(iter).slice(k) * design_var.t() * 
+        current_lower_dim_fit = current_lower_dim_fit +
+          lambda(iter).slice(k) * design_var.t() *
           arma::diagmat(eta.slice(iter).col(k));
       }
       current_fit = basis * current_lower_dim_fit;
@@ -61,11 +61,11 @@ Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output,
     arma::vec alpha_vec = {1-alpha};
     m_star = arma::quantile(m_alpha, alpha_vec, 1);
   }
-  
+
   arma::mat mean_overall = subj_mean;
   arma::mat lower = mean_overall - subj_sd * arma::diagmat(m_star);
   arma::mat upper = mean_overall + subj_sd * arma::diagmat(m_star);
-  Rcpp::List posterior_bands = 
+  Rcpp::List posterior_bands =
     Rcpp::List::create(Rcpp::Named("subject_means", mean_overall),
                        Rcpp::Named("subject_lower", lower),
                        Rcpp::Named("subject_upper", upper),
@@ -101,15 +101,15 @@ arma::mat get_posterior_means_cpp(List mcmc_results, arma::vec xi,
     arma::uword counter = 0;
     for(arma::uword i = burnin; i < iterations; i++){
       current_mean = basis * beta.slice(i) * xi;
-      m_alpha(counter) = 
+      m_alpha(counter) =
         arma::max(arma::abs(current_mean - stats.mean()) / stats.stddev());
       counter++;
     }
     arma::vec alpha_vec = {1 - alpha};
     m_star = arma::as_scalar(arma::quantile(m_alpha, alpha_vec));
-    
+
   }
-  
+
   quants.col(0) = stats.mean() - m_star * stats.stddev();
   quants.col(1) = stats.mean();
   quants.col(2) = stats.mean() + m_star * stats.stddev();
@@ -143,13 +143,13 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
   arma::vec q_alpha(eigenvals);
   for(arma::uword j = 0; j < basis_dim; j++){
     for(arma::uword i = 0; i < basis_dim; i++){
-      psi(i, j) = 
+      psi(i, j) =
         arma::as_scalar(arma::trapz(time, basis.col(i) % basis.col(j)));
     }
   }
   psi_sqrt = arma::sqrtmat_sympd(psi);
   psi_sqrt_inv = arma::inv_sympd(psi_sqrt);
-  
+
   arma::mat temp_evec;
   arma::mat eval_mat(num_post_iter, eigenvals);
   arma::mat eval_pve_mat(num_post_iter, eigenvals);
@@ -161,7 +161,7 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
   for(arma::uword i = burnin; i < iterations; i++){
     eigen_list = extract_eigenfn(lambda(i), psi, psi_sqrt, psi_sqrt_inv,
                                  basis, eigenvals, zi, time);
-    
+
     temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
     eval_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval"]);
     eval_pve_mat.row(counter) = Rcpp::as<arma::rowvec>(eigen_list["eigenval_pve"]);
@@ -171,7 +171,7 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
     if (counter == 0) stats_vec(arma::vectorise(temp_evec));
     else {
       // align eigenvectors
-      
+
       for (arma::uword k = 0; k < eigenvals; k++) {
         idx1 = k * basis.n_rows;
         idx2 = (k + 1) * basis.n_rows - 1;
@@ -180,7 +180,7 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
           temp_evec.col(k) = -temp_evec.col(k);
         }
       }
-      
+
       stats_vec(arma::vectorise(temp_evec));
     }
     counter++;
@@ -200,7 +200,7 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
                                    zi,
                                    time);
       temp_evec = Rcpp::as<arma::mat>(eigen_list["eigenfn_spline"]);
-      
+
       for (arma::uword k = 0; k < eigenvals; k++) {
         idx1 = k * basis.n_rows;
         idx2 = (k + 1) * basis.n_rows - 1;
@@ -218,8 +218,8 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
       q_alpha(k) = arma::as_scalar(arma::quantile(m_alpha.col(k), alpha_vec));
     }
   }
-  
-  
+
+
   arma::vec alpha_vec_eval = {alpha / 2.0, 0.5, 1 - alpha / 2.0};
   arma::mat lower(time.n_elem, eigenvals);
   arma::mat mean(time.n_elem, eigenvals);
@@ -234,7 +234,7 @@ List get_posterior_eigen_cpp(Rcpp::List mcmc_results,
     lower.col(k) = (stats_vec.mean().subvec(idx1, idx2) -
       q_alpha(k) * stats_vec.stddev().subvec(idx1, idx2));
     mean.col(k) = (stats_vec.mean().subvec(idx1, idx2));
-    upper.col(k) = (stats_vec.mean().subvec(idx1, idx2) + 
+    upper.col(k) = (stats_vec.mean().subvec(idx1, idx2) +
       q_alpha(k) * stats_vec.stddev().subvec(idx1, idx2));
     eigenval_intervals.col(k) = arma::quantile(eval_mat.col(k), alpha_vec_eval);
     eigenval_pve_intervals.col(k) = arma::quantile(eval_pve_mat.col(k), alpha_vec_eval);
@@ -281,63 +281,3 @@ Rcpp::List get_posterior_covariance_cpp(Rcpp::List mcmc_results, arma::vec zi) {
   return(Rcpp::List::create(Rcpp::Named("mean", stats.mean()),
                             Rcpp::Named("sd", stats.stddev())));
 }
-/*
-// [[Rcpp::export]]
-List get_variance_effects(List mod, double alpha){
-  arma::mat B = mod["B"];
-  arma::field<arma::cube> LambdaF = mod["Lambda"];
-  arma::vec Time = mod["Time"];
-  arma::mat Z = mod["Z"];
-  arma::vec alpha_vec = {1 - alpha};
-  arma::mat ph = arma::zeros<arma::mat>(B.n_cols, B.n_cols);
-  arma::uword iter = arma::size(LambdaF)(0);
-  arma::uword K = LambdaF(0, 0, 0).n_slices;
-  arma::mat mean(Time.n_elem, Z.n_cols);
-  arma::mat upper(Time.n_elem, Z.n_cols);
-  arma::mat lower(Time.n_elem, Z.n_cols);
-  arma::mat temp_lambda;
-  arma::mat temp_shed;
-  arma::uvec keep_cols = arma::linspace<arma::uvec>(1, Z.n_cols - 1);
-  arma::vec Malpha(iter);
-  for(arma::uword d = 0; d < Z.n_cols; d++){
-    arma::running_stat_vec<arma::vec> stats;
-    for (arma::uword i = 0; i < iter; i++) {
-      for (arma::uword k = 0; k < K; k++) {
-        temp_lambda = LambdaF(i, 0, 0).slice(k);
-        for (arma::uword dp = 0; dp < Z.n_cols; dp++){
-          if (dp == d) {
-            ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
-          }
-        }
-      }
-      stats(arma::vectorise(ph));
-      ph.zeros();
-    }
-    for (arma::uword i = 0; i < iter; i++) {
-      for (arma::uword k = 0; k < K; k++) {
-        temp_lambda = LambdaF(i, 0, 0).slice(k);
-        for (arma::uword dp = 0; dp < Z.n_cols; dp++){
-          if (dp == d) {
-            ph = ph + temp_lambda.col(dp) * temp_lambda.col(d).t();
-          }
-        }
-      }
-      Malpha(i) = arma::max(arma::abs((arma::vectorise(ph) - stats.mean()) / stats.stddev()));
-      ph.zeros();
-    }
-    double q_alpha = arma::as_scalar(arma::quantile(Malpha, alpha_vec));
-    Rcout << q_alpha << std::endl;
-    lower.col(d) = arma::diagvec(B * arma::reshape((stats.mean() - q_alpha * stats.stddev()), B.n_cols, B.n_cols) * B.t());
-    mean.col(d) = arma::diagvec(B * arma::reshape(stats.mean(), B.n_cols, B.n_cols) * B.t());
-    upper.col(d) = arma::diagvec(B * arma::reshape((stats.mean() + q_alpha * stats.stddev()), B.n_cols, B.n_cols) * B.t());
-    
-    if (d != Z.n_cols - 1) {
-      keep_cols(d) = keep_cols(d) - 1;
-    }
-    
-  }
-  return(List::create(Named("mean", mean),
-                      Named("lower", lower),
-                      Named("upper", upper)));
-}
-*/
