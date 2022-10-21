@@ -122,14 +122,15 @@ get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05,
          eval_mat = post_eigen$pve_mat))
          
 }
-#' #' Posterior inference for covariance surface
-#' #'
-#' #' @param mcmc_results mcmc object
-#' #' @param eigenvals Number of eigenvalues to keep
-#' #' @param zi Covariate vector of interest
-#' #' @param alpha_level Type I error rate
-#' #' @return A cube
-#' #' @export get_posterior_covariance
+
+#' Posterior inference for covariance surface
+#'
+#' @param mcmc_results mcmc object
+#' @param eigenvals Number of eigenvalues to keep
+#' @param zi Covariate vector of interest
+#' @param alpha_level Type I error rate
+#' @return A cube
+#' @export get_posterior_covariance
 get_posterior_covariance <- function(mcmc_results, zi, alpha_level = .05) {
   tt <- length(mcmc_results$data$time)
   surface <- array(0, c(tt, tt, 3))

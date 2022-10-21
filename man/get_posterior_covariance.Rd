@@ -2,24 +2,22 @@
 % Please edit documentation in R/Posterior_bands.R
 \name{get_posterior_covariance}
 \alias{get_posterior_covariance}
-\title{#' Posterior inference for covariance surface
-#'
-#' @param mcmc_results mcmc object
-#' @param eigenvals Number of eigenvalues to keep
-#' @param zi Covariate vector of interest
-#' @param alpha_level Type I error rate
-#' @return A cube
-#' @export get_posterior_covariance}
+\title{Posterior inference for covariance surface}
 \usage{
 get_posterior_covariance(mcmc_results, zi, alpha_level = 0.05)
 }
+\arguments{
+\item{mcmc_results}{mcmc object}
+
+\item{zi}{Covariate vector of interest}
+
+\item{alpha_level}{Type I error rate}
+
+\item{eigenvals}{Number of eigenvalues to keep}
+}
+\value{
+A cube
+}
 \description{
-#' Posterior inference for covariance surface
-#'
-#' @param mcmc_results mcmc object
-#' @param eigenvals Number of eigenvalues to keep
-#' @param zi Covariate vector of interest
-#' @param alpha_level Type I error rate
-#' @return A cube
-#' @export get_posterior_covariance
+Posterior inference for covariance surface
 }

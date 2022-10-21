@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // get_posterior_subject_bands_cpp
 Rcpp::List get_posterior_subject_bands_cpp(List mcmc_output, double alpha, std::string mode);
 RcppExport SEXP _bfcr_get_posterior_subject_bands_cpp(SEXP mcmc_outputSEXP, SEXP alphaSEXP, SEXP modeSEXP) {

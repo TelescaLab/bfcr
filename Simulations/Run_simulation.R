@@ -2,9 +2,13 @@ library(tidyverse)
 library(mgcv)
 library(future.apply)
 library(bfcr)
-setwd("/Users/johnshamshoian/Documents/R_projects/bfcr")
-file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
-                    "Simulations/Simulation_parameters.RData")
+library(pracma)
+
+# Uncomment and change if working directory needs to be changed
+#setwd("/Users/johnshamshoian/Documents/R_projects/bfcr")
+
+file_name <- paste0(getwd(),
+                    "/Simulations/Simulation_parameters.RData")
 
 load(file_name)
 n <- 100
@@ -36,8 +40,8 @@ evaluate_basis <- function(x_basis, x) {
 design_mean_truth <- cbind(1, x_basis[[1]]$X)
 
 compute_metrics <- function(this_seed) {
-this_seed <- 1
-j <- 1
+  set.seed(this_seed)
+  j <- 1
   for (j in 1:4) {
     if (j == 1) {
       print(j)
@@ -102,7 +106,6 @@ j <- 1
       str_file <- "nocovbase"
     }
     print(str_file)
-    set.seed(this_seed)
     eta <- rnorm(n * k) %>% array(dim = c(n, k))
     Y <- time_basis[[1]]$X %*% beta %*% t(design_mean_truth) %>% t()
     for (kp in 1:k) {
@@ -207,14 +210,15 @@ j <- 1
                     covariance_error = covariance_error,
                     covariance_width = covariance_width,
                     covariance_coverage = covariance_coverage)
-    file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
+    file_name <- paste0(getwd(),
                         "Simulations/Metrics/n", n, "_", str_file, "_seed", this_seed,
                         ".RData")
     save(metrics, file = file_name)
   }
 }
+
 plan(multiprocess)
-already_ran <- dir("/Users/johnshamshoian/Documents/R_projects/bfcr/Simulations/Metrics")
+already_ran <- dir(paste(getwd(), "/Simulations/Metrics"))
 to_run <- which(!paste0("n100_nocovbase_seed", 1:300, ".RData") %in% already_ran)
 seeds <- to_run
 future_lapply(seeds, function(this_seed) compute_metrics(this_seed))

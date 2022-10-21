@@ -1,5 +1,8 @@
 # This script is used to generate data generating parameters used in the 
 # simulation study.
+
+# Start working directory if needed
+# setwd("")
 library(plotly)
 library(mgcv)
 set.seed(8)
@@ -56,8 +59,8 @@ simparam <- list(beta = beta, lambda = lambda, X = X, k = k, n = n,
                  tau_smooth_time = tau_smooth_time, 
                  delta_base = delta_baseline, delta_x = delta_x,
                  time_basis = time_basis, x_basis = x_basis, times = times)
-file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/",
-                    "Simulations/Simulation_parameters.RData")
+file_name <- paste0(getwd(),
+                    "/Simulations/Simulation_parameters.RData")
 save(simparam, file = file_name)
 covfs <- array(0, dim = c(length(times), length(times), n))
 for (i in 1:n) {

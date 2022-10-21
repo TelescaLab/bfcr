@@ -30,6 +30,7 @@ plot(ts_all[,3], type = "l")
 arima(ts_all[,6], c(1,0,1), include.mean = TRUE)
 abline(v = 10000)
 arima(ts_all[,1], c(1,1,0))
+
 library(tidyverse)
 ts_data_tibble <- tibble(node = rep(1:2, each = 60 * 3),
                   channel = rep(rep(c("Power", "Compute", "Temperature"), each = 60), 2),
