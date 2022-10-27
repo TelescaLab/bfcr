@@ -12,8 +12,6 @@ get_posterior_covariance(mcmc_results, zi, alpha_level = 0.05)
 \item{zi}{Covariate vector of interest}
 
 \item{alpha_level}{Type I error rate}
-
-\item{eigenvals}{Number of eigenvalues to keep}
 }
 \value{
 A cube

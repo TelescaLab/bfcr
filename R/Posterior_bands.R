@@ -7,6 +7,8 @@
 #' @param alpha_level Type I error
 #' @param mode Type of posterior bands. Default is point-wise. Can specify
 #' simultaneous for approximate simultaneous coverage
+#' @importFrom tibble tibble
+#' @importFrom stats qnorm
 #' @export get_posterior_subject_bands
 #' @return a tibble with columns subject ID, response, mean, lower limit,
 #' upper limit, and time
@@ -54,7 +56,19 @@ get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05,
 #' @export get_posterior_means
 #' @return A tibble with columns for lower bound, mean, upper bound, 
 #' and user specified time grid
-#' @examples # Intercept only model
+#' @importFrom tibble tibble
+#' @examples 
+#' n <- 100
+#' k <- 4
+#' df_times <- 10
+#' df_x <- 1
+#' times <- seq(from = 0, to = 1, length.out = 100)
+#' x <- seq(from = 0, to = 1, length.out = n)
+#' tau_smooth_time <- 10
+#' tau_smooth_x <- 100
+#' delta_baseline <- 2
+#' delta_x <- 4
+#' # Intercept only model
 #' xi <- c(1)
 #' mean_bands <- get_posterior_means(mcmc_output, xi)
 get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
@@ -101,6 +115,8 @@ get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
 #' for each sample
 #' 
 #' \code{raw_magnitude} 1-alpha credible interval for total variance
+#' 
+#' @importFrom tibble tibble
 #' @export get_posterior_eigen
 get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05, 
                                 mode = "point-wise") {
@@ -126,10 +142,10 @@ get_posterior_eigen <- function(mcmc_results, eigenvals, zi, alpha_level=0.05,
 #' Posterior inference for covariance surface
 #'
 #' @param mcmc_results mcmc object
-#' @param eigenvals Number of eigenvalues to keep
 #' @param zi Covariate vector of interest
 #' @param alpha_level Type I error rate
 #' @return A cube
+#' @importFrom tibble tibble
 #' @export get_posterior_covariance
 get_posterior_covariance <- function(mcmc_results, zi, alpha_level = .05) {
   tt <- length(mcmc_results$data$time)

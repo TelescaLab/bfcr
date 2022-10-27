@@ -1,8 +1,9 @@
 # This script is used to generate data generating parameters used in the 
 # simulation study.
 
-# Start working directory if needed
+# Set working directory if needed
 # setwd("")
+dir.create("Simulations")
 library(plotly)
 library(mgcv)
 set.seed(8)

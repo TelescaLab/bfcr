@@ -11,6 +11,7 @@ Authors@R: c(person("John", "Shamshoian", email = "jshamsho@gmail.com",
 Maintainer: John Shamshoian <jshamsho@gmail.com>
 Description: Implements Bayesian covariance functional regression as described in the Manuscript "Bayesian covariance functional regression" by Shamshoian et al. (2021). The core of this package provides nonparametric inference of covariate-adjusted patterns of covariation with functional response data. This package contains efficient C++ functions for full posterior sampling and inferential summaries.
 License: GPL (>= 2)
-Imports: Rcpp (>= 0.12.16)
-LinkingTo: Rcpp, RcppArmadillo, RcppProgress, pracma
+Imports: Rcpp (>= 0.12.16), tibble
+LinkingTo: Rcpp, RcppArmadillo, RcppProgress
 RoxygenNote: 7.1.2
+Encoding: UTF-8
