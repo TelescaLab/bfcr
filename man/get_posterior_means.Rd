@@ -25,8 +25,3 @@ Process samples from an object returned from run_mcmc to obtain a posterior
 mean with upper/lower bounds. The mean can be evaluated at a specific 
 value of covariate.
 }
-\examples{
-# Intercept only model
-xi <- c(1)
-mean_bands <- get_posterior_means(mcmc_output, xi)
-}

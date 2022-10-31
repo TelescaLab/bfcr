@@ -13,5 +13,6 @@ Description: Implements Bayesian covariance functional regression as described i
 License: GPL (>= 2)
 Imports: Rcpp (>= 0.12.16), tibble
 LinkingTo: Rcpp, RcppArmadillo, RcppProgress
+Depends: R (>= 3.5.0)
 RoxygenNote: 7.1.2
 Encoding: UTF-8

@@ -26,14 +26,3 @@ upper limit, and time
 Posterior processing function for computing means and credible bands. Refer 
 to our manuscript for details on credible band calculation
 }
-\examples{
-subject_bands <- get_posterior_subject_bands(mcmc_output)
-subj <- 80
-p1 <- subject_bands \%>\% 
-  filter(id == subj) \%>\%
- ggplot() +
- geom_point(aes(x = time, y = response)) +
- geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
- theme_bw()
-p1
-}

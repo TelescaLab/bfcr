@@ -12,15 +12,6 @@
 #' @export get_posterior_subject_bands
 #' @return a tibble with columns subject ID, response, mean, lower limit,
 #' upper limit, and time
-#' @examples subject_bands <- get_posterior_subject_bands(mcmc_output)
-#' subj <- 80
-#' p1 <- subject_bands %>% 
-#'   filter(id == subj) %>%
-#'  ggplot() +
-#'  geom_point(aes(x = time, y = response)) +
-#'  geom_ribbon(aes(x = time, ymin = lower, ymax = upper), alpha = 0.3) +
-#'  theme_bw()
-#' p1
 get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05,
                                         mode = "point-wise") {
   subject_summaries <- 
@@ -57,20 +48,6 @@ get_posterior_subject_bands <- function(mcmc_output, alpha_level = .05,
 #' @return A tibble with columns for lower bound, mean, upper bound, 
 #' and user specified time grid
 #' @importFrom tibble tibble
-#' @examples 
-#' n <- 100
-#' k <- 4
-#' df_times <- 10
-#' df_x <- 1
-#' times <- seq(from = 0, to = 1, length.out = 100)
-#' x <- seq(from = 0, to = 1, length.out = n)
-#' tau_smooth_time <- 10
-#' tau_smooth_x <- 100
-#' delta_baseline <- 2
-#' delta_x <- 4
-#' # Intercept only model
-#' xi <- c(1)
-#' mean_bands <- get_posterior_means(mcmc_output, xi)
 get_posterior_means <- function(mcmc_output, xi, alpha_level = .05,
                                 mode = "point-wise") {
   mean_matrix <- get_posterior_means_cpp(mcmc_output, xi,
