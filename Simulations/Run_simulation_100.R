@@ -226,9 +226,9 @@ run_100 <- function(){
   already_ran <- dir(paste0(getwd(), "/Metrics"))
   to_run <- which(!paste0("n100_nocovbase_seed", 1:300, ".RData") %in% already_ran)
   seeds <- to_run
-  future_lapply(seeds[1:8], function(this_seed) compute_metrics(this_seed))
+  future_lapply(seeds[1:ncpu], function(this_seed) compute_metrics(this_seed))
   more <- F
-  if(length(seeds) > 8){
+  if(length(seeds) > ncpu){
     more <- T
   }
   return(cat(as.numeric(more)))
