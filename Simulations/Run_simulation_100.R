@@ -11,7 +11,7 @@ dir.create("Simulations/Metrics")
 
 compute_metrics <- function(this_seed) {
   file_name <- paste0(getwd(),
-                      "/Simulations/Simulation_parameters.RData")
+                      "/Simulation_parameters.RData")
   
   load(file_name)
   n <- 100
@@ -117,7 +117,7 @@ compute_metrics <- function(this_seed) {
     mcmc_results <- run_mcmc(Y_errors, design_mean, design_var,
                              time_basis_fit[[1]]$X, times, penalties_mean,
                              penalties_var, indices_mean, indices_var,
-                             k_fit, 10000, 5000, 5)
+                             k_fit, 50000, 25000, 5)
     subject_bands <- get_posterior_subject_bands(mcmc_results)
     subject_bands <- subject_bands %>% mutate(truth = c(t(Y))) %>%
       mutate(in_bounds = (lower < truth) & (upper & truth))
@@ -212,7 +212,7 @@ compute_metrics <- function(this_seed) {
                     covariance_width = covariance_width,
                     covariance_coverage = covariance_coverage)
     file_name <- paste0(getwd(),
-                        "/Simulations/Metrics/n", n, "_", str_file, "_seed", this_seed,
+                        "/Metrics/n", n, "_", str_file, "_seed", this_seed,
                         ".RData")
     save(metrics, file = file_name)
   }
@@ -223,7 +223,7 @@ run_100 <- function(){
   ncpu <- min(4, availableCores())
   # 
   plan(multisession, workers = ncpu)
-  already_ran <- dir(paste0(getwd(), "/Simulations/Metrics"))
+  already_ran <- dir(paste0(getwd(), "/Metrics"))
   to_run <- which(!paste0("n100_nocovbase_seed", 1:300, ".RData") %in% already_ran)
   seeds <- to_run
   future_lapply(seeds[1:8], function(this_seed) compute_metrics(this_seed))

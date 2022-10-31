@@ -123,7 +123,7 @@ compute_metrics <- function(this_seed) {
     mcmc_results <- run_mcmc(Y_errors, design_mean, design_var,
                              time_basis_fit[[1]]$X, times, penalties_mean,
                              penalties_var, indices_mean, indices_var,
-                             k_fit, 10000, 5000, 5)
+                             k_fit, 50000, 25000, 5)
     subject_bands <- get_posterior_subject_bands(mcmc_results)
     subject_bands <- subject_bands %>% mutate(truth = c(t(Y))) %>%
       mutate(in_bounds = (lower < truth) & (upper & truth))
@@ -241,7 +241,7 @@ run_400 <- function(){
   ncpu <- min(4, availableCores())
   # 
   plan(multisession, workers = ncpu)
-  already_ran <- dir(paste0(getwd(), "/Metrics/"))
+  already_ran <- dir(paste0(getwd(), "/Metrics"))
   to_run <- which(!paste0("n400_nocovbase_seed", 1:300, ".RData") %in% already_ran)
   seeds <- to_run
   future_lapply(seeds[1:ncpu], function(this_seed) compute_metrics(this_seed))
