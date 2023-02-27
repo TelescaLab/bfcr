@@ -1,16 +1,18 @@
-library(BayesianConditionalFPCA)
+library(bfcr)
 library(mgcv)
 library(tidyverse)
 library(fdapace)
 library(plotly)
-source("/Users/johnshamshoian/Documents/R_projects/bfcr/ASD/Peak_Alpha_Data_Transfer.R")
+library(rlang)
+setwd()
+source("./Peak_Alpha_Data_Transfer.R")
 num_subjects <- pa.dat %>%
   summarise(n_distinct(ID)) %>%
   pull()
 freq_grid <- pa.dat %>%
   distinct(func) %>%
   pull()
-age_grid <- pa.dat %>% 
+age_grid <- pa.dat %>%
   group_by(ID) %>%
   filter(row_number() == 1) %>%
   ungroup() %>%
@@ -42,7 +44,7 @@ freq_penalty <- freq_basis_obj[[1]]$S[[1]] * freq_basis_obj[[1]]$S.scale
   # Set up p-splines for age dimension by diagnostic group, using 5
   # basis functions (6 including an intercept)
   age_basis_obj <- smoothCon(s(age_grid, k = 6, bs = "ps",
-                               by = as.factor(group_grid)), data = 
+                               by = as.factor(group_grid)), data =
                                data.frame(age_grid, group_grid),
                              absorb.cons = TRUE)
   age_penalty <- age_basis_obj[[1]]$S[[1]] * age_basis_obj[[1]]$S.scale
@@ -59,16 +61,16 @@ freq_penalty <- freq_basis_obj[[1]]$S[[1]] * freq_basis_obj[[1]]$S.scale
   var_penalty <- list(freq_penalty, freq_penalty,
                       model_penalties[[1]], model_penalties[[2]],
                       model_penalties[[1]], model_penalties[[2]])
-  
+
   # Set up smoothing parameters
   var_indices <- c(1, 2, 3, 3, 4, 4)
   mean_indices <- c(1, 2, 3, 3, 4, 4)
   evaluate_basis <- function(obj, age, group) {
-    spline_part1 <- 
+    spline_part1 <-
       PredictMat(obj[[1]], data.frame(age_grid = age, group_grid = group)) +
       PredictMat(obj[[2]], data.frame(age_grid = age, group_grid = group))
-      
-    spline_part2 <- 
+
+    spline_part2 <-
       PredictMat(obj[[2]], data.frame(age_grid = age, group_grid = group))
     c(1, group, spline_part1, spline_part2)
   }
@@ -86,11 +88,12 @@ mcmc_results <- run_mcmc(response, design_mean,
                          mean_indices, var_indices,
                          k, iter, burnin, thin = thin,
                          var = "pooled")
-file_name <- paste0("/Users/johnshamshoian/Documents/R_projects/bfcr/", 
-                    "ASD/mcmc_results.rds")
+file_name <- paste0("/Users/nicholasmarco/Documents/",
+                    "mcmc_results.rds")
 saveRDS(mcmc_results, file = file_name)
 mcmc_results <- readRDS(file_name)
 freq_grid <- seq(from = 6, to = 14, by = .05)
+num_times <- length(freq_grid)
 freq_basis_obj <- smoothCon(s(freq_grid, k = 12, bs = "ps", m = 2),
                             data.frame(freq_grid),
                             absorb.cons = FALSE)
@@ -112,6 +115,8 @@ for (i in seq_along(new_age_grid)) {
     xi <- evaluate_basis(age_basis_obj, new_age_grid[i], j)
     mean_bands <- get_posterior_means(mcmc_results, xi)
     last_index <- first_index + num_times - 1
+    mean_tibble$group[first_index:last_index] <- j
+    mean_tibble$age[first_index:last_index] <- new_age_grid[i]
     mean_tibble$mean[first_index:last_index] <- mean_bands$mean
     mean_tibble$lower[first_index:last_index] <- mean_bands$lower
     mean_tibble$upper[first_index:last_index] <- mean_bands$upper
@@ -127,13 +132,13 @@ mean_tibble %>%
   facet_wrap(~ age, nrow = 1) +
   labs(x = expression(omega), y = expression(paste(mu,"(", omega, ", ", x, ")"))) +
   scale_linetype_manual(values = c(1,4), name = "Group", labels = c("TD", "ASD")) +
-  scale_fill_manual(values = c("black", "black")) + 
+  scale_fill_manual(values = c("black", "black")) +
   theme_bw() +
   theme(axis.text.x = element_text(vjust = 3))    +
   theme(axis.title.y = element_text(margin = margin(r = 10, b = 0, l = 0)))
 
 # Age-group adjusted eigenfunction
-N <- 20
+N <- 50
 lower_age <- quantile(age_grid, .1)
 upper_age <- quantile(age_grid, .9)
 new_age_grid <- seq(from = lower_age, to = upper_age, length.out = N)
@@ -178,7 +183,98 @@ ggplot(data, aes(X, Y, fill = Z)) +
         panel.spacing = unit(2, "lines")) +
   scale_fill_gradient(name = "Eigenfunction 1", low = "black", high = "white")
 
+## Age-group adjusted covariance
+N <- 50
+lower_age <- quantile(age_grid, .1)
+upper_age <- quantile(age_grid, .9)
+new_age_grid <- seq(from = lower_age, to = upper_age, length.out = N)
+covariance_td <- array(0, c(num_times, num_times, N))
+eigen_surface_td <- matrix(0, N, num_times)
+
+for (i in 1:N) {
+  zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 0)
+  covariance_td[,,i] <- matrix(get_posterior_covariance(mcmc_results, zi)$mean, nrow = num_times, ncol = num_times)
+  eigen_surface_td[i,] <- eigen(covariance_td[,,i])$vectors[,1]
+  if (eigen_surface_td[i, 1] < 0) {
+    eigen_surface_td[i,] <- -1 * eigen_surface_td[i,]
+  }
+}
+
+covariance_asd <- array(0, c(num_times, num_times, N))
+eigen_surface_asd <- matrix(0, N, num_times)
+for (i in 1:N) {
+  zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 1)
+  covariance_asd[,,i] <- matrix(get_posterior_covariance(mcmc_results, zi)$mean, nrow = num_times, ncol = num_times)
+  eigen_surface_asd[i,] <- eigen(covariance_asd[,,i])$vectors[,1]
+  if (eigen_surface_asd[i, 1] < 0) {
+    eigen_surface_asd[i,] <- -1 * eigen_surface_asd[i,]
+  }
+}
+
+x <- freq_grid
+y <- new_age_grid
+data <- expand.grid(X=x, Y=y, G = factor(c(0, 1)))
+data$Z <- c(c(t(eigen_surface_td)), c(t(eigen_surface_asd)))
+group.labs <- c("TD", "ASD")
+names(group.labs) <- c(0, 1)
+ggplot(data, aes(X, Y, fill = Z)) +
+  geom_tile() +
+  labs(x = expression(paste(omega)), y = "Age (months)") +
+  facet_wrap(~ G, labeller = labeller(G = group.labs)) +
+  theme_bw() +
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.spacing = unit(2, "lines")) +
+  scale_fill_gradient(name = "Eigenfunction 1", low = "black", high = "white")
+
+
+
+x <- freq_grid
+y <- freq_grid
+data <- expand.grid(X=x, Y=y, G = factor(c(0, 1)))
+data$Z <- c(c(t(covariance_td[,,1])), c(t(covariance_asd[,,1])))
+group.labs <- c("TD (Age = 40 months)", "ASD (Age = 40 months)")
+names(group.labs) <- c(0, 1)
+ggplot(data, aes(X, Y, fill = Z)) +
+  geom_tile() +
+  labs(x = expression(paste(omega)), y = "Age (months)") +
+  facet_wrap(~ G, labeller = labeller(G = group.labs)) +
+  theme_bw() +
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.spacing = unit(2, "lines")) +
+  scale_fill_gradient(name = "Covariance", low = "black", high = "white")
+
+
+x <- freq_grid
+y <- freq_grid
+data <- expand.grid(X=x, Y=y, G = factor(c(0, 1)))
+data$Z <- c(c(t(covariance_td[,,50])), c(t(covariance_asd[,,50])))
+group.labs <- c("TD (Age = 108 months)", "ASD (Age = 108 months)")
+names(group.labs) <- c(0, 1)
+ggplot(data, aes(X, Y, fill = Z)) +
+  geom_tile() +
+  labs(x = expression(paste(omega)), y = "Age (months)") +
+  facet_wrap(~ G, labeller = labeller(G = group.labs)) +
+  theme_bw() +
+  theme(axis.line = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        panel.background = element_blank(),
+        panel.spacing = unit(2, "lines")) +
+  scale_fill_gradient(name = "Covariance", low = "black", high = "white")
+
+
 # Low dimensional g effects
+new_age_grid <- c(seq(40, 120, by = 5))
+
 freq_basis <- freq_basis_obj[[1]]$X
 intercept_effect <- numeric(num_times)
 age_effect <- numeric(num_times)
@@ -187,21 +283,20 @@ interaction_effect <- numeric(num_times)
 for (iter in 5001:10000) {
   for (kp in 1:k) {
     intercept_effect <- intercept_effect + (freq_basis %*% mcmc_results$samples$lambda[[iter]][,1,kp])^2
-    group_effect <- group_effect + c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,,kp] %*% group_zi)^2)
+    group_effect <- group_effect + c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,2,kp])^2)
   }
 }
 
 for (i in seq_along(new_age_grid)) {
   age_zi <- evaluate_basis(age_basis_obj, new_age_grid[i], 0)
-  age_zi[1] <- 0
-  group_zi <- c(0,1, rep(0, 10))
-  interaction_zi <- c(rep(0, 7), age_zi[3:7])
+  interaction_zi <- age_zi[8:12]
+  age_zi <- age_zi[3:7]
   for (iter in 5001:10000) {
     for (kp in 1:k) {
       age_effect <- age_effect +
-        c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,,kp] %*% age_zi)^2)
-      interaction_effect <- interaction_effect + 
-        c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,,kp] %*% interaction_zi)^2)
+        c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,3:7,kp] %*% age_zi)^2)
+      interaction_effect <- interaction_effect +
+        c((freq_basis %*% mcmc_results$samples$lambda[[iter]][,8:12,kp] %*% interaction_zi)^2)
     }
   }
 }
@@ -225,7 +320,7 @@ var_effects %>%
   scale_linetype_manual(
     labels = c("Baseline", "Age effect", "Group effect", "Interaction effect"),
     values = c(1,3,5,6)) +
-  theme_bw() + 
+  theme_bw() +
   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
         axis.line = element_line(colour = "black"))
